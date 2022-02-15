@@ -1,0 +1,244 @@
+body {
+    display: flex;
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+header {
+    height: 40px;
+    background-color: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 15px;
+    padding-left: 20px;
+    width: calc(100% - 20px);
+}
+
+header div {
+    margin: 10px;
+}
+
+#sub-header {
+    font-size: 12px;
+}
+footer {
+    height: 60px;
+    background-color: #000;
+    width: 100%;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    flex-direction: column;
+    font-size: 13px;
+}
+
+footer a {
+    color: #fff100;
+}
+
+section#canvas {
+    height: auto;
+    width: 100%;
+    background-color: #1b1b1b;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    height: calc(100vh - 100px);
+}
+
+#messages {
+    border-radius: 5px;
+    display: flex;
+    opacity: 0;
+    position: fixed;
+    background-color: #000000;
+    height: 30px;
+    width: auto;
+    padding: 5px;
+    color: #fff;
+    top: 50px;
+    z-index: 99;
+    align-items: center;
+    justify-content: center;
+    transition: all 1s;
+}
+
+#messages.shown{
+    opacity: 1;
+}
+
+#board {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex: 0.4;
+    padding: 10px;
+}
+
+.board-row {
+    height: 2.5rem;
+    width: auto;
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 2px;
+}
+
+.board-column {
+    height: 2.5rem;
+    width: 2.5rem;
+    border: 2px solid #c4bebe;
+    margin: 1px;
+    position: relative;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+}
+
+.board-column.flipped {
+    transform: rotateY(180deg);
+}
+
+.board-column-front, .board-column-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    padding-left: 1px;
+  }
+
+.board-column-back{
+    /* background-color: blue; */
+    transform: rotateY(180deg);
+}
+
+#keypad {
+    border: 2px solid #787575;
+    display: flex;
+    align-items: center;
+    /* justify-content: center; */
+    border-radius: 10px;
+    /* flex: 0.5; */
+    background-color: rgba(48,112, 114, 0.4);
+    max-width: 97%;
+}
+
+#keypad #alphabets {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    max-width: 400px;
+    /* justify-content: center; */
+    align-items: center;
+}
+
+#special-keys {
+    margin-right: 10px;
+}
+
+.keypad-key {
+    height: 2.5rem;
+    width: 2rem;
+    background: #e7e3e3;
+    color: #000;
+    border-radius: 5px;
+    padding: 3px;
+    margin: 3px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.grey {
+    background-color: #6f6f6f;
+}
+
+.yellow {
+    background-color: #e8cc37;
+}
+.green {
+    background-color: #27a22c;
+}
+
+.keypad-special-key {
+    height: 2rem;
+    width: 3rem;
+    background: #e7e3e3;
+    color: #000;
+    border-radius: 5px;
+    padding: 5px;
+    margin: 2px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.disabled-button {
+    background-color: #a9a9a9;
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+#banner, #answer-banner {
+    position: fixed;
+    height: 70vh;
+    width: 70%;
+    background-color: rgba(0,0,0,0.8);
+    z-index: 99;
+    left: 15%;
+    top: 20%;
+    border-radius: 10px;
+    color: yellow;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    display: none;
+    font-size: 16px;
+    text-align: center;
+}
+.banner-msg{
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.share {
+    height: 30px;
+    width: auto;
+    padding: 10px;
+    background: #a52a2a;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.divider{
+    height: 2px;
+    width: 100%;
+    display: block;
+    background-color: #fff;
+    margin: 10px 0 10px 0;
+}
