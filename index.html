@@ -1,8 +1,16 @@
 <html>
-<head></head>
+<head>
+<title>Dauntless Loadout Builder</title>
+</head>
 <style> 
 body{
 background-color:black;
+}
+#choicebox{
+  border: 1px solid black;
+  margin: 1rem;
+  padding: 2rem 2rem;
+  text-align: center;
 }
 #bigbox{
   border: 1px solid black;
@@ -15,6 +23,18 @@ background-color:black;
   margin: 1rem;
   padding: 2rem 2rem;
   text-align: center;
+}
+.weaponchoice{
+  display: inline-block;
+  border: 1px solid white;
+  padding: 1rem 1rem;
+  vertical-align: top;
+  font-size: 36px;
+  background-color: black;
+  color: white;
+}
+.weaponchoice:hover{
+	background-color:gray;
 }
 
 .column{
@@ -136,6 +156,27 @@ fetch('https://www.dauntless-builder.com/data.json').then(response => {
    else if(data.weapons[item].type == 'Aether Strikers'){AetherStrikers.push(data.weapons[item])}
    else if(data.weapons[item].type == 'Axe'){Axe.push(data.weapons[item])}
    });
+   	 var weaponchoice = ['War Pike','Sword','Hammer','Chain Blades', 'Aether Strikers', 'Axe'];
+      var choicebox = document.createElement("div");
+   choicebox.id = 'choicebox';
+   document.body.appendChild(choicebox);
+   var myweapon = "War Pike";
+   for(let i=0; i<6; i++){
+    var weapon = document.createElement("div");
+	weapon.id = weaponchoice[i];
+	weapon.value = weaponchoice[i];
+	console.log(weapon.id);
+	weapon.className = 'weaponchoice';
+	weapon.innerHTML = '<strong>'+weaponchoice[i]+'</strong>';
+	document.getElementById('choicebox').appendChild(weapon);
+   }
+   document.getElementById('War Pike').onclick = function(){myweapon = document.getElementById('War Pike').value}
+   document.getElementById('Sword').onclick = function(){myweapon = document.getElementById('Sword').value}
+   document.getElementById('Hammer').onclick = function(){myweapon = document.getElementById('Hammer').value}
+   document.getElementById('Chain Blades').onclick = function(){myweapon = document.getElementById('Chain Blades').value}
+   document.getElementById('Aether Strikers').onclick = function(){myweapon = document.getElementById('Aether Strikers').value}
+   document.getElementById('Axe').onclick = function(){myweapon = document.getElementById('Axe').value}
+   
    var bigbox = document.createElement("div");
    bigbox.id = 'bigbox';
    document.body.appendChild(bigbox);
@@ -145,6 +186,7 @@ fetch('https://www.dauntless-builder.com/data.json').then(response => {
 	column.id = allperks[i];
 	column.className = 'column';
 	column.innerHTML = '<strong>'+allperks[i]+'</strong>';
+	
 	document.getElementById('bigbox').appendChild(column);
    }
     var build = document.createElement("div");
@@ -389,6 +431,7 @@ fetch('https://www.dauntless-builder.com/data.json').then(response => {
    document.getElementById('Arms').innerHTML = '<strong>Arms</strong>';
    document.getElementById('Torso').innerHTML = '<strong>Torso</strong>';
    document.getElementById('Weapon').innerHTML = '<strong>Weapon</strong>';
+   
    perklist = [];
    celllist = [];
    legbuild=[];
@@ -428,6 +471,7 @@ fetch('https://www.dauntless-builder.com/data.json').then(response => {
 	   if(perklist.includes(item.perks[0].name) && celllist.includes(item.cells)){
 	   torsobuild.push(item);
 	   };}})
+	   if(myweapon == 'War Pike'){
 	   WarPike.forEach(item=>{
 	   if(item.perks){
 	   if(perklist.includes(item.perks[0].name) && (celllist.includes(item.cells[0])||celllist.includes(item.cells[1]) || item.cells.includes('Prismatic'))){
@@ -436,7 +480,57 @@ fetch('https://www.dauntless-builder.com/data.json').then(response => {
 	   else if(celllist.includes(item.cells[0])||celllist.includes(item.cells[1]) || item.cells.includes('Prismatic')){
 	   	   weaponbuild.push(item);
 	   }
-	   }}) 	   
+	   }})}
+	   else if(myweapon == 'Chain Blades'){
+	   ChainBlades.forEach(item=>{
+	   if(item.perks){
+	   if(perklist.includes(item.perks[0].name) && (celllist.includes(item.cells[0])||celllist.includes(item.cells[1]) || item.cells.includes('Prismatic'))){
+	   weaponbuild.push(item);
+	   }
+	   else if(celllist.includes(item.cells[0])||celllist.includes(item.cells[1]) || item.cells.includes('Prismatic')){
+	   	   weaponbuild.push(item);
+	   }
+	   }})}
+	   else if(myweapon == 'Aether Strikers'){
+	   AetherStrikers.forEach(item=>{
+	   if(item.perks){
+	   if(perklist.includes(item.perks[0].name) && (celllist.includes(item.cells[0])||celllist.includes(item.cells[1]) || item.cells.includes('Prismatic'))){
+	   weaponbuild.push(item);
+	   }
+	   else if(celllist.includes(item.cells[0])||celllist.includes(item.cells[1]) || item.cells.includes('Prismatic')){
+	   	   weaponbuild.push(item);
+	   }
+	   }})}
+	   else if(myweapon == 'Axe'){
+	   Axe.forEach(item=>{
+	   if(item.perks){
+	   if(perklist.includes(item.perks[0].name) && (celllist.includes(item.cells[0])||celllist.includes(item.cells[1]) || item.cells.includes('Prismatic'))){
+	   weaponbuild.push(item);
+	   }
+	   else if(celllist.includes(item.cells[0])||celllist.includes(item.cells[1]) || item.cells.includes('Prismatic')){
+	   	   weaponbuild.push(item);
+	   }
+	   }})}
+	   else if(myweapon == 'Sword'){
+	   Sword.forEach(item=>{
+	   if(item.perks){
+	   if(perklist.includes(item.perks[0].name) && (celllist.includes(item.cells[0])||celllist.includes(item.cells[1]) || item.cells.includes('Prismatic'))){
+	   weaponbuild.push(item);
+	   }
+	   else if(celllist.includes(item.cells[0])||celllist.includes(item.cells[1]) || item.cells.includes('Prismatic')){
+	   	   weaponbuild.push(item);
+	   }
+	   }})}
+	   else if(myweapon == 'Hammer'){
+	   Hammer.forEach(item=>{
+	   if(item.perks){
+	   if(perklist.includes(item.perks[0].name) && (celllist.includes(item.cells[0])||celllist.includes(item.cells[1]) || item.cells.includes('Prismatic'))){
+	   weaponbuild.push(item);
+	   }
+	   else if(celllist.includes(item.cells[0])||celllist.includes(item.cells[1]) || item.cells.includes('Prismatic')){
+	   	   weaponbuild.push(item);
+	   }
+	   }})} 	   
    }
     headbuild.forEach(item => {
    var row = document.createElement("div");
