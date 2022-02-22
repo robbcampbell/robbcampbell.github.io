@@ -34,7 +34,13 @@ background-color:black;
   color: white;
 }
 .weaponchoice:hover{
-	background-color:gray;
+	background-color:red;
+}
+.weaponchoice:focus{
+	background-color:red;
+}
+.weaponchoice:active{
+	background-color:red;
 }
 
 .column{
@@ -170,12 +176,12 @@ fetch('https://www.dauntless-builder.com/data.json').then(response => {
 	weapon.innerHTML = '<strong>'+weaponchoice[i]+'</strong>';
 	document.getElementById('choicebox').appendChild(weapon);
    }
-   document.getElementById('War Pike').onclick = function(){myweapon = document.getElementById('War Pike').value}
-   document.getElementById('Sword').onclick = function(){myweapon = document.getElementById('Sword').value}
-   document.getElementById('Hammer').onclick = function(){myweapon = document.getElementById('Hammer').value}
-   document.getElementById('Chain Blades').onclick = function(){myweapon = document.getElementById('Chain Blades').value}
-   document.getElementById('Aether Strikers').onclick = function(){myweapon = document.getElementById('Aether Strikers').value}
-   document.getElementById('Axe').onclick = function(){myweapon = document.getElementById('Axe').value}
+   document.getElementById('War Pike').onclick = function(){myweapon = document.getElementById('War Pike').value;}
+   document.getElementById('Sword').onclick = function(){myweapon = document.getElementById('Sword').value;}
+   document.getElementById('Hammer').onclick = function(){myweapon = document.getElementById('Hammer').value;}
+   document.getElementById('Chain Blades').onclick = function(){myweapon = document.getElementById('Chain Blades').value;}
+   document.getElementById('Aether Strikers').onclick = function(){myweapon = document.getElementById('Aether Strikers').value;}
+   document.getElementById('Axe').onclick = function(){myweapon = document.getElementById('Axe').value;}
    
    var bigbox = document.createElement("div");
    bigbox.id = 'bigbox';
