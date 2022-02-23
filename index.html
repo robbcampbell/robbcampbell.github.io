@@ -24,6 +24,10 @@ background-color:black;
   padding: 2rem 2rem;
   text-align: center;
 }
+#build{
+width: 234px;
+
+}
 .weaponchoice{
   display: inline-block;
   border: 1px solid white;
@@ -59,7 +63,7 @@ background-color:black;
   width:200px;
   background-color:rgba(165,150,0,0.8);
   margin-bottom: 5px;
-  font-size: 12px;
+  font-size: 16px;
   color: white;
 }
 .Finesse:hover{
@@ -72,7 +76,7 @@ background-color:black;
   width:200px;
   background-color:rgba(27,165,0,0.8);
     margin-bottom: 5px;
-	font-size: 12px;
+	font-size: 16px;
 	color: white;
 }
 .Alacrity:hover{background-color:gray}
@@ -83,7 +87,7 @@ background-color:black;
   width:200px;
   background-color:rgba(165,21,0,0.8);
     margin-bottom: 5px;
-	font-size: 12px;
+	font-size: 16px;
 	color: white;
 }
 .Brutality:hover{background-color:gray}
@@ -94,7 +98,7 @@ background-color:black;
   width:200px;
   background-color: rgba(0,107,165,0.8);
     margin-bottom: 5px;
-	font-size: 12px;
+	font-size: 16px;
 	color: white;
 }
 .Fortitude:hover{background-color:gray}
@@ -105,10 +109,21 @@ background-color:black;
   width:200px;
   background-color: rgba(165,0,164,0.8);
     margin-bottom: 5px;
-	font-size: 12px;
+	font-size: 16px;
 	color: white;
 }
 .Insight:hover{background-color:gray}
+.Prismatic{
+  border: 1px solid white;
+  padding: 1rem 1rem;
+  vertical-align: middle;
+  width:200px;
+  background-color: #c8c8c8;
+    margin-bottom: 5px;
+	font-size: 16px;
+	color: white;
+}
+.Prismatic:hover{background-color:gray;}
 </style>
 <script>
 // Replace ./data.json with your JSON feed
@@ -418,11 +433,11 @@ fetch('https://www.dauntless-builder.com/data.json').then(response => {
    
    })
 	
-	   var items = ['Head','Legs','Arms','Torso', 'Weapon'];
+	   var items = ['Head','Legs','Arms','Torso', 'Weapon', 'Loadout'];
       var buildbox = document.createElement("div");
    buildbox.id = 'buildbox';
    document.body.appendChild(buildbox);
-   for(let i=0; i<5; i++){
+   for(let i=0; i<6; i++){
     var column = document.createElement("div");
 
 	column.id = items[i];
@@ -430,7 +445,7 @@ fetch('https://www.dauntless-builder.com/data.json').then(response => {
 	column.innerHTML = '<strong>'+items[i]+'</strong>';
 	document.getElementById('buildbox').appendChild(column);
    }
-	
+   
    document.body.onclick=function(){
    document.getElementById('Head').innerHTML = '<strong>Head</strong>';
    document.getElementById('Legs').innerHTML = '<strong>Legs</strong>';
@@ -483,66 +498,90 @@ fetch('https://www.dauntless-builder.com/data.json').then(response => {
 	   if(perklist.includes(item.perks[0].name) && (celllist.includes(item.cells[0])||celllist.includes(item.cells[1]) || item.cells.includes('Prismatic'))){
 	   weaponbuild.push(item);
 	   }
-	   else if(celllist.includes(item.cells[0])||celllist.includes(item.cells[1]) || item.cells.includes('Prismatic')){
-	   	   weaponbuild.push(item);
 	   }
-	   }})}
+	   else if(item.cells){
+	   if(celllist.includes(item.cells[0])||celllist.includes(item.cells[1]) || item.cells.includes('Prismatic')){
+	   	   weaponbuild.push(item);
+	   }}
+	   })}
 	   else if(myweapon == 'Chain Blades'){
 	   ChainBlades.forEach(item=>{
 	   if(item.perks){
 	   if(perklist.includes(item.perks[0].name) && (celllist.includes(item.cells[0])||celllist.includes(item.cells[1]) || item.cells.includes('Prismatic'))){
 	   weaponbuild.push(item);
 	   }
-	   else if(celllist.includes(item.cells[0])||celllist.includes(item.cells[1]) || item.cells.includes('Prismatic')){
-	   	   weaponbuild.push(item);
 	   }
-	   }})}
+	   else if(item.cells){
+	   if(celllist.includes(item.cells[0])||celllist.includes(item.cells[1]) || item.cells.includes('Prismatic')){
+	   	   weaponbuild.push(item);
+	   }}})}
 	   else if(myweapon == 'Aether Strikers'){
 	   AetherStrikers.forEach(item=>{
 	   if(item.perks){
 	   if(perklist.includes(item.perks[0].name) && (celllist.includes(item.cells[0])||celllist.includes(item.cells[1]) || item.cells.includes('Prismatic'))){
 	   weaponbuild.push(item);
 	   }
-	   else if(celllist.includes(item.cells[0])||celllist.includes(item.cells[1]) || item.cells.includes('Prismatic')){
-	   	   weaponbuild.push(item);
 	   }
-	   }})}
+	   else if(item.cells){
+	   if(celllist.includes(item.cells[0])||celllist.includes(item.cells[1]) || item.cells.includes('Prismatic')){
+	   	   weaponbuild.push(item);
+	   }}})}
 	   else if(myweapon == 'Axe'){
 	   Axe.forEach(item=>{
 	   if(item.perks){
 	   if(perklist.includes(item.perks[0].name) && (celllist.includes(item.cells[0])||celllist.includes(item.cells[1]) || item.cells.includes('Prismatic'))){
 	   weaponbuild.push(item);
 	   }
-	   else if(celllist.includes(item.cells[0])||celllist.includes(item.cells[1]) || item.cells.includes('Prismatic')){
-	   	   weaponbuild.push(item);
 	   }
-	   }})}
+	   else if(item.cells){
+	   if(celllist.includes(item.cells[0])||celllist.includes(item.cells[1]) || item.cells.includes('Prismatic')){
+	   	   weaponbuild.push(item);
+	   }}})}
 	   else if(myweapon == 'Sword'){
 	   Sword.forEach(item=>{
 	   if(item.perks){
 	   if(perklist.includes(item.perks[0].name) && (celllist.includes(item.cells[0])||celllist.includes(item.cells[1]) || item.cells.includes('Prismatic'))){
 	   weaponbuild.push(item);
 	   }
-	   else if(celllist.includes(item.cells[0])||celllist.includes(item.cells[1]) || item.cells.includes('Prismatic')){
-	   	   weaponbuild.push(item);
 	   }
-	   }})}
+	   else if(item.cells){
+	   if(celllist.includes(item.cells[0])||celllist.includes(item.cells[1]) || item.cells.includes('Prismatic')){
+	   	   weaponbuild.push(item);
+	   }}})}
 	   else if(myweapon == 'Hammer'){
 	   Hammer.forEach(item=>{
 	   if(item.perks){
 	   if(perklist.includes(item.perks[0].name) && (celllist.includes(item.cells[0])||celllist.includes(item.cells[1]) || item.cells.includes('Prismatic'))){
 	   weaponbuild.push(item);
 	   }
-	   else if(celllist.includes(item.cells[0])||celllist.includes(item.cells[1]) || item.cells.includes('Prismatic')){
-	   	   weaponbuild.push(item);
 	   }
-	   }})} 	   
+	   else if(item.cells){
+	   if(celllist.includes(item.cells[0])||celllist.includes(item.cells[1]) || item.cells.includes('Prismatic')){
+	   	   weaponbuild.push(item);
+	   }}})} 	   
    }
     headbuild.forEach(item => {
    var row = document.createElement("div");
    row.value = item.name;
    row.className = item.cells;
    row.innerHTML = '<span style = \'font-size:18px;\'><strong>'+item.name+'</strong></br><img src=https://www.dauntless-builder.com'+item.icon+' alt='+item.name+'></br> Perk: '+item.perks[0].name+' (+3)</br> Cell: ' + item.cells+' (+3)</br>';
+   	row.onclick = function(){
+	console.log("hello");
+	   var load_row = document.createElement("div");
+	load_row.className = row.className;
+   if(!document.getElementById('load_'+item.name)){
+	load_row.id= 'load_'+item.name;
+	load_row.innerHTML = row.innerHTML;
+	load_row.onclick = function(){
+	document.getElementById('Loadout').removeChild(load_row);
+   }
+	document.getElementById('Loadout').appendChild(load_row);
+   }
+   else{
+   console.log("Already added");
+   }
+   
+   }
    document.getElementById('Head').appendChild(row);
    })
        legbuild.forEach(item => {
@@ -550,6 +589,23 @@ fetch('https://www.dauntless-builder.com/data.json').then(response => {
    row.value = item.name;
    row.className = item.cells;
    row.innerHTML = '<span style = \'font-size:18px;\'><strong>'+item.name+'</strong></br><img src=https://www.dauntless-builder.com'+item.icon+' alt='+item.name+'></br> Perk: '+item.perks[0].name+' (+3)</br> Cell: ' + item.cells+' (+3)</br>';
+   	row.onclick = function(){
+	console.log("hello");
+	   var load_row = document.createElement("div");
+	load_row.className = row.className;
+   if(!document.getElementById('load_'+item.name)){
+	load_row.id= 'load_'+item.name;
+	load_row.innerHTML = row.innerHTML;
+	load_row.onclick = function(){
+	document.getElementById('Loadout').removeChild(load_row);
+   }
+	document.getElementById('Loadout').appendChild(load_row);
+   }
+   else{
+   console.log("Already added");
+   }
+   
+   }
    document.getElementById('Legs').appendChild(row);
    })
        torsobuild.forEach(item => {
@@ -557,6 +613,23 @@ fetch('https://www.dauntless-builder.com/data.json').then(response => {
    row.value = item.name;
    row.className = item.cells;
    row.innerHTML = '<span style = \'font-size:18px;\'><strong>'+item.name+'</strong></br><img src=https://www.dauntless-builder.com'+item.icon+' alt='+item.name+'></br> Perk: '+item.perks[0].name+' (+3)</br> Cell: ' + item.cells+' (+3)</br>';
+   	row.onclick = function(){
+	console.log("hello");
+	   var load_row = document.createElement("div");
+	load_row.className = row.className;
+   if(!document.getElementById('load_'+item.name)){
+	load_row.id= 'load_'+item.name;
+	load_row.innerHTML = row.innerHTML;
+	load_row.onclick = function(){
+	document.getElementById('Loadout').removeChild(load_row);
+   }
+	document.getElementById('Loadout').appendChild(load_row);
+   }
+   else{
+   console.log("Already added");
+   }
+   
+   }
    document.getElementById('Torso').appendChild(row);
    })
        armbuild.forEach(item => {
@@ -564,16 +637,59 @@ fetch('https://www.dauntless-builder.com/data.json').then(response => {
    row.value = item.name;
    row.className = item.cells;
    row.innerHTML = '<span style = \'font-size:18px;\'><strong>'+item.name+'</strong></br><img src=https://www.dauntless-builder.com'+item.icon+' alt='+item.name+'></br> Perk: '+item.perks[0].name+' (+3)</br> Cell: ' + item.cells+' (+3)</br>';
+   	row.onclick = function(){
+	console.log("hello");
+	   var load_row = document.createElement("div");
+	load_row.className = row.className;
+   if(!document.getElementById('load_'+item.name)){
+	load_row.id= 'load_'+item.name;
+	load_row.innerHTML = row.innerHTML;
+	load_row.onclick = function(){
+	document.getElementById('Loadout').removeChild(load_row);
+   }
+	document.getElementById('Loadout').appendChild(load_row);
+   }
+   else{
+   console.log("Already added");
+   }
+   
+   }
    document.getElementById('Arms').appendChild(row);
    })
    
           weaponbuild.forEach(item => {
    var row = document.createElement("div");
+
    row.value = item.name;
    row.className = item.cells[0];
-   row.innerHTML = '<span style = \'font-size:18px;\'><strong>'+item.name+'</strong></br><img src=https://www.dauntless-builder.com'+item.icon+' alt='+item.name+'></br> Perk: '+item.perks[0].name+' (+3)</br> Cell: ' + item.cells[0]+' (+3)</br> Cell: ' + item.cells[1]+' (+3)</br>';
+   if(item.perks){
+   if(!item.elemental){item.elemental='Neutral';}
+   row.innerHTML = '<span style = \'font-size:18px;\'><strong>'+item.name+'</strong></br><img src=https://www.dauntless-builder.com'+item.icon+' alt='+item.name+'></br>'+item.elemental+'</br> Perk: '+item.perks[0].name+' (+3)</br> Cell: ' + item.cells[0]+' (+3)</br> Cell: ' + item.cells[1]+' (+3)</br>';}
+   else{
+      row.innerHTML = '<span style = \'font-size:18px;\'><strong>'+item.name+'</strong></br><img src=https://www.dauntless-builder.com'+item.icon+' alt='+item.name+'></br>'+item.elemental+' LEGENDARY </br> Cell: ' + item.cells[0]+' (+3)</br> Cell: ' + item.cells[1]+' (+3)</br>';}
+
+	row.onclick = function(){
+	console.log("hello");
+	   var load_row = document.createElement("div");
+	load_row.className = row.className;
+   if(!document.getElementById('load_'+item.name)){
+	load_row.id= 'load_'+item.name;
+	load_row.innerHTML = row.innerHTML;
+	load_row.onclick = function(){
+	document.getElementById('Loadout').removeChild(load_row);
+   }
+	document.getElementById('Loadout').appendChild(load_row);
+   }
+   else{
+   console.log("Already added");
+   }
+   
+   }
+	  
    document.getElementById('Weapon').appendChild(row);
+   
    })
+   
    
    
    }
