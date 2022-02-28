@@ -169,6 +169,7 @@ fetch('https://www.dauntless-builder.com/data.json').then(response => {
    var ChainBlades = [];
    var AetherStrikers = [];
    var Axe = [];
+   var Repeater = [];
    
    Object.keys(data.weapons).forEach(item => {
    if(data.weapons[item].type == 'War Pike'){WarPike.push(data.weapons[item])}
@@ -177,13 +178,14 @@ fetch('https://www.dauntless-builder.com/data.json').then(response => {
    else if(data.weapons[item].type == 'Chain Blades'){ChainBlades.push(data.weapons[item])}
    else if(data.weapons[item].type == 'Aether Strikers'){AetherStrikers.push(data.weapons[item])}
    else if(data.weapons[item].type == 'Axe'){Axe.push(data.weapons[item])}
+   else if(data.weapons[item].type == 'Repeater'){Repeater.push(data.weapons[item])}
    });
-   	 var weaponchoice = ['War Pike','Sword','Hammer','Chain Blades', 'Aether Strikers', 'Axe'];
+   	 var weaponchoice = ['War Pike','Sword','Hammer','Chain Blades', 'Aether Strikers', 'Axe','Repeater'];
       var choicebox = document.createElement("div");
    choicebox.id = 'choicebox';
    document.body.appendChild(choicebox);
    var myweapon = "War Pike";
-   for(let i=0; i<6; i++){
+   for(let i=0; i<7; i++){
     var weapon = document.createElement("div");
 	weapon.id = weaponchoice[i];
 	weapon.value = weaponchoice[i];
@@ -198,6 +200,7 @@ fetch('https://www.dauntless-builder.com/data.json').then(response => {
    document.getElementById('Chain Blades').onclick = function(){myweapon = document.getElementById('Chain Blades').value;}
    document.getElementById('Aether Strikers').onclick = function(){myweapon = document.getElementById('Aether Strikers').value;}
    document.getElementById('Axe').onclick = function(){myweapon = document.getElementById('Axe').value;}
+   document.getElementById('Repeater').onclick = function(){myweapon = document.getElementById('Repeater').value;}
    
    var bigbox = document.createElement("div");
    bigbox.id = 'bigbox';
@@ -529,6 +532,17 @@ fetch('https://www.dauntless-builder.com/data.json').then(response => {
 	   }}})}
 	   else if(myweapon == 'Axe'){
 	   Axe.forEach(item=>{
+	   if(item.perks){
+	   if(perklist.includes(item.perks[0].name) && (celllist.includes(item.cells[0])||celllist.includes(item.cells[1]) || item.cells.includes('Prismatic'))){
+	   weaponbuild.push(item);
+	   }
+	   }
+	   else if(item.cells){
+	   if(celllist.includes(item.cells[0])||celllist.includes(item.cells[1]) || item.cells.includes('Prismatic')){
+	   	   weaponbuild.push(item);
+	   }}})}
+	   else if(myweapon == 'Repeater'){
+	   Repeater.forEach(item=>{
 	   if(item.perks){
 	   if(perklist.includes(item.perks[0].name) && (celllist.includes(item.cells[0])||celllist.includes(item.cells[1]) || item.cells.includes('Prismatic'))){
 	   weaponbuild.push(item);
