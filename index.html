@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>Dauntless Loadout Builder</title>
+<title>Dauntless Build Maker</title>
 	<!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y6PYPQDQJB"></script>
 <script>
@@ -241,7 +241,7 @@ fetch('https://www.dauntless-builder.com/data.json').then(response => {
     var build = document.createElement("div");
 	build.id= 'build';
 	build.className = 'column';
-	build.innerHTML = '<strong>Build</strong>';
+	build.innerHTML = '<strong>Perks</strong>';
 	document.getElementById('bigbox').appendChild(build);
    
    
@@ -461,7 +461,7 @@ fetch('https://www.dauntless-builder.com/data.json').then(response => {
    
    })
 	
-	   var items = ['Head','Legs','Arms','Torso', 'Weapon', 'Loadout'];
+	   var items = ['Head','Legs','Arms','Torso', 'Weapon', 'DauntlessBuild'];
       var buildbox = document.createElement("div");
    buildbox.id = 'buildbox';
    document.body.appendChild(buildbox);
@@ -489,12 +489,12 @@ fetch('https://www.dauntless-builder.com/data.json').then(response => {
    torsobuild = [];
    weaponbuild = [];
       var total = 0;
-   loadout = build.children;
-   if(loadout.length>1){
-	   for(let i =1; i <loadout.length;i++){
-	   total += loadout[i].value;
-	   celllist.push(loadout[i].className);
-	   perklist.push(loadout[i].id.substring(6));
+   DauntlessBuild = build.children;
+   if(DauntlessBuild.length>1){
+	   for(let i =1; i <DauntlessBuild.length;i++){
+	   total += DauntlessBuild[i].value;
+	   celllist.push(DauntlessBuild[i].className);
+	   perklist.push(DauntlessBuild[i].id.substring(6));
 	   if(total>42){
 	   console.log("over 33")
 	   build.removeChild(build.children[i])
@@ -612,9 +612,9 @@ fetch('https://www.dauntless-builder.com/data.json').then(response => {
 	load_row.id= 'load_'+item.name;
 	load_row.innerHTML = row.innerHTML;
 	load_row.onclick = function(){
-	document.getElementById('Loadout').removeChild(load_row);
+	document.getElementById('DauntlessBuild').removeChild(load_row);
    }
-	document.getElementById('Loadout').appendChild(load_row);
+	document.getElementById('DauntlessBuild').appendChild(load_row);
    }
    else{
    console.log("Already added");
@@ -636,9 +636,9 @@ fetch('https://www.dauntless-builder.com/data.json').then(response => {
 	load_row.id= 'load_'+item.name;
 	load_row.innerHTML = row.innerHTML;
 	load_row.onclick = function(){
-	document.getElementById('Loadout').removeChild(load_row);
+	document.getElementById('DauntlessBuild').removeChild(load_row);
    }
-	document.getElementById('Loadout').appendChild(load_row);
+	document.getElementById('DauntlessBuild').appendChild(load_row);
    }
    else{
    console.log("Already added");
@@ -660,9 +660,9 @@ fetch('https://www.dauntless-builder.com/data.json').then(response => {
 	load_row.id= 'load_'+item.name;
 	load_row.innerHTML = row.innerHTML;
 	load_row.onclick = function(){
-	document.getElementById('Loadout').removeChild(load_row);
+	document.getElementById('DauntlessBuild').removeChild(load_row);
    }
-	document.getElementById('Loadout').appendChild(load_row);
+	document.getElementById('DauntlessBuild').appendChild(load_row);
    }
    else{
    console.log("Already added");
@@ -684,9 +684,9 @@ fetch('https://www.dauntless-builder.com/data.json').then(response => {
 	load_row.id= 'load_'+item.name;
 	load_row.innerHTML = row.innerHTML;
 	load_row.onclick = function(){
-	document.getElementById('Loadout').removeChild(load_row);
+	document.getElementById('DauntlessBuild').removeChild(load_row);
    }
-	document.getElementById('Loadout').appendChild(load_row);
+	document.getElementById('DauntlessBuild').appendChild(load_row);
    }
    else{
    console.log("Already added");
@@ -715,9 +715,9 @@ fetch('https://www.dauntless-builder.com/data.json').then(response => {
 	load_row.id= 'load_'+item.name;
 	load_row.innerHTML = row.innerHTML;
 	load_row.onclick = function(){
-	document.getElementById('Loadout').removeChild(load_row);
+	document.getElementById('DauntlessBuild').removeChild(load_row);
    }
-	document.getElementById('Loadout').appendChild(load_row);
+	document.getElementById('DauntlessBuild').appendChild(load_row);
    }
    else{
    console.log("Already added");
@@ -747,14 +747,8 @@ fetch('https://www.dauntless-builder.com/data.json').then(response => {
 
 </script>
 <body>
-	<h1>Dauntless Loadout Builder</h1>
-	<p>Dauntless breaking parts build?</p>
-	<p>Dauntless speed build?</p>
-	<p>Dauntless war pike build?</p>
-	<p>Dauntless Aether rush build?</p>
-	<p>Dauntless sword build?</p>
-	<p>Dauntless wound build?</p>
+	<h1>Dauntless Build Maker</h1>
 	<p>Scroll Down and Build Your Own Dauntless Meta Build!!!</p>
-	<p>Welcome to the Dauntless Loadout Builder! This a work in progress. Tap or Click on each of the Perks to add them to your build. If you are not +6'ing your Insight Perk then don't include it in the build. You have up to 33 perks not including your lantern. Click on the perk inside the build to change from +6 to +3. Without a +6 Insight Perk you will have  5 +6 Perks and 1 +3 Perk. After Selecting your perks, You will be shown all Weapons and Armor that have either the Perk or an appropriate cell to make your build possible. I am currently working on the algorithm to auto generate builds based on the perks; however, I believe this is better as you can select what you aready have. As you select your Dauntless Weapons and Armour, they will appear in the Loadout Column. Click on the weapon or armour in the loadout to remove it. Soon to come, I will have a link generate to the Dauntless-Builder website in order for you to apply your cells on that website. It's the best. This is just to show you all of the possible gear for you to choose from.</p>
+	<p>Welcome to the Dauntless Build Maker! This a work in progress. Tap or Click on each of the Perks to add them to your build. If you are not +6'ing your Insight Perk then don't include it in the build. You have up to 33 perks not including your lantern. Click on the perk inside the build to change from +6 to +3. Without a +6 Insight Perk you will have  5 +6 Perks and 1 +3 Perk. After Selecting your perks, You will be shown all Weapons and Armor that have either the Perk or an appropriate cell to make your build possible. I am currently working on the algorithm to auto generate Dauntless Builds based on the perks; however, I believe this is better as you can select what you aready have. As you select your Dauntless Weapons and Armour, they will appear in the Dauntless Build Column. Click on the weapon or armour in the Dauntless Build to remove it. Soon to come, I will have a link generate to the Dauntless-Builder website in order for you to apply your cells on that website. It's the best. This is just to show you all of the possible gear for you to choose from.</p>
 </body>
 </html>
