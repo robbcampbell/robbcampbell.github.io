@@ -90,7 +90,8 @@
 
         .item img {
             width: 80px; /* Adjust image size */
-            height: auto;
+            height: 100px;
+	    padding-top: 12px;
             border-radius: 10px; /* Rounded edges for images */
 			
         }
@@ -114,34 +115,97 @@
             border-top-right-radius: 40px;
             margin-top: auto; /* Align footer to the bottom */
         }
+		.info-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.3); /* Glass-like background */
+  border-radius: 10px;
+  margin: 20px;
+  padding: 20px;
+  width: 37%;
+    margin-left: 30%;
+  text-align: center;
+}
+
+.info-text {
+  flex: 1;
+  padding: 20px;
+}
+
+.info-text p {
+  margin: 10px 0;
+}
+
+.info-photo {
+  flex: 1;
+  text-align: center;
+}
+
+.circular-photo {
+  border-radius: 50%;
+  width: 250px; /* Adjust the size of the circular photo as needed */
+  height: 250px;
+  object-fit: cover; /* Ensure the image fills the circular space */
+}
 
         @media (max-width: 768px) {
             /* Switch to 10 rows of 3 divs for mobile devices */
             .grid-container {
                 grid-template-columns: repeat(3, 1fr); /* Create a 3x3 grid */
                 grid-template-rows: repeat(5, 1fr); /* 10 rows */
-                padding: 10px; /* Adjust padding for mobile */
+                padding: 2px; /* Adjust padding for mobile */
+				
             }
 			
             .item {
                 width: 75%; /* Full-width div within each grid cell for mobile */
                 padding: 10px; /* Adjust padding for mobile */
+				height: fit-content;
             }
 			header h1 {
-			font-size: 28px;
+			font-size: 24px;
 			}
+			  .info-container {
+    flex-direction: column; /* Stack content vertically on mobile */
+    text-align: center;
+	  width: auto;
+    margin-left: 20px;
+  }
+
+  .info-text {
+    padding: 10px; /* Adjust padding for mobile */
+  }
+
+  .info-photo {
+    padding-top: 20px; /* Add space between text and photo on mobile */
+  }
+  
+  .circular-photo {
+    width: 200px; /* Adjust the circular photo size for mobile */
+    height: 200px;
+  }
         }
     </style>
 </head>
 <body>
     <header>
         <h1>Bri's Monthly Reading List</h1>
-        <div class="navbar">
 
-        </div>
     </header>
+	    <div class="info-container">
+		        <div class="info-photo">
+            <img src="https://media.licdn.com/dms/image/C4E03AQHLzGzSxJPRaw/profile-displayphoto-shrink_800_800/0/1644856914454?e=2147483647&v=beta&t=CCAo2wHYOmT8q5bnm_5MUaPfk-zfbRs3ZesICV693iM" alt="Your Circular Photo" class="circular-photo">
+        </div>
+        <div class="info-text">
+            <p><strong>Bri Elizabeth</strong></p>
+            <p>I've been reading 50 books per month and I want to share with you guys my top picks. Take a look at my picks and click on a book to view it on Amazon!</p>
+            <!-- Add more text content as needed -->
+        </div>
 
-    <div class="grid-container">
+    </div>
+
+ <div class="grid-container">
         <!-- Row 1 -->
         <div class="item">
             <a href="https://amzn.to/3Rc8164" target="_blank">
@@ -238,13 +302,8 @@
             </a>
         </div>
     </div>
-
-    <footer>
+   <footer>
         &copy; 2023 @myrealnamesreagan | <a href="https://www.tiktok.com/@myrealnamesreagan">TikTok</a> | <a href="#">Instagram</a>
     </footer>
 </body>
 </html>
-
-
-
-
