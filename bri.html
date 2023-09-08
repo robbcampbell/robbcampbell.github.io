@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bri's Monthly Reading List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom, #405DE6, #5851DB, #833AB4, #C13584, #E1306C, #FD1D1D, #F56040, #F77737, #FCAF45, #FCAF45); /* Reverted to older gradient with extension */
+            color: #333;
+            min-height: 100vh; /* Ensure the gradient fills the entire viewport height */
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: rgba(255, 255, 255, 0.2); /* Glass-like header background */
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-bottom-left-radius: 40px;
+            border-bottom-right-radius: 40px;
+        }
+
+        header h1 {
+            font-size: 48px; /* Larger title font */
+            font-family: Brush Script MT, Brush Script Std, cursive;
+            color: #fff;
+            margin: 0;
+        }
+
+        .navbar {
+            background-color: transparent; /* Transparent navbar background */
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            border-top-left-radius: 40px;
+            border-top-right-radius: 40px;
+            backdrop-filter: blur(10px); /* Apply blur effect to navbar for glass look */
+            padding: 10px 0; /* Add padding to separate buttons vertically */
+        }
+
+        .navbar ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: space-around; /* Separating navigation buttons */
+        }
+
+        .navbar li {
+            margin: 0 10px; /* Adjust spacing between buttons */
+        }
+
+        .navbar a {
+            text-decoration: none;
+            color: #fff;
+            border-radius: 50%; /* Make the buttons spherical */
+            padding: 10px 15px; /* Add padding to the buttons */
+            background-color: rgba(255, 255, 255, 0.2); /* Glass-like button background */
+            transition: background-color 0.3s ease;
+        }
+
+        .navbar a:hover {
+            background-color: rgba(255, 255, 255, 0.3); /* Button background on hover */
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr); /* Create a 3x5 grid for larger screens */
+            grid-gap: 20px; /* Adjust spacing between divs */
+            padding: 20px; /* Adjust padding */
+            margin: 20px;
+        }
+
+        .item {
+            width: 80%; /* Full-width div within each grid cell */
+            padding: 20px; /* Adjust padding */
+            border-radius: 10px; /* Rounded edges for divs */
+            background-color: rgba(255, 255, 255, 0.3); /* Glass-like div background */
+            text-align: center;
+			transition: background-color 2s ease-out 100ms
+        } .item:hover{
+		background-color: rgba(255, 255, 255, .8)
+		}
+
+        .item img {
+            width: 80px; /* Adjust image size */
+            height: auto;
+            border-radius: 10px; /* Rounded edges for images */
+			
+        }
+
+        .item a {
+            text-decoration: none;
+            color: #fff;
+			transition: color: 2s ease-out 100ms
+        }
+
+        .item a:hover {
+            font-weight:bold;
+			color: rgb(0,0,0);
+        }
+
+        footer {
+            background-color: rgba(255, 255, 255, 0.2); /* Glass-like footer background */
+            padding: 20px;
+            text-align: center;
+            border-top-left-radius: 40px;
+            border-top-right-radius: 40px;
+            margin-top: auto; /* Align footer to the bottom */
+        }
+
+        @media (max-width: 768px) {
+            /* Switch to 10 rows of 3 divs for mobile devices */
+            .grid-container {
+                grid-template-columns: repeat(3, 1fr); /* Create a 3x3 grid */
+                grid-template-rows: repeat(5, 1fr); /* 10 rows */
+                padding: 10px; /* Adjust padding for mobile */
+            }
+			
+            .item {
+                width: 75%; /* Full-width div within each grid cell for mobile */
+                padding: 10px; /* Adjust padding for mobile */
+            }
+			header h1 {
+			font-size: 28px;
+			}
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Bri's Monthly Reading List</h1>
+        <div class="navbar">
+
+        </div>
+    </header>
+
+    <div class="grid-container">
+        <!-- Row 1 -->
+        <div class="item">
+            <a href="https://amzn.to/3Rc8164" target="_blank">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg" alt="The Great Gatsby">
+                <p>The Great Gatsby</p>
+            </a>
+        </div>
+        <div class="item">
+            <a href="https://amzn.to/3Rc8164" target="_blank">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg" alt="The Great Gatsby">
+                <p>The Great Gatsby</p>
+            </a>
+        </div>
+        <div class="item">
+            <a href="https://amzn.to/3Rc8164" target="_blank">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg" alt="The Great Gatsby">
+                <p>The Great Gatsby</p>
+            </a>
+        </div>
+        <div class="item">
+            <a href="https://amzn.to/3Rc8164" target="_blank">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg" alt="The Great Gatsby">
+                <p>The Great Gatsby</p>
+            </a>
+        </div>
+        <div class="item">
+            <a href="https://amzn.to/3Rc8164" target="_blank">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg" alt="The Great Gatsby">
+                <p>The Great Gatsby</p>
+            </a>
+        </div>
+
+        <!-- Row 2 -->
+        <div class="item">
+            <a href="https://amzn.to/3Rc8164" target="_blank">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg" alt="The Great Gatsby">
+                <p>The Great Gatsby</p>
+            </a>
+        </div>
+        <div class="item">
+            <a href="https://amzn.to/3Rc8164" target="_blank">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg" alt="The Great Gatsby">
+                <p>The Great Gatsby</p>
+            </a>
+        </div>
+        <div class="item">
+            <a href="https://amzn.to/3Rc8164" target="_blank">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg" alt="The Great Gatsby">
+                <p>The Great Gatsby</p>
+            </a>
+        </div>
+        <div class="item">
+            <a href="https://amzn.to/3Rc8164" target="_blank">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg" alt="The Great Gatsby">
+                <p>The Great Gatsby</p>
+            </a>
+        </div>
+        <div class="item">
+            <a href="https://amzn.to/3Rc8164" target="_blank">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg" alt="The Great Gatsby">
+                <p>The Great Gatsby</p>
+            </a>
+        </div>
+
+        <!-- Row 3 -->
+        <div class="item">
+            <a href="https://amzn.to/3Rc8164" target="_blank">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg" alt="The Great Gatsby">
+                <p>The Great Gatsby</p>
+            </a>
+        </div>
+        <div class="item">
+            <a href="https://amzn.to/3Rc8164" target="_blank">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg" alt="The Great Gatsby">
+                <p>The Great Gatsby</p>
+            </a>
+        </div>
+        <div class="item">
+            <a href="https://amzn.to/3Rc8164" target="_blank">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg" alt="The Great Gatsby">
+                <p>The Great Gatsby</p>
+            </a>
+        </div>
+        <div class="item">
+            <a href="https://amzn.to/3Rc8164" target="_blank">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg" alt="The Great Gatsby">
+                <p>The Great Gatsby</p>
+            </a>
+        </div>
+        <div class="item">
+            <a href="https://amzn.to/3Rc8164" target="_blank">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg" alt="The Great Gatsby">
+                <p>The Great Gatsby</p>
+            </a>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2023 @myrealnamesreagan | <a href="https://www.tiktok.com/@myrealnamesreagan">TikTok</a> | <a href="#">Instagram</a>
+    </footer>
+</body>
+</html>
+
+
+
+
