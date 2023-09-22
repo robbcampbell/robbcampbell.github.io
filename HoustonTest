@@ -1,0 +1,1067 @@
+<html lang="en"><head>
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-0X8GDENS8R"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-0X8GDENS8R');
+</script>
+
+  <meta charset="UTF-8">
+  
+  <title>Warren's Small Engine Repair Services</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+
+  
+  
+<style>
+@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,700');
+/* Global Styles */
+#sendButton{}
+#sendButton:hover{
+opacity: .7;
+}
+body {
+	font-size: 1rem;
+	line-height: 1.5;
+	font-family: 'Roboto', sans-serif;
+	color: #212529;
+	background-color: #fff;
+}
+
+* {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+img {
+	width: 100%;
+	height: auto;
+}
+/* Responsive Grid */
+
+.container {
+	width: 100%;
+	max-width: 960px;
+	margin: 0 auto;
+	box-sizing: border-box;
+	//padding: 0 20px;
+	position: relative;
+	overflow-x: hidden;
+}
+.row {
+	clear: both;
+}
+/* Columns */
+
+.col {
+	float: left;
+	margin: 0 4% 0 0;
+	box-sizing: border-box;
+}
+.col:last-child {
+	margin-right: 0;
+}
+.one.col {
+	width: 4.66666666667%;
+}
+.two.col {
+	width: 13.3333333333%;
+}
+.three.col {
+	width: 22%;
+}
+.four.col {
+	width: 30.6666666667%;
+}
+.five.col {
+	width: 39.3333333333%;
+}
+.six.col {
+	width: 48%;
+}
+.seven.col {
+	width: 56.6666666667%;
+}
+.eight.col {
+	width: 65.3333333333%;
+}
+.nine.col {
+	width: 74.0%; 
+}
+.ten.col {
+	width: 82.6666666667%;
+}
+.eleven.col {
+	width: 91.3333333333%;
+}
+.twelve.col {
+	width: 100%;
+	margin: 0;
+}
+
+/* For Relic Browsers */
+.col.last {
+	margin: 0;
+}
+
+/* Mobile Devices */
+
+@media all and (max-width: 550px) {
+.one.col, .two.col, .three.col, .four.col, .five.col, .six.col, .seven.col, .eight.col, .nine.col, .ten.col, .eleven.col {
+	float: none;
+	width: 100%;
+}
+.hide-on-mobile {
+	display: none !important;
+	width: 100%;
+	height: 0;
+}
+
+}
+
+.container:after, .row:after {
+	content: "";
+	display: table;
+	clear: both;
+}
+
+/* Hr */
+
+hr {
+	border: 0;
+	height: 1px;
+	background: #EEEEEE;
+	clear: both;
+	width: 405px;
+}
+
+/* Typography */
+
+p {
+	margin-top: 0;
+	margin-bottom: 1rem;
+	line-height: 1.5;
+	font-size: 1.3em;
+}
+h1, h2, h3, h4, h5, h6 {
+	font-family: inherit;
+	font-weight: 700;
+	line-height: 1.1;
+	color: inherit;
+	margin-top: 1.5rem;
+	margin-bottom: 1rem;
+	text-transform: uppercase;
+}
+h1 {
+	font-size: 3.2rem;
+}
+h2 {
+	font-size: 2.8rem;
+	margin: 1.5rem 0;
+}
+h2:after {
+	content: "";
+	display: block;
+	width: 50px;
+	height: 7px;
+	background: #FF4136;
+	margin: 0 auto;
+	margin-top: 20px;
+}
+h3 {
+	font-size: 1.5rem;
+	text-align: center;
+}
+h4 {
+	font-size: 1.2rem;
+	text-align: center;
+}
+h5 {
+	font-size: 1.1rem;
+}
+h6 {
+	font-size: 1rem;
+}
+p {
+	font-family: 'Roboto', sans-serif;
+}
+button {
+	color: #25A197;
+	height: 50px;
+	line-height: 48px;
+	font-size: 1em;
+	padding: 0 40px;
+	background: #ffffff;
+	margin-top: 10px;
+	cursor: pointer;
+}
+.bold {
+	font-weight: 700;
+}
+button:hover {
+	opacity: .7;
+}
+/* Header */
+header {
+	padding: 20px 12px;
+	position: fixed;
+	width: 100%;
+	z-index: 9999;
+	background: #001F3F;
+}
+.scrolled {
+	background: #000;
+}
+header .logo {
+	font-weight: 700;
+	
+	color: #FFFFFF;
+	margin-top: 0;
+	position: absolute;
+	top:-8px;
+	font-size: 1.5rem;
+}
+header .mainNav {
+	top: 0px;
+	max-height: 30px;
+	z-index: 999;
+	width: 100%;
+	overflow: hidden;
+	-webkit-transition: all 0.3s;
+	transition: all 0.3s;
+}
+header .openNav {
+	max-height: 300px !important;
+}
+header nav {
+	width: 100%;
+}
+header nav ul {
+	list-style: none;
+	overflow: hidden;
+	text-align: right;
+	padding: 0;
+	margin: 0;
+}
+header nav ul li {
+	display: inline-block;
+	margin-left: 35px;
+}
+header nav ul a {
+	text-decoration: none;
+	color: #ffffff;
+	font-size: 1.2em;
+	font-weight: 700;
+	text-transform: uppercase;
+}
+
+header nav ul a:hover {
+	color: #FF4136;
+}
+header .mobileToggle {
+	display: none;
+	cursor: pointer;
+	font-size: 20px;
+	position: absolute;
+	right: 20px;
+	top: 6px;
+	width: 30px;
+}
+header .mobileToggle span {
+	width: 25px;
+	height: 2px;
+	margin-bottom: 6px;
+	background: #ffffff;
+	display: block;
+}
+
+@media only screen and (max-width: 550px) {
+header nav {
+	width: 100%;
+}
+header nav ul {
+	padding-top: 0px;
+	margin-bottom: 22px;
+	text-align: center;
+	width: 100%;
+}
+header nav ul li {
+	width: 100%;
+	padding: 7px 0;
+	margin: 0;
+}
+header nav ul li:first-child {
+	margin-top: 70px;
+}
+header .mobileToggle {
+	display: block;
+}
+}
+/* Hero One */
+
+#hero {
+
+background-image: url("small-engine-repair-training.jpg");
+  background-position: center; /* Center the image */
+  background-repeat: no-repeat; /* Do not repeat the image */
+  background-size: cover; /* Resize the background image to cover the entire container */
+  box-shadow: inset 0 0 0 1000px rgba(0,31,63,.9);
+background-color: #001F3F;
+	padding: 200px 0 120px 0;
+	text-align: center;
+}
+#hero h2 {
+	text-align: center;
+    font-size: 4.0em;
+    text-transform: capitalize;
+    margin-top: 0;
+    line-height: 1;
+    color: #FF4136;
+	font-weight: 300;
+}
+#hero h2:after {
+	display: none;
+}
+#hero h3 {
+}
+#hero p {
+    color: rgb(255,255,255,0.7);
+    font-size: 1.3rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: normal;
+    line-height: 21px;
+    text-align: center;
+    width: 60%;
+    display: block;
+    margin: 0 auto;
+    padding-bottom: 40px;
+}
+#hero .button {
+	border: 0;
+	color: #fff;
+	height: 50px;
+	line-height: 48px;
+	font-size: 1.2rem;
+	padding: 0 40px;
+	background: #FF4136;
+	display: inline-block;
+    margin: 0 auto;
+	font-family: 'Roboto', sans-serif;
+	text-transform: uppercase;
+	font-weight: 700;
+}
+#hero .white {
+	color: #fff;
+	font-weight: 700;
+}
+
+
+@media all and (max-width: 550px) {
+#hero button {
+	margin-bottom: 20px;
+}
+#hero h2 {
+	font-size: 2.2em;
+}
+#hero p {
+	font-size: 0.8em;
+	line-height: 21px;
+	width: 100%;
+}
+}
+/* About Section */
+
+#about {
+	background: #FFFFFF;
+	padding: 120px 0;
+}
+#about .icon {
+	font-size: 1em;
+	padding-right: 10px;
+}
+/* Work Section */
+
+#work {
+	background: #FFFFFF;
+	padding: 120px 0;
+	cursor: pointer;
+}
+#work .work {
+	position: relative;
+	left: -20px;
+	
+}
+#work .work p {
+	text-align: center;
+	font-size: 1.5em;
+}
+#work .work h4 {
+	color: #FF4136;
+	font-size: 1.6em;
+	text-align:center;
+
+}
+#work .work-overlay {
+	color: #fff;
+	background-color: rgba(0,31,63,.7);
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	width: 250px;
+	height: auto;
+	padding: 10px 15px;
+}
+#work .work .work-overlay {
+	opacity: .9;
+	transition: all .4s ease-in-out;
+}
+#work .work:hover .work-overlay {
+	opacity: 1;
+	//transform: scale(1.05);
+}
+#work .work {
+	transition: all .4s ease-in-out;
+	
+}
+#work .work:hover {
+	//transform: scale(1.05);
+	box-shadow: 0 4px 10px 0 rgba(0,0,0,0.2);
+}
+
+#work .work img {
+	display: block;
+}
+/* Services Section */
+
+#services {
+	background: #F4F4F4;
+	padding: 120px 0;
+}
+.progressBar {
+	margin-bottom: 26px;
+	margin-bottom: 1.66em;
+}
+.progressBar h4 {
+	margin-bottom: 7px;
+	margin-bottom: .33em;
+	font-size: 1rem;
+}
+.progressBarContainer {
+	width: 100%;
+	height: 8px;
+	background: #E1E1E1;
+	overflow: hidden;
+}
+.progressBarValue {
+	height: 8px;
+	float: left;
+	background: #FF4136;
+}
+
+.value-00 {
+	width: 0;
+}
+.value-10 {
+	width: 10%;
+}
+.value-20 {
+	width: 20%;
+}
+.value-30 {
+	width: 30%;
+}
+.value-40 {
+	width: 40%;
+}
+.value-50 {
+	width: 50%;
+}
+.value-60 {
+	width: 60%;
+}
+.value-70 {
+	width: 70%;
+}
+.value-80 {
+	width: 80%;
+}
+.value-90 {
+	width: 90%;
+}
+.value-100 {
+	width: 100%;
+}
+/* Pricing Section */
+
+#pricing {
+	background: #F4F4F4;
+	padding: 120px 0;
+}
+#pricing .card {
+	position: relative;
+	background: #FFFFFF;
+	width: 100%;
+	padding: 30px;
+	text-align: center;
+	transition: all 300ms ease-out;
+}
+#pricing .card:hover {
+	transform: scale(1.05);
+	box-shadow: 0 4px 10px 0 rgba(0,0,0,0.1);
+}
+#pricing .card h3 {
+	text-transform: uppercase;
+	color: #cccccc;
+	margin-top: 0;
+	font-size: 1.5em;
+}
+#pricing .card h4 {
+	font-weight: 700;
+	text-transform: uppercase;
+	color: #FF4136;
+	font-size: 4em;
+	margin: 0;
+}
+#pricing .card p {
+	margin: 10px 0;
+}
+#pricing .grey {
+	color: #CCCCCC;
+	text-decoration: line-through;
+}
+#pricing .month {
+	font-size: 20px;
+	color: #001F3F;
+}
+#pricing .card button {
+	border: 0;
+	color: #FFFFFF;
+	height: 50px;
+	line-height: 48px;
+	font-size: 1em;
+	padding: 0 40px;
+	background: #001F3F;
+	margin-top: 10px;
+}
+
+@media all and (max-width: 550px) {
+#pricing .card {
+	margin: 40px 0;
+}
+}
+/*Contact Section */
+
+#contact {
+	background: #FFFFFF;
+	padding: 120px 0;
+	min-height: 400px;
+}
+#contact textarea {
+	float: left;
+	width: 100%;
+	max-width: 100%;
+	border: none;
+	margin: 0.5rem 0;
+	padding: 0.5rem;
+	border-radius: 0.3rem;
+	background: #F4F4F4;
+	color: #525252;
+	font-family: 'Open Sans';
+	font-size: 18px;
+}
+#contact input {
+	float: left;
+	width: 100%;
+	max-width: 100%;
+	border: none;
+	margin: 0.5rem 0;
+	padding: 0.5rem;
+	background: #F4F4F4;
+	color: #525252;
+	font-family: 'Open Sans';
+	font-size: 24px;
+}
+#contact input[type=submit], textarea[type=submit] {
+	border: 0;
+	color: #FFFFFF;
+	height: 50px;
+	line-height: 48px;
+	font-size: 1.8em;
+	padding: 0 40px;
+	background: #FF4136;
+	margin-top: 10px;
+	width: auto;
+}
+#contact input::placeholder, textarea::placeholder {
+ color: #525252;
+}
+#contact input.error, textarea.error {
+	background: #AD4747;
+	color: #fff;
+}
+#contact input.error::placeholder, textarea.error::placeholder {
+ color: black;
+}
+#contact textarea {
+	height: 10rem;
+	font-size: 24px;
+}
+/* Footer One */
+
+footer {
+	background: #2A2C2B;
+	padding: 120px 0;
+}
+footer a {
+	color: #FFFFFF;
+	font-size: 0.9em;
+	text-transform: uppercase;
+	font-weight: 700;
+}
+
+footer a:hover {
+	color: #FF4136;
+}
+footer a {
+	text-decoration: none;
+}
+footer ul {
+	list-style-type: none;
+	padding: 0;
+	
+}
+footer ul li {
+	display: inline;
+	padding-right: 25px;
+	font-weight: 500;
+	font-size: 1.5em;
+}
+
+
+footer p {
+	color: #888888;
+	font-size: 1.2em;
+	margin: 0;
+}
+footer h2 {
+	text-transform: uppercase;
+	color: #FFFFFF;
+	margin-top: 0;
+	font-size: 2rem;
+	font-weight: 700;
+	width: 130px;
+}
+footer h2:after {
+	display: none;
+}
+footer hr {
+	border-top: 3px solid #ffffff;
+	margin: 20px 0 20px 0;
+}
+
+@media all and (max-width: 550px) {
+footer ul li {
+	display: block;
+}
+}
+/* Misc */
+
+.center {
+	text-align: center;
+	font-size: 1.5em;
+}
+.padDown {
+	padding-bottom: 50px;
+}
+#billboard{
+overflow-y: hidden;
+}
+</style>
+
+  <script>
+  window.console = window.console || function(t) {};
+</script>
+
+  
+  
+  <script>
+  if (document.location.search.match(/type=embed/gi)) {
+    window.parent.postMessage("resize", "*");
+  }
+</script>
+
+
+</head>
+
+<body translate="no">
+  <!-- Header & Navigation -->
+<header>
+  <div class="container">
+    <div class="logo">Warren's Small Engine Repair Services</div>
+    <div class="mainNav">
+      <div class="mobileToggle"> <span></span> <span></span> <span></span> </div>
+      <nav>
+        <ul>
+          <li><a class="smoothscroll" href="#hero">Home</a></li>
+          <!--<li><a class="smoothscroll" href="#about">About</a></li>-->
+          <li><a class="smoothscroll" href="#work">Work</a></li>
+          <li><a class="smoothscroll" href="#services">Services</a></li>
+          <!--<li><a class="smoothscroll" href="#pricing">Pricing</a></li>-->
+          <li><a class="smoothscroll" href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<!-- Header & Navigation End --> 
+
+<!-- Hero -->
+s
+<section id="hero">
+  <div id= "billboard" class="container">
+    <h2><span class="first" style="opacity: 1;"><strong>Warren's</strong></span> <span class="white first" style="opacity: 1;">Small Engine</br></span> <span class="first" style="opacity: 1;"><strong>Repair Services</strong></span></h2>
+    <p class="second" style="opacity: 1; transform: matrix(1, 0, 0, 1, 0, 0);">Pumps, Hydraulics, Weed Eaters, Lawn Mowers, Pressure Washers, Compressors, Blowers,Small Diesel Engines & More!</p>
+    <a href="#contact" class="smoothscroll">
+    <div class="button second" style="opacity: 1; transform: matrix(1, 0, 0, 1, 0, 0);">Schedule Service</div>
+    </a> </div>
+</section>
+
+<!-- Hero End --> 
+
+<!-- About Section 
+
+<section id="about">
+  <div class="container">
+    <div class="row">
+      <h2 class="center">About</h2>
+      <p class="center padDown">Small Engine Repair Service</p>
+    </div>
+    <div class="row">
+      <div class="six col">
+        <h3>From Lawn Mowers to Pressure Washers, We fix it all!</h3>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Assumenda ex obcaecati mollitia architecto deserunt aspernatur facere suscipit laboriosam. Architecto rem debitis quisquam voluptate labore ipsa deserunt reprehenderit similique nisi saepe distinctio doloribus.</p>
+        <p>Sed natus voluptatibus nemo, esse quod iste eius nostrum, excepturi porro. Enim magni aperiam, tenetur praesentium autem consequuntur dolorem quis a illum officiis quas.</p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Assumenda ex obcaecati mollitia architecto. Architecto rem debitis quisquam voluptate labore ipsa deserunt esse quod iste eius nostrum.</p>
+      </div>
+      <div class="six col">
+        <div class="row">
+          <div class="six col">
+            <h4><span class="typcn typcn-device-desktop icon"></span>Our Process</h4>
+            <p>We fix your engine.</p>
+          </div>
+          <div class="six col">
+            <h4><span class="typcn typcn-pen icon"></span>Our Approach</h4>
+            <p>We assess and fix your engine.</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="six col">
+            <h4><span class="typcn typcn-cog-outline icon"></span>Our Goal</h4>
+            <p>Fix your engine in the right time.</p>
+          </div>
+          <div class="six col">
+            <h4><span class="typcn typcn-lightbulb icon"></span>Our Mission</h4>
+            <p>Provide Affordable, Quality Repairs on all small engines.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+ About Section End --> 
+
+<!-- Work Section -->
+
+<section id="work">
+  <div class="container">
+    <div class="row">
+      <h2 class="center">Work</h2>
+      <p class="center padDown">At Warren's Small Engine & More, We specialize in small engines of every kind. Whether your hydro blasting pump needs engine repair, or your generator is having problems, we can provide all of your small engine repair services!</p>
+    </div>
+    <div class="row">
+      <div class="three col">
+        <div class="work"> <img style = "height: 200px; width: 250px"src="image_26968.jpg" alt="Pumps">
+          <div class="work-overlay">
+            <h4>Pumps</h4>
+            <p>Hydro Blasting Pumps, Utility Pumps</p>
+          </div>
+        </div>
+      </div>
+      <div class="three col">
+        <div class="work"> <img style = "height: 200px; width: 250px"src="hydraulic.jpg" alt="Hydraulics">
+          <div class="work-overlay">
+            <h4>Hydraulics</h4>
+            <p>Hydraulic Power Units, Motors, Lifts</p>
+          </div>
+        </div>
+      </div>
+      <div class="three col">
+        <div class="work"> <img style = "height: 200px; width: 250px"src="Stihl-FS-91-R-String-Trimmer.jpg" alt="Weed Eaters">
+          <div class="work-overlay">
+            <h4>Weed Eaters</h4>
+            <p>Small Engine Weed Eaters</p>
+          </div>
+        </div>
+      </div>
+      <div class="three col">
+        <div class="work"> <img style = "height: 200px; width: 250px"src="Types-of-Lawn-Mower-Engines.jpg" alt="Lawn Mowers">
+          <div class="work-overlay">
+            <h4>Lawn Mowers</h4>
+            <p>Lawn Mower Engines</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row" style="margin-top: 35px;">
+      <div class="three col">
+        <div class="work"> <img style = "height: 200px; width: 250px"src="honda-pressure-washer-engine.jpeg" alt="Pressure Washers">
+          <div class="work-overlay">
+            <h4>Pressure Washer</h4>
+            <p>Pressure Washer Engines</p>
+          </div>
+        </div>
+      </div>
+      <div class="three col">
+        <div class="work"> <img style = "height: 200px; width: 250px"src="generator.jpeg" alt="Compressors">
+          <div class="work-overlay">
+            <h4>Generators</h4>
+            <p>Gas Powered Generator Engines</p>
+          </div>
+        </div>
+      </div>
+      <div class="three col">
+        <div class="work"> <img style = "height: 200px; width: 250px"src="blower.jpg" alt="Blowers">
+          <div class="work-overlay">
+            <h4>Blowers</h4>
+            <p>Air Blowers, Leaf Blowers</p>
+          </div>
+        </div>
+      </div>
+      <div class="three col">
+        <div class="work"> <img style = "height: 200px; width: 250px"src="chainsaw.jpg" alt="generators">
+          <div class="work-overlay">
+            <h4>Small Engines</h4>
+            <p>Chainsaws, Generators</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Work Section End --> 
+
+<!-- Services Section -->
+<section id="services">
+  <div class="container">
+    <div class="row">
+      <h2 class="center">Services</h2>
+      <p class="center padDown">Schedule a repair to get your small engines back up and running Today!</p>
+    </div>
+    <div class="row">
+      <div class="four col">
+        <h3>On-Site Repair</h3>
+        <p>Schedule a repair with us today, and we will travel to your location and provide small engine repair services on the spot! </p>
+      </div>
+      <div class="four col">
+        <h3>24/7 Emergency Repair</h3>
+        <p>We understand when you need your tools to be working as soon as possible. That's why we offer the ability to call anytime to get your small engine repair services scheduled and completed to get you back to work!</p>
+      </div>
+      <div class="four col">
+        <h3>Drop Off</h3>
+        <p>Drop your small engine off at the shop, and we'll contact you when the repair services are completed and the small engine is ready for pickup!</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="eight col">
+        <h3>Location</h3>
+<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3460.526472429999!2d-95.45689328488947!3d29.849087181953767!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8640c63d248e1d9f%3A0x494e0fafd7795946!2s5713%20Balbo%20St%2C%20Houston%2C%20TX%2077091!5e0!3m2!1sen!2sus!4v1650552888422!5m2!1sen!2sus" width="100%" height="420px" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+      <div class="four col">
+        <h4>Pickup & Delivery</h4>
+        <p>For those circumstances where you can't make it to the shop and your repair services are not possible in a day, we'll come pick up your small engine and contact you when the repair is completed.</p>
+        <p>We understand hardwork, and sometimes you just can't leave the job site. We'll deliver your small engine to your location as soon as the repair services are completed! </p>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- Services Section End --> 
+
+<!-- Pricing Section 
+<section id="pricing">
+  <div class="container">
+    <div class="row">
+      <div class="twelve col">
+        <h2 class="center">Pricing</h2>
+        <p class="center padDown">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col four">
+        <div class="card">
+          <h3>Lawn Mower</h3>
+          <hr>
+          <h4>$40<span class="month">/hr</span></h4>
+          <hr>
+          <p>One User</p>
+          <p>Software Package</p>
+          <p>Email Support</p>
+          <p><span class="grey">Unlimited Diskspace</span></p>
+          <hr>
+          <button onclick="window.location.href='#contact'; document.getElementById('Message').innerHTML = 'Hello, I am inquiring about the Lawn Mower Repair for $30. Will you contact me?';">Buy Now</button>
+        </div>
+      </div>
+      <div class="col four">
+        <div class="card">
+          <h3>Weed Eater</h3>
+          <hr>
+          <h4>$30<span class="month">/hr</span></h4>
+          <hr>
+          <p>Five User</p>
+          <p>Software Package</p>
+          <p>Email Support</p>
+          <p><span class="grey">Unlimited Diskspace</span></p>
+          <hr>
+          <button onclick="window.location.href='#contact'; document.getElementById('Message').innerHTML = 'Hello, I am inquiring about the Lawn Mower Repair for $30. Will you contact me?';">Buy Now</button>
+        </div>
+      </div>
+      <div class="col four">
+        <div class="card">
+          <h3>Pressure Washer</h3>
+          <hr>
+          <h4>$50<span class="month">/hr</span></h4>
+          <hr>
+          <p>Unlimited User</p>
+          <p>Software Package</p>
+          <p>Email Support</p>
+          <p>Unlimited Diskspace</p>
+          <hr>
+          <button onclick="window.location.href='#contact'; document.getElementById('Message').innerHTML = 'Hello, I am inquiring about the Lawn Mower Repair for $30. Will you contact me?';">Buy Now</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+Pricing UI One End --> 
+
+<!-- Contact Section -->
+
+<section id="contact">
+  <div class="container">
+    <h2 class="center">Schedule a Repair</h2>
+    <p class="center padDown">Fill out the form and you will be contacted regarding your inquiry</br> or Call <u>832-275-1007</u> to schedule right away!</p>
+    <div class="row">
+      <form   action="https://formspree.io/f/mqknyvej"
+  method="POST">
+        <input type="text" placeholder="Name" name="name" required="">
+        <input type="email" placeholder="Email" name="email" required="">
+        <input type="number" placeholder="Phone #" name="number" required="">
+        <textarea id= "Message"placeholder="Message" name="message" required=""></textarea>
+        <input id="sendButton" type="submit" value="Send">
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- Contact Section End --> 
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col six">
+
+        <p>5713 Balbo St, Houston, TX 77091</p>
+        <p>Phone: 832-275-1007</p>
+        <p>E-mail: <a href="mailto:Cordarrelw@gmail.com">Cordarrelw@gmail.com</a></p>
+      </div>
+      <div class="col six">
+        <ul>
+          <li><a class="smoothscroll" href="#hero">Home</a></li>
+          <!--<li><a class="smoothscroll" href="#about">About</a></li>-->
+          <li><a class="smoothscroll" href="#work">work</a></li>
+          <li><a class="smoothscroll" href="#services">Services</a></li>
+          <!--<li><a class="smoothscroll" href="#pricing">Pricing</a></li>-->
+          <li><a class="smoothscroll" href="#contact">Contact</a></li>
+        </ul>
+        <hr>
+      </div>
+    </div>
+  </div>
+</footer>
+    
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/latest/TweenMax.min.js"></script>
+      <script id="rendered-js">
+/*----------------------------------------------------*/
+/* Mobile Navigation
+------------------------------------------------------ */
+
+$('.mobileToggle').click(function () {
+  if ($('.mainNav').hasClass('openNav')) {
+    $('.mainNav').removeClass('openNav');
+  } else {
+    $('.mainNav').addClass('openNav');
+  }
+});
+
+$('.mainNav li a').click(function () {
+  if ($('.mainNav').hasClass('openNav')) {
+    $('.navigation').removeClass('openNav');
+    $('.mainNav').removeClass('openNav');
+  }
+});
+
+/*----------------------------------------------------*/
+/* Smooth Scrolling
+------------------------------------------------------ */
+
+$(document).ready(function () {
+
+  $('.smoothscroll').on('click', function (e) {
+    e.preventDefault();
+
+    var target = this.hash,
+    $target = $(target);
+
+    $('html, body').stop().animate({
+      'scrollTop': $target.offset().top },
+    800, 'swing', function () {
+      window.location.hash = target;
+    });
+  });
+
+});
+
+/*----------------------------------------------------*/
+/* Hero Animation
+------------------------------------------------------ */
+var hero = new TimelineMax({});
+hero.staggerFrom(".first", 0.8, { opacity: 0 }, 0.6).
+staggerFrom(".second", 0.6, { opacity: 0, y: 20 }, 0.4, "-=0.2");
+//# sourceURL=pen.js
+    </script>
+
+  
+
+
+
+
+ 
+</body></html>
