@@ -1,238 +1,93 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Under $2500 Complete Gaming Setup</title>
-    <style>
-        body {
-		display: inline;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(to bottom, #C133FF, #3399FF, #33FF77 ); /* Reverted to older gradient with extension */
-            color: #333;
-            min-height: 100vh; /* Ensure the gradient fills the entire viewport height */
-            
-            flex-direction: column;
-        }
-
-        header {
-            background-color: rgba(255, 255, 255, 0.2); /* Glass-like header background */
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-bottom-left-radius: 40px;
-            border-bottom-right-radius: 40px;
-        }
-
-        header h1 {
-            font-size: 48px; /* Larger title font */
-            font-family: Brush Script MT, Brush Script Std, cursive;
-            color: #fff;
-            margin: 0;
-        }
-
-        .navbar {
-            background-color: transparent; /* Transparent navbar background */
-            position: sticky;
-            top: 0;
-            z-index: 999;
-            border-top-left-radius: 40px;
-            border-top-right-radius: 40px;
-            backdrop-filter: blur(10px); /* Apply blur effect to navbar for glass look */
-            padding: 10px 0; /* Add padding to separate buttons vertically */
-        }
-
-        .navbar ul {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: space-around; /* Separating navigation buttons */
-        }
-
-        .navbar li {
-            margin: 0 10px; /* Adjust spacing between buttons */
-        }
-
-        .navbar a {
-            text-decoration: none;
-            color: #fff;
-            border-radius: 50%; /* Make the buttons spherical */
-            padding: 10px 15px; /* Add padding to the buttons */
-            background-color: rgba(255, 255, 255, 0.2); /* Glass-like button background */
-            transition: background-color 0.3s ease;
-        }
-
-        .navbar a:hover {
-            background-color: rgba(255, 255, 255, 0.3); /* Button background on hover */
-        }
-
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr); /* Create a 3x5 grid for larger screens */
-            grid-gap: 20px; /* Adjust spacing between divs */
-            padding: 20px; /* Adjust padding */
-            margin: 20px;
-        }
-
-        .item {
-            width: 80%; /* Full-width div within each grid cell */
-            padding: 20px; /* Adjust padding */
-            border-radius: 10px; /* Rounded edges for divs */
-            background-color: rgba(255, 255, 255, 0.3); /* Glass-like div background */
-            text-align: center;
-			transition: background-color 2s ease-out 100ms
-        } .item:hover{
-		background-color: rgba(255, 255, 255, .8)
-		}
-
-        .item img {
-    width: 200px;
-	height: 200px;
-    padding-top: 12px;
-    border-radius: 100%;
-			
-        }
-
-        .item a {
-            text-decoration: none;
-            color: #fff;
-			transition: color: 2s ease-out 100ms
-        }
-
-        .item a:hover {
-            font-weight:bold;
-			color: rgb(0,0,0);
-        }
-
-        footer {
-            background-color: rgba(255, 255, 255, 0.2); /* Glass-like footer background */
-            padding: 20px;
-            text-align: center;
-            border-top-left-radius: 40px;
-            border-top-right-radius: 40px;
-            margin-top: auto; /* Align footer to the bottom */
-        }
-		.info-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(255, 255, 255, 0.3); /* Glass-like background */
-  border-radius: 10px;
-  margin: 20px;
-  padding: 20px;
-  width: 37%;
-    margin-left: 30%;
-  text-align: center;
-}
-
-.info-text {
-  flex: 1;
-  padding: 20px;
-}
-
-.info-text p {
-  margin: 10px 0;
-}
-
-.info-photo {
-  flex: 1;
-  text-align: center;
-}
-
-.circular-photo {
-  border-radius: 50%;
-  width: 250px; /* Adjust the size of the circular photo as needed */
-  height: 250px;
-  object-fit: cover; /* Ensure the image fills the circular space */
-}
-
-        @media (max-width: 768px) {
-            /* Switch to 10 rows of 3 divs for mobile devices */
-            .grid-container {
-                grid-template-columns: repeat(3, 1fr); /* Create a 3x3 grid */
-                grid-template-rows: repeat(5, 1fr); /* 10 rows */
-                padding: 2px; /* Adjust padding for mobile */
-				
-            }
-			
-            .item {
-                width: 75%; /* Full-width div within each grid cell for mobile */
-                padding: 10px; /* Adjust padding for mobile */
-				height: fit-content;
-            }
-					.item img{
-			width:75px;
-			height:75px;
-			
-			
-			}
-			header h1 {
-			font-size: 24px;
-			}
-			  .info-container {
-    flex-direction: column; /* Stack content vertically on mobile */
-    text-align: center;
-	  width: auto;
-    margin-left: 20px;
-  }
-
-  .info-text {
-    padding: 10px; /* Adjust padding for mobile */
-  }
-
-  .info-photo {
-    padding-top: 20px; /* Add space between text and photo on mobile */
-  }
-  
-  .circular-photo {
-    width: 200px; /* Adjust the circular photo size for mobile */
-    height: 200px;
-  }
-        }
-    </style>
-</head><!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-Y6PYPQDQJB"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-Y6PYPQDQJB');
-</script>
-<body>
-    <header>
-        <h1>Under $2500 Complete Gaming Setup</h1>
-
-    </header>
-	<iframe src="//rcm-na.amazon-adsystem.com/e/cm?o=1&p=308&l=ur1&category=audiblegiftmemberships&banner=0N7MX06GEHZ8430X4N82&f=ifr&lc=pf4&linkID=ee0afa054b01791424075cf44108da41&t=pclifehacks-20&tracking_id=pclifehacks-20" width="250" height="300" scrolling="no" border="0" marginwidth="0" style="border:none;" frameborder="0" sandbox="allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation"></iframe>
-	    <iframe src="//rcm-na.amazon-adsystem.com/e/cm?o=1&p=12&l=ur1&category=amzn_biz_bounty&banner=0K3WH19RMBH6B504RGG2&f=ifr&lc=pf4&linkID=572eb4d443f22f51b329c9c295ea110e&t=pclifehacks-20&tracking_id=pclifehacks-20" width="300" height="250" scrolling="no" border="0" marginwidth="0" style="border:none;" frameborder="0" sandbox="allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation"></iframe>
-	
-	<iframe src="//rcm-na.amazon-adsystem.com/e/cm?o=1&p=12&l=ur1&category=audibleplus&banner=0MG2XKQ7PYPP84NBNFR2&f=ifr&lc=pf4&linkID=36f2690e12f249e30e34e414112461b7&t=pclifehacks-20&tracking_id=pclifehacks-20" width="300" height="250" scrolling="no" border="0" marginwidth="0" style="border:none;" frameborder="0" sandbox="allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation"></iframe>
-	
-	
-	
-	
-	
-	<div class="info-container">
-		        <div class="info-photo">
-            <img src="https://media.licdn.com/dms/image/C4E03AQEJ-3aHco1i5w/profile-displayphoto-shrink_800_800/0/1572891900803?e=2147483647&v=beta&t=xSIJ-7TImVV1iUbWBOcJNLeiLUt6TgvxXumR2LWaAgo" alt="Your Circular Photo" class="circular-photo">
+<table id="tblPendingBets" class="table border" style="width: 100%;" cellpadding="0" cellspacing="0"><thead><tr id="theadRow"><td id="descriptionTh" class="HeaderColumn tdHeaderDailySummaryDescription" align="left"><label id="descriptionLbl">Description</label><label id="riskWinLbl" class="float-right">Risk / Win</label></td></tr></thead><tbody id="tbodyPendingBetItems" class="dailySummaryItems"><tr id="tr-45048196" class="wager-detail-info BackgroundLineGray" data-tn="45048196"><td id="descriptionCell" class="description-cell descp-td tdGameDetail"><div><div id="riskWinlbl" class="float-right">3.00 / 345.00</div><div id="descriptionLbl"><div class="DivDetailTicketShort  pl-sm-2 mb-1"><font class="TeamRotationTicket d-none @@padding-right"></font><font class="TeamNameTicket"><input type="checkbox"> Jack Eichel of the Vegas Golden Knights will score 1 or more goals against the Los Angeles Kings<br><input type="checkbox"> Adrian Kempe of the Los Angeles Kings will score 1 or more goals against the Vegas Golden Knights<br><input type="checkbox"> Elias Pettersson of the Vancouver Canucks will score 1 or more goals against the Philadelphia Flyers<br><input type="checkbox"> Connor McDavid of the Edmonton Oilers will score 1 or more goals against the San Jose Sharks<br><input type="checkbox"> Leon Draisaitl of the Edmonton Oilers will score 1 or more goals against the San Jose Sharks<br><input type="checkbox"> Zach Hyman of the Edmonton Oilers will score 1 or more goals against the San Jose Sharks</font><font class="TargetTicket"></font><font class="TargetTicket"></font><font class="PointsTicket"></font><font class="ScoreTypeTicket"></font><font class="OddsTicket"></font><font class="PeriodTypeTicket"></font><font class="BuyPointTicket"></font><font class="WagerState"></font></div><div id="45048196-1" class="Invisible wager-side-description  pl-2 pl-sm-4 mb-1"></div></div></div></td></tr><tr id="tr-45048077" class="wager-detail-info BackgroundLineGray" data-tn="45048077" data-loaded="true"><td id="descriptionCell" class="description-cell descp-td tdGameDetail border-wagerdetail-opened"><div><div id="riskWinlbl" class="float-right">2.00 / 106.00</div><div id="descriptionLbl"><div class="DivDetailTicketShort  pl-sm-2 mb-1"><font class="TeamRotationTicket @@padding-right"></font><font class="TeamNameTicket"><input type="checkbox"> Calen Addison of the San Jose Sharks will score 1 or more goals against the Edmonton Oilers<br><input type="checkbox"> Alex Pietrangelo of the Vegas Golden Knights will score 1 or more goals against the Los Angeles Kings</font><font class="TargetTicket"></font><font class="TargetTicket"></font><font class="PointsTicket"></font><font class="ScoreTypeTicket"></font><font class="OddsTicket"></font><font class="PeriodTypeTicket"></font><font class="BuyPointTicket"></font><font class="WagerState"></font></div><div id="45048077-1" class="wager-side-description pl-2 pl-sm-4 mb-1"><div class="">
+    <div class="ln">
+        <div class="d-inline-block">
+            <label id="gameTeamNames" class="gameTeamNames"></label>
         </div>
-        <div class="info-text">
-            <p><strong>Robert Campbell</strong></p>
-            <p>I've worked with computers for over 20 years. Building a computer can be overwhelming and expensive if you don't know what you need. This setup right here is versatile, can handle any software or game you throw at it and is the best budget computer setup you can find using parts sold specifically on Amazon.</p>
-            <!-- Add more text content as needed -->
-        </div>
-
+        
     </div>
 
-<div class="grid-container"><div class="item"><a href="https://amzn.to/3ZhHS83" target="_blank"><img src="https://m.media-amazon.com/images/I/71yYoZh0OML._AC_SX679_.jpg" alt="Intel Core i9-12900K"><p>Intel Core i9-12900K</br>$370</p></a></div><div class="item"><a href="https://amzn.to/3Lf774Z" target="_blank"><img src="https://m.media-amazon.com/images/I/81hQTzzTLrL._AC_SX466_.jpg" alt="ASUS ROG Strix Z690-E"><p>ASUS ROG Strix Z690-E</br>$255</p></a></div><div class="item"><a href="https://amzn.to/3P7dTLr" target="_blank"><img src="https://m.media-amazon.com/images/I/61Hg4QwHt+L._SX522_.jpg" alt="White CPU Water Cooler"><p>White CPU Water Cooler</br>$65</p></a></div><div class="item"><a href="https://amzn.to/3P8wxT1" target="_blank"><img src="https://m.media-amazon.com/images/I/51Brl+iYtvL._AC_SX679_.jpg" alt="Samsung 970 EVO Plus SSD 2TB"><p>Samsung 970 EVO Plus SSD 2TB</br>$90</p></a></div><div class="item"><a href="https://amzn.to/3Z9kXeZ" target="_blank"><img src="https://m.media-amazon.com/images/I/81ANZbfCvuL._AC_SL1500_.jpg" alt="NVIDIA GeForce RTX 3060 Ti"><p>NVIDIA GeForce RTX 3060 Ti</br>$390</p></a></div><div class="item"><a href="https://amzn.to/3sOeSbV" target="_blank"><img src="https://m.media-amazon.com/images/I/71iuyZ7iKjL._AC_SY450_.jpg" alt="Full Tower"><p>Full Tower</br>$150</p></a></div><div class="item"><a href="https://amzn.to/3r4zbRY" target="_blank"><img src="https://m.media-amazon.com/images/I/61L8HPVBoUL._AC_SX679_PIbundle-2,TopRight,0,0_SH20_.jpg" alt="RGB DDR5 RAM 32GB (2x16GB)"><p>RGB DDR5 RAM 32GB (2x16GB)</br>$100</p></a></div><div class="item"><a href="https://amzn.to/45OPvFG" target="_blank"><img src="https://m.media-amazon.com/images/I/71lbYz0l6UL.__AC_SY300_SX300_QL70_FMwebp_.jpg" alt="Fully Modular Power Supply"><p>Fully Modular Power Supply</br>$250</p></a></div><div class="item"><a href="https://amzn.to/3EPsNBr" target="_blank"><img src="https://m.media-amazon.com/images/I/61pD6Bqn5NL._AC_SX679_.jpg" alt="34 Inch Curved Monitor with 144Hz Refresh Rate"><p>34 Inch Curved Monitor with 144Hz Refresh Rate</br>$350</p></a></div><div class="item"><a href="https://amzn.to/3RfLm9i" target="_blank"><img src="https://m.media-amazon.com/images/I/61pl5xLez7L._AC_SY450_.jpg" alt="Razer Naga V2 HyperSpeed Wireless"><p>Razer Naga V2 HyperSpeed Wireless</br>$95</p></a></div><div class="item"><a href="https://amzn.to/3PbJmfh" target="_blank"><img src="https://m.media-amazon.com/images/I/61cR1-lSE6L.__AC_SX300_SY300_QL70_FMwebp_.jpg" alt=" Wireless Mechanical Keyboard"><p> Wireless Mechanical Keyboard</br>$63</p></a></div><div class="item"><a href="https://amzn.to/45XLaPU" target="_blank"><img src="https://m.media-amazon.com/images/I/81lrM54H7PL._AC_SX679_.jpg" alt="RIG 800 PRO HD Wireless Headset and Multi-Function Base Station"><p>RIG 800 PRO HD Wireless Headset and Multi-Function Base Station</br>$150</p></a></div><div class="item"><a href="https://amzn.to/3r7UhyU" target="_blank"><img src="https://m.media-amazon.com/images/I/719eTcJARhL._AC_SY355_.jpg" alt="Height Adjustable Electric Standing Desk"><p>Height Adjustable Electric Standing Desk</br>$130</p></a></div><div class="item"><a href="https://amzn.to/44MLIHr" target="_blank"><img src="https://m.media-amazon.com/images/I/71dyMSmExxL._AC_SX466_.jpg" alt="Large Gaming Mouse Pad"><p>Large Gaming Mouse Pad</br>$14</p></a></div><div class="item"><a href="https://amzn.to/3Zc1uur" target="_blank"><img src="https://m.media-amazon.com/images/I/619T3S1zvIL._AC_SY741_.jpg" alt="Gaming Chair "><p>Gaming Chair </br>$110</p></a></div></div>
-	
-   <footer>
-        &copy; 2023 @myrealnamesreagan | <a href="https://www.tiktok.com/@myrealnamesreagan">TikTok</a> | <a href="#">Instagram</a>
-    </footer>
-</body>
-</html>
+    <div class="contest-desc-block ml-n3 d-none">
+        <div id="contest-description-value" class="font-weight-bold"></div>
+    </div>
+
+    <div class="ln">
+        <div id="sportleague-label" class="d-l font-weight-bold">Sport / League:</div>
+        <div id="sportleague-container-value" class="d-r "><strong id="sportleague-value" class="sportleague-value text-primary">Ice Hockey</strong></div>
+    </div>
+    <div class="ln">
+        <div id="selection-label" class="d-l font-weight-bold">Selection: </div>
+        <div id="selection-value" class="d-r font-weight-normal">Game Money Line</div>
+    </div>
+    <div class="ln" id="riskwinBlock">
+        <div id="riskwin-label" class="d-l  font-weight-bold">Risk/Win:</div>
+        <div id="riskwin-value" class="d-r font-weight-normal">2 / 106</div>
+    </div>
+    
+    <div class="ln" id="acceptedBlock">
+        <div id="acceptedDateTime-label" class="d-l font-weight-bold">Accepted:</div>
+        <div id="acceptedDateTime-value" class="d-r font-weight-normal">Dec 28, 2023 2:14 PM - Props</div>
+    </div>
+    <div class="ln">
+        <div id="scheduledDateTime-label" class="d-l font-weight-bold">Scheduled:</div>
+        <div id="scheduledDateTime-value" class="d-r font-weight-normal">Dec 28, 2023 10:30 PM</div>
+    </div>
+    <div class="ln" id="ticketnumberBlock">
+        <div id="ticketnumber-label" class="d-l font-weight-bold">Ticket Number:</div>
+        <div id="ticketnumber-value" class="d-r font-weight-normal">45048077</div>
+    </div>
+    <div class="ln">
+        <div id="outcome-label" class="d-l font-weight-bold">Outcome:</div>
+        <div id="outcome-container" class="d-r font-weight-normal">
+            <span id="outcome-value">Pending</span>
+            <span id="outcome-score"></span>
+        </div>
+    </div>
+    
+    
+</div></div></div></div></td></tr><tr id="tr-45048017" class="wager-detail-info BackgroundLineGray" data-tn="45048017"><td id="descriptionCell" class="description-cell descp-td tdGameDetail"><div><div id="riskWinlbl" class="float-right">15.00 / 52.35</div><div id="descriptionLbl"><div class="DivDetailTicketShort  pl-sm-2 mb-1"><font class="TeamRotationTicket d-none @@padding-right"></font><font class="TeamNameTicket"><input type="checkbox"> to win: CAR (MTL @ CAR)<br><input type="checkbox"> to win: VAN (PHI @ VAN)<br><input type="checkbox"> to win: EDM (EDM @ SJ)<br><input type="checkbox"> to win: LA (LA @ VGK)</font><font class="TargetTicket"></font><font class="TargetTicket"></font><font class="PointsTicket"></font><font class="ScoreTypeTicket"></font><font class="OddsTicket"></font><font class="PeriodTypeTicket"></font><font class="BuyPointTicket"></font><font class="WagerState"></font></div><div id="45048017-1" class="Invisible wager-side-description  pl-2 pl-sm-4 mb-1"></div></div></div></td></tr><tr id="tr-45047859" class="wager-detail-info BackgroundLineGray" data-tn="45047859" data-loaded="true"><td id="descriptionCell" class="description-cell descp-td tdGameDetail border-wagerdetail-opened"><div><div id="riskWinlbl" class="float-right">5.00 / 1800.00</div><div id="descriptionLbl"><div class="DivDetailTicketShort  pl-sm-2 mb-1"><font class="TeamRotationTicket @@padding-right"></font><font class="TeamNameTicket"><input type="checkbox"> Kevin Fiala of the Los Angeles Kings will score 1 or more goals against the Vegas Golden Knights<br><input type="checkbox"> Pierre-Luc Dubois of the Los Angeles Kings will score 1 or more goals against the Vegas Golden Knights<br><input type="checkbox"> Mike Hoffman of the San Jose Sharks will score 1 or more goals against the Edmonton Oilers<br><input type="checkbox"> Darnell Nurse of the Edmonton Oilers will score 1 or more goals against the San Jose Sharks</font><font class="TargetTicket"></font><font class="TargetTicket"></font><font class="PointsTicket"></font><font class="ScoreTypeTicket"></font><font class="OddsTicket"></font><font class="PeriodTypeTicket"></font><font class="BuyPointTicket"></font><font class="WagerState"></font></div><div id="45047859-1" class="wager-side-description pl-2 pl-sm-4 mb-1"><div class="">
+    <div class="ln">
+        <div class="d-inline-block">
+            <label id="gameTeamNames" class="gameTeamNames"></label>
+        </div>
+        
+    </div>
+
+    <div class="contest-desc-block ml-n3 d-none">
+        <div id="contest-description-value" class="font-weight-bold"></div>
+    </div>
+
+    <div class="ln">
+        <div id="sportleague-label" class="d-l font-weight-bold">Sport / League:</div>
+        <div id="sportleague-container-value" class="d-r "><strong id="sportleague-value" class="sportleague-value text-primary">Ice Hockey</strong></div>
+    </div>
+    <div class="ln">
+        <div id="selection-label" class="d-l font-weight-bold">Selection: </div>
+        <div id="selection-value" class="d-r font-weight-normal">Game Money Line</div>
+    </div>
+    <div class="ln" id="riskwinBlock">
+        <div id="riskwin-label" class="d-l  font-weight-bold">Risk/Win:</div>
+        <div id="riskwin-value" class="d-r font-weight-normal">5 / 1800</div>
+    </div>
+    
+    <div class="ln" id="acceptedBlock">
+        <div id="acceptedDateTime-label" class="d-l font-weight-bold">Accepted:</div>
+        <div id="acceptedDateTime-value" class="d-r font-weight-normal">Dec 28, 2023 2:11 PM - Props</div>
+    </div>
+    <div class="ln">
+        <div id="scheduledDateTime-label" class="d-l font-weight-bold">Scheduled:</div>
+        <div id="scheduledDateTime-value" class="d-r font-weight-normal">Dec 28, 2023 10:00 PM</div>
+    </div>
+    <div class="ln" id="ticketnumberBlock">
+        <div id="ticketnumber-label" class="d-l font-weight-bold">Ticket Number:</div>
+        <div id="ticketnumber-value" class="d-r font-weight-normal">45047859</div>
+    </div>
+    <div class="ln">
+        <div id="outcome-label" class="d-l font-weight-bold">Outcome:</div>
+        <div id="outcome-container" class="d-r font-weight-normal">
+            <span id="outcome-value">Pending</span>
+            <span id="outcome-score"></span>
+        </div>
+    </div>
+    
+    
+</div></div></div></div></td></tr><tr id="tr-45047645" class="wager-detail-info BackgroundLineGray" data-tn="45047645"><td id="descriptionCell" class="description-cell descp-td tdGameDetail"><div><div id="riskWinlbl" class="float-right">5.00 / 215.00</div><div id="descriptionLbl"><div class="DivDetailTicketShort  pl-sm-2 mb-1"><font class="TeamRotationTicket d-none @@padding-right"></font><font class="TeamNameTicket"><input type="checkbox"> William Karlsson of the Vegas Golden Knights will score 1 or more goals against the Los Angeles Kings<br><input type="checkbox"> Trevor Moore of the Los Angeles Kings will score 1 or more goals against the Vegas Golden Knights<br><input type="checkbox"> Evander Kane of the Edmonton Oilers will score 1 or more goals against the San Jose Sharks<br><input type="checkbox"> Connor McDavid of the Edmonton Oilers will score 1 or more goals against the San Jose Sharks</font><font class="TargetTicket"></font><font class="TargetTicket"></font><font class="PointsTicket"></font><font class="ScoreTypeTicket"></font><font class="OddsTicket"></font><font class="PeriodTypeTicket"></font><font class="BuyPointTicket"></font><font class="WagerState"></font></div><div id="45047645-1" class="Invisible wager-side-description  pl-2 pl-sm-4 mb-1"></div></div></div></td></tr><tr id="tr-45047469" class="wager-detail-info BackgroundLineGray" data-tn="45047469"><td id="descriptionCell" class="description-cell descp-td tdGameDetail"><div><div id="riskWinlbl" class="float-right">3.00 / 333.00</div><div id="descriptionLbl"><div class="DivDetailTicketShort  pl-sm-2 mb-1"><font class="TeamRotationTicket d-none @@padding-right"></font><font class="TeamNameTicket"><input type="checkbox"> Adrian Kempe of the Los Angeles Kings will score 1 or more goals against the Vegas Golden Knights<br><input type="checkbox"> Trevor Moore of the Los Angeles Kings will score 1 or more goals against the Vegas Golden Knights<br><input type="checkbox"> Anze Kopitar of the Los Angeles Kings will score 1 or more goals against the Vegas Golden Knights<br><input type="checkbox"> Connor McDavid of the Edmonton Oilers will score 2 or more goals against the San Jose Sharks</font><font class="TargetTicket"></font><font class="TargetTicket"></font><font class="PointsTicket"></font><font class="ScoreTypeTicket"></font><font class="OddsTicket"></font><font class="PeriodTypeTicket"></font><font class="BuyPointTicket"></font><font class="WagerState"></font></div><div id="45047469-1" class="Invisible wager-side-description  pl-2 pl-sm-4 mb-1"></div></div></div></td></tr><tr id="tr-45047439" class="wager-detail-info BackgroundLineGray" data-tn="45047439"><td id="descriptionCell" class="description-cell descp-td tdGameDetail"><div><div id="riskWinlbl" class="float-right">5.00 / 195.00</div><div id="descriptionLbl"><div class="DivDetailTicketShort  pl-sm-2 mb-1"><font class="TeamRotationTicket d-none @@padding-right"></font><font class="TeamNameTicket"><input type="checkbox"> Zach Hyman of the Edmonton Oilers will score 1 or more goals against the San Jose Sharks<br><input type="checkbox"> Anze Kopitar of the Los Angeles Kings will score 1 or more goals against the Vegas Golden Knights<br><input type="checkbox"> Quinton Byfield of the Los Angeles Kings will score 1 or more goals against the Vegas Golden Knights<br><input type="checkbox"> Connor McDavid of the Edmonton Oilers will score 1 or more goals against the San Jose Sharks</font><font class="TargetTicket"></font><font class="TargetTicket"></font><font class="PointsTicket"></font><font class="ScoreTypeTicket"></font><font class="OddsTicket"></font><font class="PeriodTypeTicket"></font><font class="BuyPointTicket"></font><font class="WagerState"></font></div><div id="45047439-1" class="Invisible wager-side-description  pl-2 pl-sm-4 mb-1"></div></div></div></td></tr><tr id="tr-45047379" class="wager-detail-info BackgroundLineGray" data-tn="45047379"><td id="descriptionCell" class="description-cell descp-td tdGameDetail"><div><div id="riskWinlbl" class="float-right">5.00 / 130.00</div><div id="descriptionLbl"><div class="DivDetailTicketShort  pl-sm-2 mb-1"><font class="TeamRotationTicket d-none @@padding-right"></font><font class="TeamNameTicket"><input type="checkbox"> total goals: Over (6.5) (LA @ VGK)<br><input type="checkbox"> total goals: Over (7) (EDM @ SJ)<br><input type="checkbox"> Anze Kopitar of the Los Angeles Kings will score 1 or more goals against the Vegas Golden Knights<br><input type="checkbox"> Leon Draisaitl of the Edmonton Oilers will score 1 or more goals against the San Jose Sharks<br><input type="checkbox"> to win: LA (LA @ VGK)<br><input type="checkbox"> to win: EDM (EDM @ SJ)</font><font class="TargetTicket"></font><font class="TargetTicket"></font><font class="PointsTicket"></font><font class="ScoreTypeTicket"></font><font class="OddsTicket"></font><font class="PeriodTypeTicket"></font><font class="BuyPointTicket"></font><font class="WagerState"></font></div><div id="45047379-1" class="Invisible wager-side-description  pl-2 pl-sm-4 mb-1"></div></div></div></td></tr><tr id="tr-45047339" class="wager-detail-info BackgroundLineGray" data-tn="45047339"><td id="descriptionCell" class="description-cell descp-td tdGameDetail"><div><div id="riskWinlbl" class="float-right">4.00 / 52.00</div><div id="descriptionLbl"><div class="DivDetailTicketShort  pl-sm-2 mb-1"><font class="TeamRotationTicket d-none @@padding-right"></font><font class="TeamNameTicket"><input type="checkbox"> total goals: Over (6.5) (LA @ VGK)<br><input type="checkbox"> total goals: Over (7) (EDM @ SJ)<br><input type="checkbox"> Anze Kopitar of the Los Angeles Kings will score 1 or more goals against the Vegas Golden Knights<br><input type="checkbox"> Leon Draisaitl of the Edmonton Oilers will score 1 or more goals against the San Jose Sharks</font><font class="TargetTicket"></font><font class="TargetTicket"></font><font class="PointsTicket"></font><font class="ScoreTypeTicket"></font><font class="OddsTicket"></font><font class="PeriodTypeTicket"></font><font class="BuyPointTicket"></font><font class="WagerState"></font></div><div id="45047339-1" class="Invisible wager-side-description  pl-2 pl-sm-4 mb-1"></div></div></div></td></tr><tr id="tr-45047260" class="wager-detail-info BackgroundLineGray" data-tn="45047260"><td id="descriptionCell" class="description-cell descp-td tdGameDetail"><div><div id="riskWinlbl" class="float-right">5.00 / 200.00</div><div id="descriptionLbl"><div class="DivDetailTicketShort  pl-sm-2 mb-1"><font class="TeamRotationTicket d-none @@padding-right"></font><font class="TeamNameTicket"><input type="checkbox"> Zach Hyman of the Edmonton Oilers will score 1 or more goals against the San Jose Sharks<br><input type="checkbox"> Trevor Moore of the Los Angeles Kings will score 1 or more goals against the Vegas Golden Knights<br><input type="checkbox"> J.T. Miller of the Vancouver Canucks will score 1 or more goals against the Philadelphia Flyers<br><input type="checkbox"> Andrei Svechnikov of the Carolina Hurricanes will score 1 or more goals against the Montreal Canadiens</font><font class="TargetTicket"></font><font class="TargetTicket"></font><font class="PointsTicket"></font><font class="ScoreTypeTicket"></font><font class="OddsTicket"></font><font class="PeriodTypeTicket"></font><font class="BuyPointTicket"></font><font class="WagerState"></font></div><div id="45047260-1" class="Invisible wager-side-description  pl-2 pl-sm-4 mb-1"></div></div></div></td></tr><tr id="tr-45047198" class="wager-detail-info BackgroundLineGray" data-tn="45047198"><td id="descriptionCell" class="description-cell descp-td tdGameDetail"><div><div id="riskWinlbl" class="float-right">5.00 / 60.00</div><div id="descriptionLbl"><div class="DivDetailTicketShort  pl-sm-2 mb-1"><font class="TeamRotationTicket d-none @@padding-right"></font><font class="TeamNameTicket"><input type="checkbox"> Quinton Byfield of the Los Angeles Kings will score 1 or more goals against the Vegas Golden Knights<br><input type="checkbox"> Evan Bouchard of the Edmonton Oilers will score 1 or more goals against the San Jose Sharks</font><font class="TargetTicket"></font><font class="TargetTicket"></font><font class="PointsTicket"></font><font class="ScoreTypeTicket"></font><font class="OddsTicket"></font><font class="PeriodTypeTicket"></font><font class="BuyPointTicket"></font><font class="WagerState"></font></div><div id="45047198-1" class="Invisible wager-side-description  pl-2 pl-sm-4 mb-1"></div></div></div></td></tr><tr id="tr-45047171" class="wager-detail-info BackgroundLineGray" data-tn="45047171"><td id="descriptionCell" class="description-cell descp-td tdGameDetail"><div><div id="riskWinlbl" class="float-right">5.00 / 315.00</div><div id="descriptionLbl"><div class="DivDetailTicketShort  pl-sm-2 mb-1"><font class="TeamRotationTicket d-none @@padding-right"></font><font class="TeamNameTicket"><input type="checkbox"> Joel Farabee of the Philadelphia Flyers will score 1 or more goals against the Vancouver Canucks<br><input type="checkbox"> J.T. Miller of the Vancouver Canucks will score 1 or more goals against the Philadelphia Flyers<br><input type="checkbox"> Sebastian Aho of the Carolina Hurricanes will score 1 or more goals against the Montreal Canadiens<br><input type="checkbox"> Adrian Kempe of the Los Angeles Kings will score 1 or more goals against the Vegas Golden Knights</font><font class="TargetTicket"></font><font class="TargetTicket"></font><font class="PointsTicket"></font><font class="ScoreTypeTicket"></font><font class="OddsTicket"></font><font class="PeriodTypeTicket"></font><font class="BuyPointTicket"></font><font class="WagerState"></font></div><div id="45047171-1" class="Invisible wager-side-description  pl-2 pl-sm-4 mb-1"></div></div></div></td></tr><tr id="tr-45047090" class="wager-detail-info BackgroundLineGray" data-tn="45047090"><td id="descriptionCell" class="description-cell descp-td tdGameDetail"><div><div id="riskWinlbl" class="float-right">5.00 / 140.00</div><div id="descriptionLbl"><div class="DivDetailTicketShort  pl-sm-2 mb-1"><font class="TeamRotationTicket d-none @@padding-right"></font><font class="TeamNameTicket"><input type="checkbox"> Jaccob Slavin of the Carolina Hurricanes will have 1 or more assists against the Montreal Canadiens<br><input type="checkbox"> Quinn Hughes of the Vancouver Canucks will have 1 or more assists against the Philadelphia Flyers<br><input type="checkbox"> Evan Bouchard of the Edmonton Oilers will have 1 or more assists against the San Jose Sharks<br><input type="checkbox"> Travis Sanheim of the Philadelphia Flyers will have 1 or more assists against the Vancouver Canucks</font><font class="TargetTicket"></font><font class="TargetTicket"></font><font class="PointsTicket"></font><font class="ScoreTypeTicket"></font><font class="OddsTicket"></font><font class="PeriodTypeTicket"></font><font class="BuyPointTicket"></font><font class="WagerState"></font></div><div id="45047090-1" class="Invisible wager-side-description  pl-2 pl-sm-4 mb-1"></div></div></div></td></tr><tr id="tr-45047045" class="wager-detail-info BackgroundLineGray" data-tn="45047045"><td id="descriptionCell" class="description-cell descp-td tdGameDetail"><div><div id="riskWinlbl" class="float-right">5.00 / 100.00</div><div id="descriptionLbl"><div class="DivDetailTicketShort  pl-sm-2 mb-1"><font class="TeamRotationTicket d-none @@padding-right"></font><font class="TeamNameTicket"><input type="checkbox"> Sebastian Aho of the Carolina Hurricanes will have over 0.5 points<br><input type="checkbox"> Brock Boeser of the Vancouver Canucks will have over 0.5 points<br><input type="checkbox"> J.T. Miller of the Vancouver Canucks will have over 0.5 points<br><input type="checkbox"> Quinton Byfield of the Los Angeles Kings will have over 0.5 points<br><input type="checkbox"> Anze Kopitar of the Los Angeles Kings will have over 0.5 points<br><input type="checkbox"> Adrian Kempe of the Los Angeles Kings will have over 0.5 points<br><input type="checkbox"> Zach Hyman of the Edmonton Oilers will have 1 or more points against the San Jose Sharks<br><input type="checkbox"> Leon Draisaitl of the Edmonton Oilers will have 1 or more points against the San Jose Sharks<br><input type="checkbox"> Connor McDavid of the Edmonton Oilers will have over 1.5 points</font><font class="TargetTicket"></font><font class="TargetTicket"></font><font class="PointsTicket"></font><font class="ScoreTypeTicket"></font><font class="OddsTicket"></font><font class="PeriodTypeTicket"></font><font class="BuyPointTicket"></font><font class="WagerState"></font></div><div id="45047045-1" class="Invisible wager-side-description  pl-2 pl-sm-4 mb-1"></div></div></div></td></tr><tr id="tr-45046767" class="wager-detail-info BackgroundLineGray" data-tn="45046767"><td id="descriptionCell" class="description-cell descp-td tdGameDetail"><div><div id="riskWinlbl" class="float-right">2.00 / 48.00</div><div id="descriptionLbl"><div class="DivDetailTicketShort  pl-sm-2 mb-1"><font class="TeamRotationTicket d-none @@padding-right"></font><font class="TeamNameTicket"><input type="checkbox"> Zach Hyman of the Edmonton Oilers will score 2 or more goals against the San Jose Sharks<br><input type="checkbox"> Connor McDavid of the Edmonton Oilers will have over 1.5 points<br><input type="checkbox"> Evan Bouchard of the Edmonton Oilers will have 2 or more points against the San Jose Sharks<br><input type="checkbox"> Evander Kane of the Edmonton Oilers will have over 0.5 points<br><input type="checkbox"> Leon Draisaitl of the Edmonton Oilers will score 1 or more goals against the San Jose Sharks</font><font class="TargetTicket"></font><font class="TargetTicket"></font><font class="PointsTicket"></font><font class="ScoreTypeTicket"></font><font class="OddsTicket"></font><font class="PeriodTypeTicket"></font><font class="BuyPointTicket"></font><font class="WagerState"></font></div><div id="45046767-1" class="Invisible wager-side-description  pl-2 pl-sm-4 mb-1"></div></div></div></td></tr><tr id="tr-45046578" class="wager-detail-info BackgroundLineGray" data-tn="45046578"><td id="descriptionCell" class="description-cell descp-td tdGameDetail"><div><div id="riskWinlbl" class="float-right">3.00 / 54.00</div><div id="descriptionLbl"><div class="DivDetailTicketShort  pl-sm-2 mb-1"><font class="TeamRotationTicket d-none @@padding-right"></font><font class="TeamNameTicket"><input type="checkbox"> Jonathan Marchessault of the Vegas Golden Knights will score 1 or more goals against the Los Angeles Kings<br><input type="checkbox"> Adrian Kempe of the Los Angeles Kings will have 2 or more points against the Vegas Golden Knights<br><input type="checkbox"> Kevin Fiala of the Los Angeles Kings will have over 0.5 points<br><input type="checkbox"> Anze Kopitar of the Los Angeles Kings will have over 0.5 points<br><input type="checkbox"> Jack Eichel of the Vegas Golden Knights will have over 0.5 points</font><font class="TargetTicket"></font><font class="TargetTicket"></font><font class="PointsTicket"></font><font class="ScoreTypeTicket"></font><font class="OddsTicket"></font><font class="PeriodTypeTicket"></font><font class="BuyPointTicket"></font><font class="WagerState"></font></div><div id="45046578-1" class="Invisible wager-side-description  pl-2 pl-sm-4 mb-1"></div></div></div></td></tr><tr id="tr-45046413" class="wager-detail-info BackgroundLineGray" data-tn="45046413"><td id="descriptionCell" class="description-cell descp-td tdGameDetail"><div><div id="riskWinlbl" class="float-right">3.00 / 60.00</div><div id="descriptionLbl"><div class="DivDetailTicketShort  pl-sm-2 mb-1"><font class="TeamRotationTicket d-none @@padding-right"></font><font class="TeamNameTicket"><input type="checkbox"> Brock Boeser of the Vancouver Canucks will score 1 or more goals against the Philadelphia Flyers<br><input type="checkbox"> Quinn Hughes of the Vancouver Canucks will have 1 or more assists against the Philadelphia Flyers<br><input type="checkbox"> J.T. Miller of the Vancouver Canucks will have over 0.5 points<br><input type="checkbox"> Elias Pettersson of the Vancouver Canucks will have over 0.5 points<br><input type="checkbox"> Joel Farabee of the Philadelphia Flyers will have over 0.5 points<br><input type="checkbox"> Travis Konecny of the Philadelphia Flyers will have over 0.5 points<br><input type="checkbox"> Travis Sanheim of the Philadelphia Flyers will have over 0.5 points</font><font class="TargetTicket"></font><font class="TargetTicket"></font><font class="PointsTicket"></font><font class="ScoreTypeTicket"></font><font class="OddsTicket"></font><font class="PeriodTypeTicket"></font><font class="BuyPointTicket"></font><font class="WagerState"></font></div><div id="45046413-1" class="Invisible wager-side-description  pl-2 pl-sm-4 mb-1"></div></div></div></td></tr><tr id="tr-45046268" class="wager-detail-info BackgroundLineGray" data-tn="45046268"><td id="descriptionCell" class="description-cell descp-td tdGameDetail"><div><div id="riskWinlbl" class="float-right">3.00 / 81.00</div><div id="descriptionLbl"><div class="DivDetailTicketShort  pl-sm-2 mb-1"><font class="TeamRotationTicket d-none @@padding-right"></font><font class="TeamNameTicket"><input type="checkbox"> Brady Skjei of the Carolina Hurricanes will have 1 or more assists against the Montreal Canadiens<br><input type="checkbox"> Sebastian Aho of the Carolina Hurricanes will score 1 or more goals against the Montreal Canadiens<br><input type="checkbox"> Jaccob Slavin of the Carolina Hurricanes will have 1 or more assists against the Montreal Canadiens<br><input type="checkbox"> Michael Matheson of the Montreal Canadiens will have 1 or more assists against the Carolina Hurricanes<br><input type="checkbox"> Teuvo Teravainen of the Carolina Hurricanes will have over 0.5 points</font><font class="TargetTicket"></font><font class="TargetTicket"></font><font class="PointsTicket"></font><font class="ScoreTypeTicket"></font><font class="OddsTicket"></font><font class="PeriodTypeTicket"></font><font class="BuyPointTicket"></font><font class="WagerState"></font></div><div id="45046268-1" class="Invisible wager-side-description  pl-2 pl-sm-4 mb-1"></div></div></div></td></tr><tr id="tr-45045354" class="wager-detail-info BackgroundLineGray" data-tn="45045354"><td id="descriptionCell" class="description-cell descp-td tdGameDetail"><div><div id="riskWinlbl" class="float-right">2.00 / 30.00</div><div id="descriptionLbl"><div class="DivDetailTicketShort  pl-sm-2 mb-1"><font class="TeamRotationTicket d-none @@padding-right"></font><font class="TeamNameTicket"><input type="checkbox"> Quinn Hughes of the Vancouver Canucks will score 1 or more goals against the Philadelphia Flyers<br><input type="checkbox"> Evan Bouchard of the Edmonton Oilers will score 1 or more goals against the San Jose Sharks</font><font class="TargetTicket"></font><font class="TargetTicket"></font><font class="PointsTicket"></font><font class="ScoreTypeTicket"></font><font class="OddsTicket"></font><font class="PeriodTypeTicket"></font><font class="BuyPointTicket"></font><font class="WagerState"></font></div><div id="45045354-1" class="Invisible wager-side-description  pl-2 pl-sm-4 mb-1"></div></div></div></td></tr><tr id="tr-45045180" class="wager-detail-info BackgroundLineGray" data-tn="45045180"><td id="descriptionCell" class="description-cell descp-td tdGameDetail"><div><div id="riskWinlbl" class="float-right">5.00 / 125.00</div><div id="descriptionLbl"><div class="DivDetailTicketShort  pl-sm-2 mb-1"><font class="TeamRotationTicket d-none @@padding-right"></font><font class="TeamNameTicket"><input type="checkbox"> Sebastian Aho of the Carolina Hurricanes will score 1 or more goals against the Montreal Canadiens<br><input type="checkbox"> Elias Pettersson of the Vancouver Canucks will score 1 or more goals against the Philadelphia Flyers<br><input type="checkbox"> Adrian Kempe of the Los Angeles Kings will score 1 or more goals against the Vegas Golden Knights<br><input type="checkbox"> Zach Hyman of the Edmonton Oilers will score 1 or more goals against the San Jose Sharks</font><font class="TargetTicket"></font><font class="TargetTicket"></font><font class="PointsTicket"></font><font class="ScoreTypeTicket"></font><font class="OddsTicket"></font><font class="PeriodTypeTicket"></font><font class="BuyPointTicket"></font><font class="WagerState"></font></div><div id="45045180-1" class="Invisible wager-side-description  pl-2 pl-sm-4 mb-1"></div></div></div></td></tr><tr id="tr-45045139" class="wager-detail-info BackgroundLineGray" data-tn="45045139"><td id="descriptionCell" class="description-cell descp-td tdGameDetail"><div><div id="riskWinlbl" class="float-right">5.00 / 375.00</div><div id="descriptionLbl"><div class="DivDetailTicketShort  pl-sm-2 mb-1"><font class="TeamRotationTicket d-none @@padding-right"></font><font class="TeamNameTicket"><input type="checkbox"> Brock Boeser of the Vancouver Canucks will score 1 or more goals against the Philadelphia Flyers<br><input type="checkbox"> William Karlsson of the Vegas Golden Knights will score 1 or more goals against the Los Angeles Kings<br><input type="checkbox"> Evan Bouchard of the Edmonton Oilers will score 1 or more goals against the San Jose Sharks<br><input type="checkbox"> Cole Caufield of the Montreal Canadiens will score 1 or more goals against the Carolina Hurricanes</font><font class="TargetTicket"></font><font class="TargetTicket"></font><font class="PointsTicket"></font><font class="ScoreTypeTicket"></font><font class="OddsTicket"></font><font class="PeriodTypeTicket"></font><font class="BuyPointTicket"></font><font class="WagerState"></font></div><div id="45045139-1" class="Invisible wager-side-description  pl-2 pl-sm-4 mb-1"></div></div></div></td></tr><tr id="tr-45045100" class="wager-detail-info BackgroundLineGray" data-tn="45045100"><td id="descriptionCell" class="description-cell descp-td tdGameDetail"><div><div id="riskWinlbl" class="float-right">5.00 / 185.00</div><div id="descriptionLbl"><div class="DivDetailTicketShort  pl-sm-2 mb-1"><font class="TeamRotationTicket d-none @@padding-right"></font><font class="TeamNameTicket"><input type="checkbox"> Teuvo Teravainen of the Carolina Hurricanes will score 1 or more goals against the Montreal Canadiens<br><input type="checkbox"> Travis Konecny of the Philadelphia Flyers will score 1 or more goals against the Vancouver Canucks<br><input type="checkbox"> Trevor Moore of the Los Angeles Kings will score 1 or more goals against the Vegas Golden Knights<br><input type="checkbox"> Connor McDavid of the Edmonton Oilers will score 1 or more goals against the San Jose Sharks</font><font class="TargetTicket"></font><font class="TargetTicket"></font><font class="PointsTicket"></font><font class="ScoreTypeTicket"></font><font class="OddsTicket"></font><font class="PeriodTypeTicket"></font><font class="BuyPointTicket"></font><font class="WagerState"></font></div><div id="45045100-1" class="Invisible wager-side-description  pl-2 pl-sm-4 mb-1"></div></div></div></td></tr></tbody></table>
