@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meal Inventory</title>
+    <title>Meal Counter</title>
     <script src="https://unpkg.com/@zxing/library@latest"></script>
     <style>
         #scanner-container {
@@ -110,7 +110,6 @@
         const exportButton = document.getElementById('export-button');
         const exportInput = document.getElementById('export-input');
         let totalMeals = 0;
-        let lastScanTime = 0;
         let barcodeData = [];
 
         // Utility to get and set cookies
@@ -145,25 +144,21 @@
         // Start the barcode scanner with autofocus
         codeReader.decodeFromVideoDevice(undefined, videoElement, (result, err) => {
             if (result) {
-                const now = new Date().getTime();
-                if (now - lastScanTime > 1500) {
-                    totalMeals++;
-                    mealCountElement.textContent = totalMeals;
-                    setCookie('totalMeals', totalMeals, 7);
+                totalMeals++;
+                mealCountElement.textContent = totalMeals;
+                setCookie('totalMeals', totalMeals, 7);
 
-                    // Save barcode data
-                    const barcodeInfo = {
-                        barcode: result.text,
-                        x: Math.random() * 100, // Placeholder for X coordinate
-                        y: Math.random() * 100 // Placeholder for Y coordinate
-                    };
-                    barcodeData.push(barcodeInfo);
-                    setCookie('barcodeData', JSON.stringify(barcodeData), 7);
-                    displayBarcodeData();
+                // Save barcode data
+                const barcodeInfo = {
+                    barcode: result.text,
+                    x: Math.random() * 100, // Placeholder for X coordinate
+                    y: Math.random() * 100 // Placeholder for Y coordinate
+                };
+                barcodeData.push(barcodeInfo);
+                setCookie('barcodeData', JSON.stringify(barcodeData), 7);
+                displayBarcodeData();
 
-                    lastScanTime = now;
-                    flashBackground(); // Flash background red
-                }
+                flashBackground(); // Flash background red
             }
             if (err && !(err instanceof ZXing.NotFoundException)) {
                 console.error(err);
@@ -194,16 +189,24 @@
             });
         }
 
+        // Flash background function
+        function flashBackground() {
+            document.body.classList.add('flash');
+            setTimeout(() => {
+                document.body.classList.remove('flash');
+            }, 300);
+        }
+
         // Export button functionality
         exportButton.addEventListener('click', () => {
             const tableName = exportInput.value.trim();
             if (tableName.length === 0) {
-                 alert('Please enter a table name.');
+                alert('Please enter a table name.');
                 return;
             }
 
             // Create CSV content
-            let csvContent = 'data:text/csv;charset=utf-8,';
+                        let csvContent = 'data:text/csv;charset=utf-8,';
             csvContent += 'Barcode Number,X Coordinate,Y Coordinate\n';
             barcodeData.forEach((info) => {
                 csvContent += `${info.barcode},${info.x},${info.y}\n`;
@@ -221,3 +224,4 @@
     </script>
 </body>
 </html>
+
