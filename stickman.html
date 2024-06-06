@@ -18,7 +18,6 @@
             width: 100vw;
             height: 100vh;
             position: relative;
-            
             background-color: #fff;
             cursor: none; /* Hide cursor */
         }
@@ -125,6 +124,28 @@
             background: rgba(0, 0, 0, 0.75);
             z-index: 20;
         }
+        .health-bar {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            width: 200px;
+            height: 20px;
+            border: 2px solid #ff0000;
+            background: rgba(255, 0, 0, 0.25);
+            z-index: 20;
+        }
+        .health-bar-inner {
+            height: 100%;
+            background-color: #00ff00;
+        }
+        .bullet {
+            width: 10px;
+            height: 5px;
+            background-color: black;
+            position: absolute;
+            border-radius: 50%;
+            z-index: 15;
+        }
         .explosion {
             width: 50px;
             height: 50px;
@@ -173,15 +194,32 @@
             <div class="arms"></div>
             <div class="legs"></div>
         </div>
+		        <div class="person target" id="target4" style="animation-delay: 3s;">
+            <div class="head"></div>
+            <div class="body"></div>
+            <div class="arms"></div>
+            <div class="legs"></div>
+        </div>
+		        <div class="person target" id="target5" style="animation-delay: 4s;">
+            <div class="head"></div>
+            <div class="body"></div>
+            <div class="arms"></div>
+            <div class="legs"></div>
+        </div>
         <!-- Add more stick figures here -->
         <div id="score" class="scoreboard">0</div>
+        <div class="health-bar">
+            <div id="health" class="health-bar-inner" style="width: 100%;"></div>
+        </div>
     </div>
 
     <script>
         const targets = document.querySelectorAll('.person.target');
         const scope = document.getElementById('scope');
         const gameArea = document.getElementById('gameArea');
+        const healthBarInner = document.getElementById('health');
         let myscore = 0;
+        let health = 100;
 
         function setRandomPosition(element) {
             const x = Math.random() * (gameArea.clientWidth - element.offsetWidth);
@@ -196,7 +234,6 @@
                 {x: -1, y: 0}, // Left
                 {x: 0, y: 1},  // Down
                 {x: 0, y: -1}, // Up
-                //{x: 0, y: -1}, // Up
                 {x: 1, y: 1},  // Diagonal down-right
                 {x: -1, y: 1}, // Diagonal down-left
                 {x: 1, y: -1}, // Diagonal up-right
@@ -206,8 +243,8 @@
         }
 
         function moveElement(element) {
-            const moveSpeed = Math.random() * 5 + 2; // Random speed between 2 and 7
-            const delay = Math.random() * 5; // Random delay up to 5 seconds
+            const moveSpeed = Math.random() * 1+ 2; // Random speed between 2 and 7
+            const delay = 0; // Random delay up to 5 seconds
 
             setTimeout(() => {
                 const direction = randomDirection();
@@ -226,6 +263,26 @@
                 moveElement(element); // Continue moving
             }, 1000 + Math.random() * 2000); // Move every 1-3 seconds
         }
+		        function moveTarget(target) {
+            let direction = randomDirection();
+            let interval = setInterval(() => {
+                const rect = target.getBoundingClientRect();
+                if (rect.left <= 0 || rect.right >= gameArea.clientWidth) {
+                    direction.x = -direction.x;
+                }
+                if (rect.top <= 0 || rect.bottom >= gameArea.clientHeight) {
+                    direction.y = -direction.y;
+                }
+                target.style.left = `${target.offsetLeft + direction.x * 2}px`;
+                target.style.top = `${target.offsetTop + direction.y * 2}px`;
+            }, 20);
+
+            setTimeout(() => {
+                clearInterval(interval);
+                moveTarget(target);
+            }, 3000);
+        }
+
 
         function isInsideScope(element) {
             const elementRect = element.getBoundingClientRect();
@@ -254,11 +311,66 @@
             }, 500);
         }
 
+        function updateHealth(newHealth) {
+            healthBarInner.style.width = `${newHealth}%`;
+            if (newHealth <= 0) {
+                alert('Game Over');
+                window.location.reload();
+            }
+        }
+
+        function createBullet(target) {
+            const bullet = document.createElement('div');
+            bullet.className = 'bullet';
+            gameArea.appendChild(bullet);
+
+            const targetRect = target.getBoundingClientRect();
+            bullet.style.left = `${targetRect.left + targetRect.width / 2}px`;
+            bullet.style.top = `${targetRect.top + targetRect.height / 2}px`;
+
+            const bulletSpeed = Math.random() * 200 + 2; // Random speed between 2 and 5
+            const directionX = (parseFloat(scope.style.left) + scope.clientWidth / 2 - bullet.offsetLeft) / bulletSpeed;
+            const directionY = (parseFloat(scope.style.top) + scope.clientHeight / 2 - bullet.offsetTop) / bulletSpeed;
+
+            function moveBullet() {
+                const bulletRect = bullet.getBoundingClientRect();
+                const scopeRect = scope.getBoundingClientRect();
+
+                if (
+                    bulletRect.left < 0 || bulletRect.right > gameArea.clientWidth ||
+                    bulletRect.top < 0 || bulletRect.bottom > gameArea.clientHeight
+                ) {
+                    gameArea.removeChild(bullet);
+                    return;
+                }
+
+                if (
+                    bulletRect.left < scopeRect.right &&
+                    bulletRect.right > scopeRect.left &&
+                    bulletRect.top < scopeRect.bottom &&
+                    bulletRect.bottom > scopeRect.top
+                ) {
+                    gameArea.removeChild(bullet);
+                    health -= 2.5;
+                    updateHealth(health);
+                    return;
+                }
+
+                bullet.style.left = `${bullet.offsetLeft + directionX}px`;
+                bullet.style.top = `${bullet.offsetTop + directionY}px`;
+
+                requestAnimationFrame(moveBullet);
+            }
+
+            requestAnimationFrame(moveBullet);
+        }
+
         targets.forEach(target => {
             target.addEventListener('click', (e) => {
                 if (isInsideScope(target)) {
                     setRandomPosition(target);
                     myscore += 1;
+					health += 5;
                     updateScore(myscore);
                     createExplosion(e.pageX, e.pageY);
                 }
@@ -271,6 +383,10 @@
             target.addEventListener('mouseleave', () => {
                 target.querySelector('.head').style.backgroundColor = '#000';
             });
+
+            setInterval(() => {
+                createBullet(target);
+            }, Math.random() * 2000 + 1000); // Shoot bullet every 1-3 seconds
         });
 
         gameArea.addEventListener('mousemove', (e) => {
@@ -279,7 +395,8 @@
         });
 
         targets.forEach(setRandomPosition);
-        targets.forEach(moveElement);
+        targets.forEach(moveTarget);
     </script>
 </body>
 </html>
+
