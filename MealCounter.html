@@ -22,12 +22,11 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 150px;
-            height: 150px;
-            border: 2px solid rgba(255, 255, 255, 0.5);
-            border-radius: 20px;
+            width: 100px;
+            height: 100px;
+            border: 2px solid white;
+            border-radius: 10px;
             pointer-events: none;
-            z-index: 10;
         }
         #result {
             font-size: 1.5em;
@@ -132,7 +131,7 @@
         codeReader.decodeFromVideoDevice(undefined, videoElement, (result, err) => {
             if (result) {
                 const now = new Date().getTime();
-                if (now - lastScanTime > 1000) {
+                if (now - lastScanTime > 1500) {
                     totalMeals++;
                     mealCountElement.textContent = totalMeals;
                     setCookie('totalMeals', totalMeals, 7);
@@ -162,7 +161,16 @@
             setCookie('totalMeals', totalMeals, 7);
             setCookie('mealImages', JSON.stringify(mealImages), 7);
         });
-		   // Function to capture image from video element
+
+        // Tap to focus and show barcode mark
+        videoElement.addEventListener('click', (event) => {
+            const x = event.offsetX / videoElement.offsetWidth;
+            const y = event.offsetY / videoElement.offsetHeight;
+            barcodeMark.style.left = `${x * 100}%`;
+            barcodeMark.style.top = `${y * 100}%`;
+        });
+
+        // Function to capture image from video element
         function captureImageFromVideo() {
             const canvas = document.createElement('canvas');
             canvas.width = videoElement.videoWidth;
