@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meal Counter</title>
+    <script src="https://unpkg.com/@zxing/library@latest"></script>
+    <style>
+        #scanner-container {
+            width: 100%;
+            height: 500px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        #video {
+            width: 100%;
+            height: 500px;
+            object-fit: cover;
+        }
+        #barcode-mark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 150px;
+            height: 150px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 20px;
+            pointer-events: none;
+            z-index: 10;
+        }
+        #result {
+            font-size: 1.5em;
+            margin: 20px 0;
+        }
+        #reset-button {
+            padding: 10px 20px;
+            font-size: 1em;
+        }
+        .flash {
+            animation: flashBackground 0.3s linear;
+        }
+        @keyframes flashBackground {
+            0% {
+                background-color: white;
+            }
+            50% {
+                background-color: red;
+            }
+            100% {
+                background-color: white;
+            }
+        }
+        #history {
+            margin-top: 30px;
+        }
+        .meal-image {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            margin-right: 10px;
+        }
+        #barcode-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        #barcode-table th, #barcode-table td {
+            border: 1px solid black;
+            padding: 8px;
+        }
+        #export-input {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Meal Counter</h1>
+    <div id="scanner-container">
+        <video id="video" autoplay playsinline></video>
+        <div id="barcode-mark"></div>
+    </div>
+    <div id="result">Total Meals: <span id="meal-count">0</span></div>
+    <button id="reset-button">Reset</button>
+    <div id="history">
+        <h2>History of Scans</h2>
+        <table id="barcode-table">
+            <thead>
+                <tr>
+                    <th>Barcode Number</th>
+                    <th>X Coordinate</th>
+                    <th>Y Coordinate</th>
+                </tr>
+            </thead>
+            <tbody id="barcode-data"></tbody>
+        </table>
+        <div id="export-section">
+            <input type="text" id="export-input" placeholder="Enter table name">
+            <button id="export-button">Export CSV</button>
+        </div>
+    </div>
+
+    <script>
+        const codeReader = new ZXing.BrowserBarcodeReader();
+        const videoElement = document.getElementById('video');
+        const mealCountElement = document.getElementById('meal-count');
+        const resetButton = document.getElementById('reset-button');
+        const barcodeMark = document.getElementById('barcode-mark');
+        const barcodeDataBody = document.getElementById('barcode-data');
+        const exportButton = document.getElementById('export-button');
+        const exportInput = document.getElementById('export-input');
+        let totalMeals = 0;
+        let lastScanTime = 0;
+        let barcodeData = [];
+
+        // Utility to get and set cookies
+        function setCookie(name, value, days) {
+            const d = new Date();
+            d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+            const expires = "expires=" + d.toUTCString();
+            document.cookie = name + "=" + value + ";" + expires + ";path=/";
+        }
+
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        // Initialize total meals and barcode data from cookie
+        const savedMeals = parseInt(getCookie('totalMeals'), 10);
+        if (!isNaN(savedMeals)) {
+            totalMeals = savedMeals;
+            mealCountElement.textContent = totalMeals;
+        }
+
+        const savedBarcodeData = getCookie('barcodeData');
+        barcodeData = savedBarcodeData ? JSON.parse(savedBarcodeData) : [];
+
+        // Start the barcode scanner with autofocus
+        codeReader.decodeFromVideoDevice(undefined, videoElement, (result, err) => {
+            if (result) {
+                const now = new Date().getTime();
+                if (now - lastScanTime > 3000) {
+                    totalMeals++;
+                    mealCountElement.textContent = totalMeals;
+                    setCookie('totalMeals', totalMeals, 7);
+
+                    // Save barcode data
+                    const barcodeInfo = {
+                        barcode: result.text,
+                        x: Math.random() * 100, // Placeholder for X coordinate
+                        y: Math.random() * 100 // Placeholder for Y coordinate
+                    };
+                    barcodeData.push(barcodeInfo);
+                    setCookie('barcodeData', JSON.stringify(barcodeData), 7);
+                    displayBarcodeData();
+
+                    lastScanTime = now;
+                    flashBackground(); // Flash background red
+                }
+            }
+            if (err && !(err instanceof ZXing.NotFoundException)) {
+                console.error(err);
+            }
+        });
+
+        // Reset button functionality
+        resetButton.addEventListener('click', () => {
+            totalMeals = 0;
+            mealCountElement.textContent = totalMeals;
+            barcodeData = [];
+            barcodeDataBody.innerHTML = '';
+            setCookie('totalMeals', totalMeals, 7);
+            setCookie('barcodeData', JSON.stringify(barcodeData), 7);
+        });
+
+        // Function to display barcode data in the table
+        function displayBarcodeData() {
+            barcodeDataBody.innerHTML = '';
+            barcodeData.forEach((info) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${info.barcode}</td>
+                    <td>${info.x}</td>
+                    <td>${info.y}</td>
+                `;
+                barcodeDataBody.appendChild(row);
+            });
+        }
+
+        // Export button functionality
+        exportButton.addEventListener('click', () => {
+            const tableName = exportInput.value.trim();
+            if (tableName.length === 0) {
+                 alert('Please enter a table name.');
+                return;
+            }
+
+            // Create CSV content
+            let csvContent = 'data:text/csv;charset=utf-8,';
+            csvContent += 'Barcode Number,X Coordinate,Y Coordinate\n';
+            barcodeData.forEach((info) => {
+                csvContent += `${info.barcode},${info.x},${info.y}\n`;
+            });
+
+            // Create a download link
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement('a');
+            link.setAttribute('href', encodedUri);
+            link.setAttribute('download', `${tableName}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    </script>
+</body>
+</html>
