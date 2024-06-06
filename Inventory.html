@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meal Counter</title>
+    <title>Meal Inventory</title>
     <script src="https://unpkg.com/@zxing/library@latest"></script>
     <style>
         #scanner-container {
@@ -146,7 +146,7 @@
         codeReader.decodeFromVideoDevice(undefined, videoElement, (result, err) => {
             if (result) {
                 const now = new Date().getTime();
-                if (now - lastScanTime > 3000) {
+                if (now - lastScanTime > 1500) {
                     totalMeals++;
                     mealCountElement.textContent = totalMeals;
                     setCookie('totalMeals', totalMeals, 7);
