@@ -88,8 +88,8 @@
             <thead>
                 <tr>
                     <th>Barcode Number</th>
-                    <th>X Coordinate</th>
-                    <th>Y Coordinate</th>
+                    <th>Latitude</th>
+                    <th>Longitude</th>
                 </tr>
             </thead>
             <tbody id="barcode-data"></tbody>
@@ -141,24 +141,64 @@
         const savedBarcodeData = getCookie('barcodeData');
         barcodeData = savedBarcodeData ? JSON.parse(savedBarcodeData) : [];
 
+        // Function to display barcode data in the table
+        function displayBarcodeData() {
+            barcodeDataBody.innerHTML = '';
+            barcodeData.forEach((info) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${info.barcode}</td>
+                    <td>${info.lat}</td>
+                    <td>${info.lng}</td>
+                `;
+                barcodeDataBody.appendChild(row);
+            });
+        }
+
+        // Flash background function
+        function flashBackground() {
+            document.body.classList.add('flash');
+            setTimeout(() => {
+                document.body.classList.remove('flash');
+            }, 300);
+        }
+
+        // Geolocation options
+        const geoOptions = {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+        };
+
+        // Function to get the current position
+        function getCurrentPosition(successCallback) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(successCallback, (error) => {
+                    console.error('Error getting geolocation:', error);
+                }, geoOptions);
+            } else {
+                console.error('Geolocation is not supported by this browser.');
+            }
+        }
+
         // Start the barcode scanner with autofocus
         codeReader.decodeFromVideoDevice(undefined, videoElement, (result, err) => {
             if (result) {
-                totalMeals++;
-                mealCountElement.textContent = totalMeals;
-                setCookie('totalMeals', totalMeals, 7);
+                getCurrentPosition((position) => {
+                    totalMeals++;
+                    mealCountElement.textContent = totalMeals;
+                    setCookie('totalMeals', totalMeals, 7);
 
-                // Save barcode data
-                const barcodeInfo = {
-                    barcode: result.text,
-                    x: Math.random() * 100, // Placeholder for X coordinate
-                    y: Math.random() * 100 // Placeholder for Y coordinate
-                };
-                barcodeData.push(barcodeInfo);
-                setCookie('barcodeData', JSON.stringify(barcodeData), 7);
-                displayBarcodeData();
-
-                flashBackground(); // Flash background red
+                    const barcodeInfo = {
+                        barcode: result.text,
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    barcodeData.push(barcodeInfo);
+                    setCookie('barcodeData', JSON.stringify(barcodeData), 7);
+                    displayBarcodeData();
+                    flashBackground(); // Flash background red
+                });
             }
             if (err && !(err instanceof ZXing.NotFoundException)) {
                 console.error(err);
@@ -175,28 +215,6 @@
             setCookie('barcodeData', JSON.stringify(barcodeData), 7);
         });
 
-        // Function to display barcode data in the table
-        function displayBarcodeData() {
-            barcodeDataBody.innerHTML = '';
-            barcodeData.forEach((info) => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${info.barcode}</td>
-                    <td>${info.x}</td>
-                    <td>${info.y}</td>
-                `;
-                barcodeDataBody.appendChild(row);
-            });
-        }
-
-        // Flash background function
-        function flashBackground() {
-            document.body.classList.add('flash');
-            setTimeout(() => {
-                document.body.classList.remove('flash');
-            }, 300);
-        }
-
         // Export button functionality
         exportButton.addEventListener('click', () => {
             const tableName = exportInput.value.trim();
@@ -206,10 +224,10 @@
             }
 
             // Create CSV content
-                        let csvContent = 'data:text/csv;charset=utf-8,';
-            csvContent += 'Barcode Number,X Coordinate,Y Coordinate\n';
+            let csvContent = 'data:text/csv;charset=utf-8,';
+            csvContent += 'Barcode Number,Latitude,Longitude\n';
             barcodeData.forEach((info) => {
-                csvContent += `${info.barcode},${info.x},${info.y}\n`;
+                csvContent += `${info.barcode},${info.lat},${info.lng}\n`;
             });
 
             // Create a download link
@@ -221,7 +239,9 @@
             link.click();
             document.body.removeChild(link);
         });
+
+        // Initial display of barcode data
+        displayBarcodeData();
     </script>
 </body>
 </html>
-
