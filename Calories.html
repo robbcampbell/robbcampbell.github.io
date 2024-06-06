@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calorie Counter</title>
+    <script src="https://unpkg.com/@zxing/library@latest"></script>
+    <style>
+        #scanner-container {
+            width: 100%;
+            height: 500px;
+            margin-bottom: 20px;
+        }
+        #result {
+            font-size: 1.5em;
+            margin: 20px 0;
+        }
+        #reset-button {
+            padding: 10px 20px;
+            font-size: 1em;
+        }
+    </style>
+</head>
+<body>
+    <h1>Calorie Counter</h1>
+    <div id="scanner-container"></div>
+    <div id="result">Total Calories: <span id="calorie-count">0</span></div>
+    <button id="reset-button">Reset</button>
+
+    <script>
+        const codeReader = new ZXing.BrowserBarcodeReader();
+        const scannerContainer = document.getElementById('scanner-container');
+        const calorieCountElement = document.getElementById('calorie-count');
+        const resetButton = document.getElementById('reset-button');
+        let totalCalories = 0;
+        let lastScanTime = 0;
+
+        // Utility to get and set cookies
+        function setCookie(name, value, days) {
+            const d = new Date();
+            d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+            const expires = "expires=" + d.toUTCString();
+            document.cookie = name + "=" + value + ";" + expires + ";path=/";
+        }
+
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        // Initialize total calories from cookie
+        const savedCalories = getCookie('totalCalories');
+        if (savedCalories) {
+            totalCalories = parseInt(savedCalories, 10);
+            calorieCountElement.textContent = totalCalories;
+        }
+
+        // Dummy function to simulate fetching calorie information
+        function fetchCalories(barcode) {
+            // In a real application, replace this with an API call to get calorie information based on the barcode
+            return Math.floor(Math.random() * 500); // Return a random number of calories
+        }
+
+        // Start the barcode scanner
+        codeReader.decodeFromVideoDevice(undefined, 'scanner-container', (result, err) => {
+            if (result) {
+                const now = new Date().getTime();
+                if (now - lastScanTime > 3000) {
+                    const calories = fetchCalories(result.text);
+                    totalCalories += calories;
+                    calorieCountElement.textContent = totalCalories;
+                    setCookie('totalCalories', totalCalories, 7);
+                    lastScanTime = now;
+                }
+            }
+            if (err && !(err instanceof ZXing.NotFoundException)) {
+                console.error(err);
+            }
+        });
+
+        // Reset button functionality
+        resetButton.addEventListener('click', () => {
+            totalCalories = 0;
+            calorieCountElement.textContent = totalCalories;
+            setCookie('totalCalories', totalCalories, 7);
+        });
+    </script>
+</body>
+</html>
