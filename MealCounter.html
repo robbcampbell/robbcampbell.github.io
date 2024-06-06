@@ -50,6 +50,15 @@
                 background-color: white;
             }
         }
+        #history {
+            margin-top: 30px;
+        }
+        .meal-image {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            margin-right: 10px;
+        }
     </style>
 </head>
 <body>
@@ -60,6 +69,10 @@
     </div>
     <div id="result">Total Meals: <span id="meal-count">0</span></div>
     <button id="reset-button">Reset</button>
+    <div id="history">
+        <h2>History of Meals</h2>
+        <div id="meal-images"></div>
+    </div>
 
     <script>
         const codeReader = new ZXing.BrowserBarcodeReader();
@@ -67,6 +80,7 @@
         const mealCountElement = document.getElementById('meal-count');
         const resetButton = document.getElementById('reset-button');
         const barcodeMark = document.getElementById('barcode-mark');
+        const mealImagesContainer = document.getElementById('meal-images');
         let totalMeals = 0;
         let lastScanTime = 0;
 
@@ -89,12 +103,15 @@
             return null;
         }
 
-        // Initialize total meals from cookie
-        const savedMeals = getCookie('totalMeals');
-        if (savedMeals) {
-            totalMeals = parseInt(savedMeals, 10);
+        // Initialize total meals and meal images from cookie
+        const savedMeals = parseInt(getCookie('totalMeals'), 10);
+        if (!isNaN(savedMeals)) {
+            totalMeals = savedMeals;
             mealCountElement.textContent = totalMeals;
         }
+
+        const savedMealImages = getCookie('mealImages');
+        const mealImages = savedMealImages ? JSON.parse(savedMealImages) : [];
 
         // Beep sound function
         function beep() {
@@ -118,6 +135,13 @@
                     totalMeals++;
                     mealCountElement.textContent = totalMeals;
                     setCookie('totalMeals', totalMeals, 7);
+
+                    // Save image to history
+                    const imageData = captureImageFromVideo();
+                    mealImages.push(imageData);
+                    setCookie('mealImages', JSON.stringify(mealImages), 7);
+                    displayMealImages();
+
                     lastScanTime = now;
                     beep(); // Play beep sound
                     flashBackground(); // Flash background red
@@ -132,7 +156,10 @@
         resetButton.addEventListener('click', () => {
             totalMeals = 0;
             mealCountElement.textContent = totalMeals;
+            mealImages.length = 0;
+            mealImagesContainer.innerHTML = '';
             setCookie('totalMeals', totalMeals, 7);
+            setCookie('mealImages', JSON.stringify(mealImages), 7);
         });
 
         // Tap to focus and show barcode mark
@@ -142,6 +169,32 @@
             barcodeMark.style.left = `${x * 100}%`;
             barcodeMark.style.top = `${y * 100}%`;
         });
+
+        // Function to capture image from video element
+        function captureImageFromVideo() {
+            const canvas = document.createElement('canvas');
+            canvas.width = videoElement.videoWidth;
+            canvas.height = videoElement.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+            const imageData = canvas.toDataURL('image/jpeg');
+            return imageData;
+        }
+
+        // Function to display meal images
+        function displayMealImages() {
+            mealImagesContainer.innerHTML = '';
+            mealImages.forEach((image) => {
+                const imgElement = document.createElement('img');
+                imgElement.src = image;
+                imgElement.alt = 'Meal Image';
+                imgElement.classList.add('meal-image');
+                mealImagesContainer.appendChild(imgElement);
+            });
+        }
+
+        // Initial display of meal images
+        displayMealImages();
     </script>
 </body>
 </html>
