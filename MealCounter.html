@@ -22,11 +22,12 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 100px;
-            height: 100px;
-            border: 2px solid white;
-            border-radius: 10px;
+            width: 150px;
+            height: 150px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 20px;
             pointer-events: none;
+            z-index: 10;
         }
         #result {
             font-size: 1.5em;
@@ -161,16 +162,7 @@
             setCookie('totalMeals', totalMeals, 7);
             setCookie('mealImages', JSON.stringify(mealImages), 7);
         });
-
-        // Tap to focus and show barcode mark
-        videoElement.addEventListener('click', (event) => {
-            const x = event.offsetX / videoElement.offsetWidth;
-            const y = event.offsetY / videoElement.offsetHeight;
-            barcodeMark.style.left = `${x * 100}%`;
-            barcodeMark.style.top = `${y * 100}%`;
-        });
-
-        // Function to capture image from video element
+		   // Function to capture image from video element
         function captureImageFromVideo() {
             const canvas = document.createElement('canvas');
             canvas.width = videoElement.videoWidth;
