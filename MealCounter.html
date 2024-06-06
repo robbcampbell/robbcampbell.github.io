@@ -10,11 +10,23 @@
             width: 100%;
             height: 500px;
             margin-bottom: 20px;
+            position: relative;
         }
         #video {
             width: 100%;
             height: 500px;
             object-fit: cover;
+        }
+        #barcode-mark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            border: 2px solid white;
+            border-radius: 10px;
+            pointer-events: none;
         }
         #result {
             font-size: 1.5em;
@@ -44,6 +56,7 @@
     <h1>Meal Counter</h1>
     <div id="scanner-container">
         <video id="video"></video>
+        <div id="barcode-mark"></div>
     </div>
     <div id="result">Total Meals: <span id="meal-count">0</span></div>
     <button id="reset-button">Reset</button>
@@ -53,6 +66,7 @@
         const videoElement = document.getElementById('video');
         const mealCountElement = document.getElementById('meal-count');
         const resetButton = document.getElementById('reset-button');
+        const barcodeMark = document.getElementById('barcode-mark');
         let totalMeals = 0;
         let lastScanTime = 0;
 
@@ -119,6 +133,14 @@
             totalMeals = 0;
             mealCountElement.textContent = totalMeals;
             setCookie('totalMeals', totalMeals, 7);
+        });
+
+        // Tap to focus and show barcode mark
+        videoElement.addEventListener('click', (event) => {
+            const x = event.offsetX / videoElement.offsetWidth;
+            const y = event.offsetY / videoElement.offsetHeight;
+            barcodeMark.style.left = `${x * 100}%`;
+            barcodeMark.style.top = `${y * 100}%`;
         });
     </script>
 </body>
