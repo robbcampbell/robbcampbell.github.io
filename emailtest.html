@@ -3,119 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meal Counter</title>
+    <title>Barcode and Camera App</title>
     <script src="https://unpkg.com/@zxing/library@latest"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
     <style>
         #scanner-container, #camera-container {
             width: 100%;
             height: 500px;
-            margin-bottom: 20px;
+            display: none;
             position: relative;
         }
-        #video, #camera-video {
+        #video {
             width: 100%;
-            height: 500px;
+            height: 100%;
             object-fit: cover;
         }
-        #barcode-mark {
+        #take-picture-button {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            font-size: 1em;
+        }
+        #static-mark {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 150px;
-            height: 150px;
-            border: 2px solid rgba(255, 255, 255, 0.5);
-            border-radius: 20px;
+            width: 200px;
+            height: 200px;
+            border: 3px solid rgba(255, 0, 0, 0.5);
             pointer-events: none;
-            z-index: 10;
         }
         #result {
             font-size: 1.5em;
             margin: 20px 0;
         }
-        #reset-button, #camera-toggle, #take-picture-button {
-            padding: 10px 20px;
-            font-size: 1em;
-            margin-right: 10px;
-        }
-        .flash {
-            animation: flashBackground 0.3s linear;
-        }
-        @keyframes flashBackground {
-            0% {
-                background-color: white;
-            }
-            50% {
-                background-color: red;
-            }
-            100% {
-                background-color: white;
-            }
-        }
-        #history {
-            margin-top: 30px;
-        }
         .meal-image {
-            width: 100px;
-            height: 100px;
-            object-fit: cover;
-            margin-right: 10px;
-        }
-        #barcode-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        #barcode-table th, #barcode-table td {
-            border: 1px solid black;
-            padding: 8px;
-        }
-        #export-input {
-            margin-right: 10px;
-        }
-        #map {
-            width: 100%;
-            height: 500px;
-            margin-top: 20px;
+            width: 50px;
+            height: 50px;
         }
     </style>
 </head>
 <body>
-    <h1>Meal Counter</h1>
+    <h1>Barcode and Camera App</h1>
+    <button id="camera-toggle">Toggle Scanner/Camera</button>
     <div id="scanner-container">
-        <video id="video" autoplay playsinline></video>
-        <div id="barcode-mark"></div>
+        <video id="video" autoplay></video>
+        <div id="static-mark"></div>
     </div>
-    <div id="camera-container" style="display: none;">
-        <video id="camera-video" autoplay playsinline></video>
+    <div id="camera-container">
+        <video id="camera-video" autoplay></video>
+        <div id="static-mark"></div>
         <button id="take-picture-button">Take Picture</button>
     </div>
-    <button id="camera-toggle">Toggle Camera/Scanner</button>
     <div id="result">Total Meals: <span id="meal-count">0</span></div>
     <button id="reset-button">Reset</button>
-    <div id="history">
-        <h2>History of Scans</h2>
-        <table id="barcode-table">
-            <thead>
-                <tr>
-                    <th>Barcode/ID</th>
-                    <th>Latitude</th>
-                    <th>Longitude</th>
-                    <th>Image</th>
-                </tr>
-            </thead>
-            <tbody id="barcode-data"></tbody>
-        </table>
-        <div id="export-section">
-            <input type="text" id="export-input" placeholder="Enter table name">
-            <button id="export-button">Export CSV</button>
-        </div>
-        <button id="map-button">Generate Web Map</button>
-        <div id="map"></div>
-        <button id="email-button">Send Email</button>
-    </div>
+    <input type="text" id="export-input" placeholder="Table name for CSV">
+    <button id="export-button">Export as CSV</button>
+    <button id="map-button">Generate Map</button>
+    <button id="email-button">Send Email</button>
+    <div id="map" style="width: 100%; height: 500px;"></div>
+    <table id="barcode-table" border="1">
+        <thead>
+            <tr>
+                <th>Barcode/ID</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Image</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
 
     <script>
         const codeReader = new ZXing.BrowserBarcodeReader();
@@ -123,17 +84,15 @@
         const cameraVideoElement = document.getElementById('camera-video');
         const mealCountElement = document.getElementById('meal-count');
         const resetButton = document.getElementById('reset-button');
-        const barcodeMark = document.getElementById('barcode-mark');
-        const barcodeDataBody = document.getElementById('barcode-data');
         const exportButton = document.getElementById('export-button');
-        const exportInput = document.getElementById('export-input');
         const mapButton = document.getElementById('map-button');
         const emailButton = document.getElementById('email-button');
-        const mapContainer = document.getElementById('map');
         const cameraToggle = document.getElementById('camera-toggle');
+        const takePictureButton = document.getElementById('take-picture-button');
+        const exportInput = document.getElementById('export-input');
+        const barcodeTableBody = document.querySelector('#barcode-table tbody');
         const scannerContainer = document.getElementById('scanner-container');
         const cameraContainer = document.getElementById('camera-container');
-        const takePictureButton = document.getElementById('take-picture-button');
         let totalMeals = 0;
         let barcodeData = [];
         let mapUrl = '';
@@ -158,20 +117,48 @@
             return null;
         }
 
-        // Initialize total meals and barcode data from cookie
-        const savedMeals = parseInt(getCookie('totalMeals'), 10);
-        if (!isNaN(savedMeals)) {
-            totalMeals = savedMeals;
+        // Initialize total meals and barcode data from cookies
+        const savedMeals = getCookie('totalMeals');
+        const savedBarcodeData = getCookie('barcodeData');
+        if (savedMeals) {
+            totalMeals = parseInt(savedMeals, 10);
             mealCountElement.textContent = totalMeals;
         }
+        if (savedBarcodeData) {
+            barcodeData = JSON.parse(savedBarcodeData);
+            displayBarcodeData();
+        }
 
-        const savedBarcodeData = getCookie('barcodeData');
-        barcodeData = savedBarcodeData ? JSON.parse(savedBarcodeData) : [];
+        // Utility to capture image from video element
+        function captureImage(videoElement) {
+            const canvas = document.createElement('canvas');
+            canvas.width = videoElement.videoWidth;
+            canvas.height = videoElement.videoHeight;
+            canvas.getContext('2d').drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+            return canvas.toDataURL('image/png');
+        }
 
-        // Function to display barcode data in the table
+        // Get current position
+        function getCurrentPosition(callback) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(callback);
+            } else {
+                console.error('Geolocation is not supported by this browser.');
+            }
+        }
+
+        // Flash background red
+        function flashBackground() {
+            document.body.style.backgroundColor = 'red';
+            setTimeout(() => {
+                document.body.style.backgroundColor = '';
+            }, 100);
+        }
+
+        // Display barcode data in table
         function displayBarcodeData() {
-            barcodeDataBody.innerHTML = '';
-            barcodeData.forEach((info) => {
+            barcodeTableBody.innerHTML = '';
+            barcodeData.forEach(info => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${info.id}</td>
@@ -179,94 +166,59 @@
                     <td>${info.lng}</td>
                     <td><img src="${info.image}" class="meal-image" /></td>
                 `;
-                barcodeDataBody.appendChild(row);
+                barcodeTableBody.appendChild(row);
             });
         }
 
-        // Flash background function
-        function flashBackground() {
-            document.body.classList.add('flash');
-            setTimeout(() => {
-                document.body.classList.remove('flash');
-            }, 300);
-        }
-
-        // Geolocation options
-        const geoOptions = {
-            enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 0
-        };
-
-        // Function to get the current position
-        function getCurrentPosition(successCallback) {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(successCallback, (error) => {
-                    console.error('Error getting geolocation:', error);
-                }, geoOptions);
-            } else {
-                console.error('Geolocation is not supported by this browser.');
-            }
-        }
-
-        // Function to handle image capture
-        function captureImage(video) {
-            const canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            const context = canvas.getContext('2d');
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            return canvas.toDataURL('image/png');
-        }
-
-        // Start the barcode scanner with autofocus
+        // Start the barcode scanner
         codeReader.decodeFromVideoDevice(undefined, videoElement, (result, err) => {
-            if (result && !cameraMode) {
-                getCurrentPosition((position) => {
-                    totalMeals++;
-                    mealCountElement.textContent = totalMeals;
-                    setCookie('totalMeals', totalMeals, 7);
-
-                    const imageData = captureImage(videoElement);
-                    const barcodeInfo = {
-                        id: result.text,
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude,
-                        image: imageData
-                    };
-                    barcodeData.push(barcodeInfo);
-                    setCookie('barcodeData', JSON.stringify(barcodeData), 7);
-                    displayBarcodeData();
-                    flashBackground(); // Flash background red
-                });
+            if (result) {
+                const now = new Date().getTime();
+                if (now - lastScanTime > 3000) {
+                    getCurrentPosition(position => {
+                        totalMeals += 1;
+                        mealCountElement.textContent = totalMeals;
+                        const uniqueID = result.text;
+                        const imageData = captureImage(videoElement);
+                        const imageInfo = {
+                            id: uniqueID,
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude,
+                            image: imageData
+                        };
+                        barcodeData.push(imageInfo);
+                        setCookie('totalMeals', totalMeals, 7);
+                        setCookie('barcodeData', JSON.stringify(barcodeData), 7);
+                        displayBarcodeData();
+                        flashBackground(); // Flash background red
+                    });
+                    lastScanTime = now;
+                }
             }
             if (err && !(err instanceof ZXing.NotFoundException)) {
                 console.error(err);
             }
         });
 
-        // Function to handle taking a picture in camera mode
+        // Take picture button functionality
         takePictureButton.addEventListener('click', () => {
-            if (cameraMode) {
-                getCurrentPosition((position) => {
-                    totalMeals++;
-                    mealCountElement.textContent = totalMeals;
-                    setCookie('totalMeals', totalMeals, 7);
-
-                    const uniqueID = `ID_${Date.now()}`;
-                    const imageData = captureImage(cameraVideoElement);
-                    const imageInfo = {
-                        id: uniqueID,
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude,
-                        image: imageData
-                    };
-                    barcodeData.push(imageInfo);
-                    setCookie('barcodeData', JSON.stringify(barcodeData), 7);
-                    displayBarcodeData();
-                    flashBackground(); // Flash background red
-                });
-            }
+            getCurrentPosition(position => {
+                totalMeals += 1;
+                mealCountElement.textContent = totalMeals;
+                const uniqueID = `ID_${Date.now()}`;
+                const imageData = captureImage(cameraVideoElement);
+                const imageInfo = {
+                    id: uniqueID,
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude,
+                    image: imageData
+                };
+                barcodeData.push(imageInfo);
+                setCookie('totalMeals', totalMeals, 7);
+                setCookie('barcodeData', JSON.stringify(barcodeData), 7);
+                displayBarcodeData();
+                flashBackground(); // Flash background red
+            });
         });
 
         // Toggle between scanner and camera modes
@@ -275,7 +227,7 @@
             if (cameraMode) {
                 scannerContainer.style.display = 'none';
                 cameraContainer.style.display = 'block';
-                navigator.mediaDevices.getUserMedia({ video: true })
+                navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
                     .then((stream) => {
                         cameraVideoElement.srcObject = stream;
                         cameraVideoElement.play();
@@ -288,6 +240,13 @@
                     const tracks = cameraVideoElement.srcObject.getTracks();
                     tracks.forEach((track) => track.stop());
                 }
+                codeReader.reset();
+                navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+                    .then((stream) =>
+                        videoElement.srcObject = stream;
+                        videoElement.play();
+                    })
+                    .catch((err) => console.error('Error accessing camera:', err));
             }
         });
 
@@ -301,78 +260,53 @@
             displayBarcodeData();
         });
 
-        // Export button functionality
+        // Export as CSV functionality
         exportButton.addEventListener('click', () => {
-            const tableName = exportInput.value || 'Barcode_Data';
-            const csvContent = `data:text/csv;charset=utf-8,Barcode/ID,Latitude,Longitude\n` +
-                barcodeData.map(info => `${info.id},${info.lat},${info.lng}`).join('\n');
+            const csvContent = "data:text/csv;charset=utf-8," 
+                + barcodeData.map(e => `${e.id},${e.lat},${e.lng},${e.image}`).join("\n");
             const encodedUri = encodeURI(csvContent);
-            const link = document.createElement('a');
-            link.setAttribute('href', encodedUri);
-            link.setAttribute('download', `${tableName}.csv`);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `${exportInput.value || 'barcode_data'}.csv`);
             document.body.appendChild(link); // Required for FF
             link.click();
             document.body.removeChild(link);
         });
 
-        // Map button functionality
+        // Generate map functionality
         mapButton.addEventListener('click', () => {
-            mapContainer.innerHTML = ''; // Clear previous map
-
-            // Create map
             const map = L.map('map').setView([0, 0], 2);
-
-            // Add OpenStreetMap tiles
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 18,
-                attribution: '© OpenStreetMap'
+                attribution: '&copy; OpenStreetMap contributors'
             }).addTo(map);
 
-            // Add points to the map
-            barcodeData.forEach((info) => {
-                const marker = L.marker([info.lat, info.lng]).addTo(map);
-                marker.bindPopup(`<b>Barcode/ID:</b> ${info.id}<br><b>Latitude:</b> ${info.lat}<br><b>Longitude:</b> ${info.lng}<br><img src="${info.image}" class="meal-image" />`);
+            barcodeData.forEach((data) => {
+                const marker = L.marker([data.lat, data.lng]).addTo(map);
+                const imageTag = `<img src="${data.image}" class="meal-image"/>`;
+                marker.bindPopup(`${data.id}<br>${imageTag}`);
             });
 
-            // Fit map to markers
-            const bounds = barcodeData.map(info => [info.lat, info.lng]);
-            if (bounds.length > 0) {
-                map.fitBounds(bounds);
+            if (barcodeData.length > 0) {
+                map.fitBounds(barcodeData.map(data => [data.lat, data.lng]));
             }
-
-            // Save map URL for email
-            mapUrl = `https://www.openstreetmap.org/#map=18/${barcodeData[0].lat}/${barcodeData[0].lng}`;
         });
 
-        // Send email button functionality
+        // Send email functionality
         emailButton.addEventListener('click', () => {
-            const emailBody = `
-                <h2>History of Scans</h2>
-                <table border="1">
-                    <tr>
-                        <th>Barcode/ID</th>
-                        <th>Latitude</th>
-                        <th>Longitude</th>
-                        <th>Image</th>
-                    </tr>
-                    ${barcodeData.map(info => `
-                        <tr>
-                            <td>${info.id}</td>
-                            <td>${info.lat}</td>
-                            <td>${info.lng}</td>
-                            <td><img src="${info.image}" class="meal-image" /></td>
-                        </tr>
-                    `).join('')}
-                </table>
-                <p><a href="${mapUrl}" target="_blank">View Web Map</a></p>
-            `;
+            const emailBody = barcodeData.map(data => `ID: ${data.id}\nLatitude: ${data.lat}\nLongitude: ${data.lng}\n`).join('\n');
+            const subject = 'Barcode Data';
+            const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
 
-            const mailtoLink = `mailto:?subject=Barcode Scan Data&body=${encodeURIComponent(emailBody)}`;
             window.location.href = mailtoLink;
         });
 
-        // Initial display of barcode data
-        displayBarcodeData();
+        // Start the camera stream for the initial mode
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+            .then((stream) => {
+                videoElement.srcObject = stream;
+                videoElement.play();
+            })
+            .catch((err) => console.error('Error accessing camera:', err));
     </script>
 </body>
 </html>
