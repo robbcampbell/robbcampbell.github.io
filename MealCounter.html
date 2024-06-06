@@ -24,6 +24,20 @@
             padding: 10px 20px;
             font-size: 1em;
         }
+        .flash {
+            animation: flashBackground 0.3s linear;
+        }
+        @keyframes flashBackground {
+            0% {
+                background-color: white;
+            }
+            50% {
+                background-color: red;
+            }
+            100% {
+                background-color: white;
+            }
+        }
     </style>
 </head>
 <body>
@@ -68,6 +82,20 @@
             mealCountElement.textContent = totalMeals;
         }
 
+        // Beep sound function
+        function beep() {
+            const beepSound = new Audio('https://www.soundjay.com/button/beep-07.wav');
+            beepSound.play();
+        }
+
+        // Flash background function
+        function flashBackground() {
+            document.body.classList.add('flash');
+            setTimeout(() => {
+                document.body.classList.remove('flash');
+            }, 300);
+        }
+
         // Start the barcode scanner
         codeReader.decodeFromVideoDevice(undefined, videoElement, (result, err) => {
             if (result) {
@@ -77,6 +105,8 @@
                     mealCountElement.textContent = totalMeals;
                     setCookie('totalMeals', totalMeals, 7);
                     lastScanTime = now;
+                    beep(); // Play beep sound
+                    flashBackground(); // Flash background red
                 }
             }
             if (err && !(err instanceof ZXing.NotFoundException)) {
