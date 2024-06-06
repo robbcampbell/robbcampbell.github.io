@@ -80,6 +80,13 @@
             height: 500px;
             margin-top: 20px;
         }
+
+
+
+
+
+
+        
     </style>
 </head>
 <body>
@@ -282,7 +289,7 @@
                     })
                     .catch((err) => console.error('Error accessing camera:', err));
             } else {
-                scannerContainer.style.display = 'block';
+                scannerContainer.style.display = '';
                 cameraContainer.style.display = 'none';
                 if (cameraVideoElement.srcObject) {
                     const tracks = cameraVideoElement.srcObject.getTracks();
