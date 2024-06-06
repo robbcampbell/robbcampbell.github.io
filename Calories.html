@@ -11,6 +11,11 @@
             height: 500px;
             margin-bottom: 20px;
         }
+        #video {
+            width: 100%;
+            height: 500px;
+            object-fit: cover;
+        }
         #result {
             font-size: 1.5em;
             margin: 20px 0;
@@ -23,13 +28,15 @@
 </head>
 <body>
     <h1>Calorie Counter</h1>
-    <div id="scanner-container"></div>
+    <div id="scanner-container">
+        <video id="video"></video>
+    </div>
     <div id="result">Total Calories: <span id="calorie-count">0</span></div>
     <button id="reset-button">Reset</button>
 
     <script>
         const codeReader = new ZXing.BrowserBarcodeReader();
-        const scannerContainer = document.getElementById('scanner-container');
+        const videoElement = document.getElementById('video');
         const calorieCountElement = document.getElementById('calorie-count');
         const resetButton = document.getElementById('reset-button');
         let totalCalories = 0;
@@ -68,7 +75,7 @@
         }
 
         // Start the barcode scanner
-        codeReader.decodeFromVideoDevice(undefined, 'scanner-container', (result, err) => {
+        codeReader.decodeFromVideoDevice(undefined, videoElement, (result, err) => {
             if (result) {
                 const now = new Date().getTime();
                 if (now - lastScanTime > 3000) {
