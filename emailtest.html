@@ -8,13 +8,13 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <style>
-        #scanner-container {
+        #scanner-container, #camera-container {
             width: 100%;
             height: 500px;
             margin-bottom: 20px;
             position: relative;
         }
-        #video {
+        #video, #camera-video {
             width: 100%;
             height: 500px;
             object-fit: cover;
@@ -35,9 +35,10 @@
             font-size: 1.5em;
             margin: 20px 0;
         }
-        #reset-button {
+        #reset-button, #camera-toggle, #take-picture-button {
             padding: 10px 20px;
             font-size: 1em;
+            margin-right: 10px;
         }
         .flash {
             animation: flashBackground 0.3s linear;
@@ -87,6 +88,11 @@
         <video id="video" autoplay playsinline></video>
         <div id="barcode-mark"></div>
     </div>
+    <div id="camera-container" style="display: none;">
+        <video id="camera-video" autoplay playsinline></video>
+        <button id="take-picture-button">Take Picture</button>
+    </div>
+    <button id="camera-toggle">Toggle Camera/Scanner</button>
     <div id="result">Total Meals: <span id="meal-count">0</span></div>
     <button id="reset-button">Reset</button>
     <div id="history">
@@ -94,9 +100,10 @@
         <table id="barcode-table">
             <thead>
                 <tr>
-                    <th>Barcode Number</th>
+                    <th>Barcode/ID</th>
                     <th>Latitude</th>
                     <th>Longitude</th>
+                    <th>Image</th>
                 </tr>
             </thead>
             <tbody id="barcode-data"></tbody>
@@ -113,6 +120,7 @@
     <script>
         const codeReader = new ZXing.BrowserBarcodeReader();
         const videoElement = document.getElementById('video');
+        const cameraVideoElement = document.getElementById('camera-video');
         const mealCountElement = document.getElementById('meal-count');
         const resetButton = document.getElementById('reset-button');
         const barcodeMark = document.getElementById('barcode-mark');
@@ -122,9 +130,14 @@
         const mapButton = document.getElementById('map-button');
         const emailButton = document.getElementById('email-button');
         const mapContainer = document.getElementById('map');
+        const cameraToggle = document.getElementById('camera-toggle');
+        const scannerContainer = document.getElementById('scanner-container');
+        const cameraContainer = document.getElementById('camera-container');
+        const takePictureButton = document.getElementById('take-picture-button');
         let totalMeals = 0;
         let barcodeData = [];
         let mapUrl = '';
+        let cameraMode = false;
 
         // Utility to get and set cookies
         function setCookie(name, value, days) {
@@ -161,9 +174,10 @@
             barcodeData.forEach((info) => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${info.barcode}</td>
+                    <td>${info.id}</td>
                     <td>${info.lat}</td>
                     <td>${info.lng}</td>
+                    <td><img src="${info.image}" class="meal-image" /></td>
                 `;
                 barcodeDataBody.appendChild(row);
             });
@@ -195,18 +209,30 @@
             }
         }
 
+        // Function to handle image capture
+        function captureImage(video) {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            return canvas.toDataURL('image/png');
+        }
+
         // Start the barcode scanner with autofocus
         codeReader.decodeFromVideoDevice(undefined, videoElement, (result, err) => {
-            if (result) {
+            if (result && !cameraMode) {
                 getCurrentPosition((position) => {
                     totalMeals++;
                     mealCountElement.textContent = totalMeals;
                     setCookie('totalMeals', totalMeals, 7);
 
+                    const imageData = captureImage(videoElement);
                     const barcodeInfo = {
-                        barcode: result.text,
+                        id: result.text,
                         lat: position.coords.latitude,
-                        lng: position.coords.longitude
+                        lng: position.coords.longitude,
+                        image: imageData
                     };
                     barcodeData.push(barcodeInfo);
                     setCookie('barcodeData', JSON.stringify(barcodeData), 7);
@@ -219,48 +245,79 @@
             }
         });
 
+        // Function to handle taking a picture in camera mode
+        takePictureButton.addEventListener('click', () => {
+            if (cameraMode) {
+                getCurrentPosition((position) => {
+                    totalMeals++;
+                    mealCountElement.textContent = totalMeals;
+                    setCookie('totalMeals', totalMeals, 7);
+
+                    const uniqueID = `ID_${Date.now()}`;
+                    const imageData = captureImage(cameraVideoElement);
+                    const imageInfo = {
+                        id: uniqueID,
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude,
+                        image: imageData
+                    };
+                    barcodeData.push(imageInfo);
+                    setCookie('barcodeData', JSON.stringify(barcodeData), 7);
+                    displayBarcodeData();
+                    flashBackground(); // Flash background red
+                });
+            }
+        });
+
+        // Toggle between scanner and camera modes
+        cameraToggle.addEventListener('click', () => {
+            cameraMode = !cameraMode;
+            if (cameraMode) {
+                scannerContainer.style.display = 'none';
+                cameraContainer.style.display = 'block';
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then((stream) => {
+                        cameraVideoElement.srcObject = stream;
+                        cameraVideoElement.play();
+                    })
+                    .catch((err) => console.error('Error accessing camera:', err));
+            } else {
+                scannerContainer.style.display = 'block';
+                cameraContainer.style.display = 'none';
+                if (cameraVideoElement.srcObject) {
+                    const tracks = cameraVideoElement.srcObject.getTracks();
+                    tracks.forEach((track) => track.stop());
+                }
+            }
+        });
+
         // Reset button functionality
         resetButton.addEventListener('click', () => {
             totalMeals = 0;
             mealCountElement.textContent = totalMeals;
             barcodeData = [];
-            barcodeDataBody.innerHTML = '';
             setCookie('totalMeals', totalMeals, 7);
             setCookie('barcodeData', JSON.stringify(barcodeData), 7);
+            displayBarcodeData();
         });
 
         // Export button functionality
         exportButton.addEventListener('click', () => {
-            const tableName = exportInput.value.trim();
-            if (tableName.length === 0) {
-                alert('Please enter a table name.');
-                return;
-            }
-
-            // Create CSV content
-            let csvContent = 'data:text/csv;charset=utf-8,';
-            csvContent += 'Barcode Number,Latitude,Longitude\n';
-            barcodeData.forEach((info) => {
-                csvContent += `${info.barcode},${info.lat},${info.lng}\n`;
-            });
-
-            // Create a download link
+            const tableName = exportInput.value || 'Barcode_Data';
+            const csvContent = `data:text/csv;charset=utf-8,Barcode/ID,Latitude,Longitude\n` +
+                barcodeData.map(info => `${info.id},${info.lat},${info.lng}`).join('\n');
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement('a');
             link.setAttribute('href', encodedUri);
             link.setAttribute('download', `${tableName}.csv`);
-            document.body.appendChild(link);
+            document.body.appendChild(link); // Required for FF
             link.click();
             document.body.removeChild(link);
         });
 
-        // Generate web map button functionality
+        // Map button functionality
         mapButton.addEventListener('click', () => {
-            // Remove existing map if any
-            if (mapContainer._leaflet_id) {
-                mapContainer._leaflet_id = null;
-                mapContainer.innerHTML = '';
-            }
+            mapContainer.innerHTML = ''; // Clear previous map
 
             // Create map
             const map = L.map('map').setView([0, 0], 2);
@@ -274,7 +331,7 @@
             // Add points to the map
             barcodeData.forEach((info) => {
                 const marker = L.marker([info.lat, info.lng]).addTo(map);
-                marker.bindPopup(`<b>Barcode:</b> ${info.barcode}<br><b>Latitude:</b> ${info.lat}<br><b>Longitude:</b> ${info.lng}`);
+                marker.bindPopup(`<b>Barcode/ID:</b> ${info.id}<br><b>Latitude:</b> ${info.lat}<br><b>Longitude:</b> ${info.lng}<br><img src="${info.image}" class="meal-image" />`);
             });
 
             // Fit map to markers
@@ -293,15 +350,17 @@
                 <h2>History of Scans</h2>
                 <table border="1">
                     <tr>
-                        <th>Barcode Number</th>
+                        <th>Barcode/ID</th>
                         <th>Latitude</th>
                         <th>Longitude</th>
+                        <th>Image</th>
                     </tr>
                     ${barcodeData.map(info => `
                         <tr>
-                            <td>${info.barcode}</td>
+                            <td>${info.id}</td>
                             <td>${info.lat}</td>
                             <td>${info.lng}</td>
+                            <td><img src="${info.image}" class="meal-image" /></td>
                         </tr>
                     `).join('')}
                 </table>
