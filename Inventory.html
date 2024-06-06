@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meal Counter</title>
     <script src="https://unpkg.com/@zxing/library@latest"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <style>
         #scanner-container {
             width: 100%;
@@ -72,6 +74,11 @@
         #export-input {
             margin-right: 10px;
         }
+        #map {
+            width: 100%;
+            height: 500px;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -98,6 +105,8 @@
             <input type="text" id="export-input" placeholder="Enter table name">
             <button id="export-button">Export CSV</button>
         </div>
+        <button id="map-button">Generate Web Map</button>
+        <div id="map"></div>
     </div>
 
     <script>
@@ -109,6 +118,8 @@
         const barcodeDataBody = document.getElementById('barcode-data');
         const exportButton = document.getElementById('export-button');
         const exportInput = document.getElementById('export-input');
+        const mapButton = document.getElementById('map-button');
+        const mapContainer = document.getElementById('map');
         let totalMeals = 0;
         let barcodeData = [];
 
@@ -238,6 +249,36 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+        });
+
+        // Generate web map button functionality
+        mapButton.addEventListener('click', () => {
+            // Remove existing map if any
+            if (mapContainer._leaflet_id) {
+                mapContainer._leaflet_id = null;
+                mapContainer.innerHTML = '';
+            }
+
+            // Initialize the map
+            const map = L.map('map').setView([0, 0], 2);
+
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 18,
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
+
+            // Add points to the map
+            barcodeData.forEach((info) => {
+                const marker = L.marker([info.lat, info.lng]).addTo(map);
+                marker.bindPopup(`<b>Barcode:</b> ${info.barcode}<br><b>Latitude:</b> ${info.lat}<br><b>Longitude:</b> ${info.lng}`);
+            });
+
+            // Fit map to markers
+            const bounds = barcodeData.map(info => [info.lat, info.lng]);
+            if (bounds.length > 0) {
+                map.fitBounds(bounds);
+            }
         });
 
         // Initial display of barcode data
