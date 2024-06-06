@@ -55,7 +55,7 @@
 <body>
     <h1>Meal Counter</h1>
     <div id="scanner-container">
-        <video id="video"></video>
+        <video id="video" autoplay playsinline></video>
         <div id="barcode-mark"></div>
     </div>
     <div id="result">Total Meals: <span id="meal-count">0</span></div>
@@ -110,7 +110,7 @@
             }, 300);
         }
 
-        // Start the barcode scanner
+        // Start the barcode scanner with autofocus
         codeReader.decodeFromVideoDevice(undefined, videoElement, (result, err) => {
             if (result) {
                 const now = new Date().getTime();
