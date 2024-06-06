@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calorie Counter</title>
+    <title>Meal Counter</title>
     <script src="https://unpkg.com/@zxing/library@latest"></script>
     <style>
         #scanner-container {
@@ -27,19 +27,19 @@
     </style>
 </head>
 <body>
-    <h1>Calorie Counter</h1>
+    <h1>Meal Counter</h1>
     <div id="scanner-container">
         <video id="video"></video>
     </div>
-    <div id="result">Total Calories: <span id="calorie-count">0</span></div>
+    <div id="result">Total Meals: <span id="meal-count">0</span></div>
     <button id="reset-button">Reset</button>
 
     <script>
         const codeReader = new ZXing.BrowserBarcodeReader();
         const videoElement = document.getElementById('video');
-        const calorieCountElement = document.getElementById('calorie-count');
+        const mealCountElement = document.getElementById('meal-count');
         const resetButton = document.getElementById('reset-button');
-        let totalCalories = 0;
+        let totalMeals = 0;
         let lastScanTime = 0;
 
         // Utility to get and set cookies
@@ -61,17 +61,11 @@
             return null;
         }
 
-        // Initialize total calories from cookie
-        const savedCalories = getCookie('totalCalories');
-        if (savedCalories) {
-            totalCalories = parseInt(savedCalories, 10);
-            calorieCountElement.textContent = totalCalories;
-        }
-
-        // Dummy function to simulate fetching calorie information
-        function fetchCalories(barcode) {
-            // In a real application, replace this with an API call to get calorie information based on the barcode
-            return Math.floor(Math.random() * 500); // Return a random number of calories
+        // Initialize total meals from cookie
+        const savedMeals = getCookie('totalMeals');
+        if (savedMeals) {
+            totalMeals = parseInt(savedMeals, 10);
+            mealCountElement.textContent = totalMeals;
         }
 
         // Start the barcode scanner
@@ -79,10 +73,9 @@
             if (result) {
                 const now = new Date().getTime();
                 if (now - lastScanTime > 3000) {
-                    const calories = fetchCalories(result.text);
-                    totalCalories += calories;
-                    calorieCountElement.textContent = totalCalories;
-                    setCookie('totalCalories', totalCalories, 7);
+                    totalMeals++;
+                    mealCountElement.textContent = totalMeals;
+                    setCookie('totalMeals', totalMeals, 7);
                     lastScanTime = now;
                 }
             }
@@ -93,9 +86,9 @@
 
         // Reset button functionality
         resetButton.addEventListener('click', () => {
-            totalCalories = 0;
-            calorieCountElement.textContent = totalCalories;
-            setCookie('totalCalories', totalCalories, 7);
+            totalMeals = 0;
+            mealCountElement.textContent = totalMeals;
+            setCookie('totalMeals', totalMeals, 7);
         });
     </script>
 </body>
