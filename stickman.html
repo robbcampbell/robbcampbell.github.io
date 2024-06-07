@@ -12,14 +12,14 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background: linear-gradient(180deg, #87CEEB, #4682B4); /* Cool sky background */
+            background: linear-gradient(180deg, #87CEEB, #4682B4);
         }
         #gameArea {
             width: 100vw;
             height: 100vh;
             position: relative;
             background-color: #fff;
-            cursor: none; /* Hide cursor */
+            cursor: none;
         }
         .person {
             position: absolute;
@@ -36,7 +36,7 @@
             position: absolute;
             top: 0;
             left: 0;
-            transition: background-color 0.2s ease; /* Smooth transition */
+            transition: background-color 0.2s ease;
         }
         .body {
             width: 4px;
@@ -95,7 +95,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 10; /* Ensure scope is in front of everything */
+            z-index: 10;
         }
         .scope-cursor::after {
             content: '';
@@ -170,35 +170,89 @@
                 opacity: 0;
             }
         }
+        .target-health-bar {
+            position: absolute;
+            top: -10px;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background-color: red;
+        }
+        .target-health-bar-inner {
+            height: 100%;
+            background-color: green;
+        }
+        .flash {
+            animation: flash 1s;
+        }
+        @keyframes flash {
+            0% { background-color: gold; }
+            100% { background-color: transparent; }
+        }
+        .experience-bar {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            width: 200px;
+            height: 20px;
+            border: 2px solid gold;
+            background: rgba(255, 215, 0, 0.25);
+            z-index: 20;
+        }
+        .experience-bar-inner {
+            height: 100%;
+            background-color: gold;
+        }
     </style>
 </head>
 <body>
     <div id="gameArea">
         <div id="scope" class="scope-cursor"></div>
-        <div class="person target" id="target1" data-health="10">
+        <div class="person target" id="target1">
             <div class="head"></div>
             <div class="body"></div>
             <div class="arms"></div>
             <div class="legs"></div>
+            <div class="target-health-bar"><div class="target-health-bar-inner"></div></div>
         </div>
-        <!-- Add more targets here -->
-        <div class="person target" id="target2" data-health="10" style="animation-delay: 1s;">
+        <!-- Add 10 more stick figures -->
+        <div class="person target" id="target2" style="animation-delay: 1s;">
             <div class="head"></div>
             <div class="body"></div>
             <div class="arms"></div>
             <div class="legs"></div>
+            <div class="target-health-bar"><div class="target-health-bar-inner"></div></div>
         </div>
-        <div class="person target" id="target3" data-health="10" style="animation-delay: 2s;">
+        <div class="person target" id="target3" style="animation-delay: 2s;">
             <div class="head"></div>
             <div class="body"></div>
             <div class="arms"></div>
             <div class="legs"></div>
+            <div class="target-health-bar"><div class="target-health-bar-inner"></div></div>
+        </div>
+        <div class="person target" id="target4" style="animation-delay: 3s;">
+            <div class="head"></div>
+            <div class="body"></div>
+            <div class="arms"></div>
+            <div class="legs"></div>
+            <div class="target-health-bar"><div class="target-health-bar-inner"></div></div>
+        </div>
+        <div class="person target" id="target5" style="animation-delay: 4s;">
+            <div class="head"></div>
+            <div class="body"></div>
+            <div class="arms"></div>
+            <div class="legs"></div>
+            <div class="target-health-bar"><div class="target-health-bar-inner"></div></div>
         </div>
         <!-- Add more stick figures here -->
-        <div id="score" class="scoreboard">Score: 0</div>
+        <div id="score" class="scoreboard">0</div>
         <div class="health-bar">
             <div id="health" class="health-bar-inner" style="width: 100%;"></div>
         </div>
+        <div class="experience-bar">
+            <div id="experience" class="experience-bar-inner" style="width: 0%;"></div>
+        </div>
+        <div id="level" class="scoreboard" style="top: 40px; right: 10px; left: unset;">Level 1</div>
     </div>
 
     <script>
@@ -206,217 +260,157 @@
         const scope = document.getElementById('scope');
         const gameArea = document.getElementById('gameArea');
         const healthBarInner = document.getElementById('health');
-        let myscore = 0;
-        let health = 100;
+        const experienceBarInner = document.getElementById('experience');
+        const scoreDisplay = document.getElementById('score');
+        const levelDisplay = document.getElementById('level');
 
-        function setRandomPosition(element) {
-            const x = Math.random() * (gameArea.clientWidth - element.offsetWidth);
-            const y = Math.random() * (gameArea.clientHeight - element.offsetHeight);
-            element.style.left = `${x}px`;
-            element.style.top = `${y}px`;
+        let playerHealth = 100;
+        let playerMaxHealth = 100;
+        let playerDamage = 5;
+        let playerLevel = 1;
+        let playerExperience = 0;
+        let requiredExperience = 100;
+        let score = 0;
+
+        function updateHealthBar() {
+            healthBarInner.style.width = (playerHealth / playerMaxHealth) * 100 + '%';
         }
 
-        function randomDirection() {
-            const directions = [
-                {x: 1, y: 0},  // Right
-                {x: -1, y: 0}, // Left
-                {x: 0, y: 1},  // Down
-                {x: 0, y: -1}  // Up
-            ];
-            return directions[Math.floor(Math.random() * directions.length)];
+        function updateExperienceBar() {
+            experienceBarInner.style.width = (playerExperience / requiredExperience) * 100 + '%';
         }
 
-        targets.forEach(target => {
-            setRandomPosition(target);
-            const direction = randomDirection();
-            target.dataset.directionX = direction.x;
-            target.dataset.directionY = direction.y;
-        });
+        function updateScore() {
+            scoreDisplay.textContent = score;
+        }
 
-        function moveTargets() {
-            targets.forEach(target => {
-                let x = parseFloat(target.style.left);
-                let y = parseFloat(target.style.top);
-                const dirX = parseFloat(target.dataset.directionX);
-                const dirY = parseFloat(target.dataset.directionY);
-                x += dirX;
-                y += dirY;
+        function updateLevel() {
+            levelDisplay.textContent = 'Level ' + playerLevel;
+        }
 
-                // Ensure the target stays within the game area
-                if (x < 0 || x > gameArea.clientWidth - target.offsetWidth) {
-                    target.dataset.directionX *= -1;
+        function flashGoldBackground() {
+            document.body.classList.add('flash');
+            setTimeout(() => {
+                document.body.classList.remove('flash');
+            }, 1000);
+        }
+
+        function spawnTarget(target) {
+            const x = Math.random() * (gameArea.offsetWidth - 20);
+            const y = Math.random() * (gameArea.offsetHeight - 60);
+            target.style.left = x + 'px';
+            target.style.top = y + 'px';
+            target.dataset.health = 10;
+            target.querySelector('.target-health-bar-inner').style.width = '100%';
+        }
+
+        function handleTargetHit(target) {
+            let health = parseInt(target.dataset.health) - playerDamage;
+            if (health <= 0) {
+                score += 2;
+                playerExperience += 2;
+                if (playerExperience >= requiredExperience) {
+                    playerExperience = 0;
+                    playerLevel++;
+                    playerMaxHealth *= 1.5;
+                    playerHealth = playerMaxHealth;
+                    playerDamage *= 1.25;
+                    requiredExperience *= 1.05;
+                    flashGoldBackground();
+                    updateLevel();
                 }
-                if (y < 0 || y > gameArea.clientHeight - target.offsetHeight) {
-                    target.dataset.directionY *= -1;
+                spawnTarget(target);
+                createExplosion(target.offsetLeft, target.offsetTop);
+                if (Math.random() < 0.05) {
+                    chainLightning(target.offsetLeft, target.offsetTop);
                 }
-
-                target.style.left = `${x}px`;
-                target.style.top = `${y}px`;
-
-                // Targets shoot bullets at the cursor
-                if (Math.random() < 0.01) { // Adjust shooting frequency here
-                    shootBulletAtCursor(x, y);
-                }
-            });
+            } else {
+                target.dataset.health = health;
+                target.querySelector('.target-health-bar-inner').style.width = (health / 10) * 100 + '%';
+            }
+            updateHealthBar();
+            updateExperienceBar();
+            updateScore();
         }
 
         function createExplosion(x, y) {
             const explosion = document.createElement('div');
             explosion.className = 'explosion';
-            explosion.style.left = `${x - 25}px`;
-            explosion.style.top = `${y - 25}px`;
+            explosion.style.left = x + 'px';
+            explosion.style.top = y + 'px';
             gameArea.appendChild(explosion);
             setTimeout(() => {
                 explosion.remove();
             }, 500);
-        }
-
-        function shootBullet(x, y) {
-            const bullet = document.createElement('div');
-            bullet.className = 'bullet';
-            bullet.style.left = `${x - 5}px`;
-            bullet.style.top = `${y - 2.5}px`;
-            gameArea.appendChild(bullet);
-
-            const targetX = parseFloat(scope.style.left) + scope.clientWidth / 2;
-            const targetY = parseFloat(scope.style.top) + scope.clientHeight / 2;
-
-            const angle = Math.atan2(targetY - y, targetX - x);
-            const speed = 5;
-
-            function moveBullet() {
-                x += Math.cos(angle) * speed;
-                y += Math.sin(angle) * speed;
-                bullet.style.left = `${x - 5}px`;
-                bullet.style.top = `${y - 2.5}px`;
-
-                const bulletCenterX = x;
-                const bulletCenterY = y;
-
-                if (bulletCenterX < 0 || bulletCenterX > gameArea.clientWidth || bulletCenterY < 0 || bulletCenterY > gameArea.clientHeight) {
-                    bullet.remove();
-                } else {
-                    const scopeRect = scope.getBoundingClientRect();
-                    if (bulletCenterX >= scopeRect.left && bulletCenterX <= scopeRect.right &&
-                        bulletCenterY >= scopeRect.top && bulletCenterY <= scopeRect.bottom) {
-                        updateHealth(-5);
-                        bullet.remove();
-                        scope.style.backgroundColor = 'red';
-                        setTimeout(() => {
-                            scope.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
-                        }, 100);
-                    }
-
-                    requestAnimationFrame(moveBullet);
-                }
-            }
-
-            moveBullet();
-        }
-
-        function shootBulletAtCursor(x, y) {
-            const bullet = document.createElement('div');
-            bullet.className = 'bullet';
-            bullet.style.left = `${x + 10}px`; // Adjust position to start from target center
-            bullet.style.top = `${y + 30}px`; // Adjust position to start from target center
-            gameArea.appendChild(bullet);
-
-            const targetX = parseFloat(scope.style.left) + scope.clientWidth / 2;
-            const targetY = parseFloat(scope.style.top) + scope.clientHeight / 2;
-
-            const angle = Math.atan2(targetY - y, targetX - x);
-            const speed = 5;
-
-            function moveBullet() {
-                x += Math.cos(angle) * speed;
-                y += Math.sin(angle) * speed;
-                bullet.style.left = `${x}px`;
-                bullet.style.top = `${y}px`;
-
-                const bulletCenterX = x + 5;
-                const bulletCenterY = y + 2.5;
-
-                if (bulletCenterX < 0 || bulletCenterX > gameArea.clientWidth || bulletCenterY < 0 || bulletCenterY > gameArea.clientHeight) {
-                    bullet.remove();
-                } else {
-                    const scopeRect = scope.getBoundingClientRect();
-                    if (bulletCenterX >= scopeRect.left && bulletCenterX <= scopeRect.right &&
-                        bulletCenterY >= scopeRect.top && bulletCenterY <= scopeRect.bottom) {
-                        updateHealth(-5);
-                        bullet.remove();
-                        scope.style.backgroundColor = 'red';
-                        setTimeout(() => {
-                            scope.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
-                        }, 100);
-                    }
-                    requestAnimationFrame(moveBullet);
-                }
-            }
-
-            moveBullet();
-        }
-
-        function updateHealth(amount) {
-            health += amount;
-            if (health > 100) health = 100;
-            if (health <= 0) {
-                alert('Game Over! Final score: ' + myscore);
-                health = 100;
-                myscore = 0;
-                document.getElementById('score').innerText = 'Score: ' + myscore;
-            }
-            healthBarInner.style.width = health + '%';
-        }
-
-        function onMouseMove(event) {
-            const x = event.clientX - scope.clientWidth / 2;
-            const y = event.clientY - scope.clientHeight / 2;
-            scope.style.left = `${x}px`;
-            scope.style.top = `${y}px`;
-        }
-
-        function onMouseClick(event) {
-            const x = event.clientX;
-            const y = event.clientY;
-
             targets.forEach(target => {
-                const rect = target.getBoundingClientRect();
-                if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
-                    const health = parseInt(target.dataset.health) - 5;
-                    target.dataset.health = health;
-                    target.querySelector('.head').style.backgroundColor = 'red';
-                    setTimeout(() => {
-                        target.querySelector('.head').style.backgroundColor = '#000';
-                    }, 100);
+                const targetRect = target.getBoundingClientRect();
+                const explosionRect = explosion.getBoundingClientRect();
+                if (
+                    targetRect.left < explosionRect.right &&
+                    targetRect.right > explosionRect.left &&
+                    targetRect.top < explosionRect.bottom &&
+                    targetRect.bottom > explosionRect.top
+                ) {
+                    handleTargetHit(target);
+                }
+            });
+        }
 
-                    if (health <= 0) {
-                        createExplosion(rect.left + rect.width / 2, rect.top + rect.height / 2);
-                        setRandomPosition(target);
-                        target.dataset.health = 10;
-                        myscore += 2;
-                        document.getElementById('score').innerText = 'Score: ' + myscore;
+        function chainLightning(x, y) {
+            targets.forEach(target => {
+                const targetRect = target.getBoundingClientRect();
+                const distance = Math.hypot(targetRect.left - x, targetRect.top - y);
+                if (distance <= 200) {
+                    target.dataset.health -= 20;
+                    if (target.dataset.health <= 0) {
+                        score += 2;
+                        playerExperience += 2;
+                        spawnTarget(target);
+                    } else {
+                        target.querySelector('.target-health-bar-inner').style.width = (target.dataset.health / 10) * 100 + '%';
                     }
                 }
             });
         }
 
-        setInterval(moveTargets, 100);
+        function createBullet(x, y) {
+            const bullet = document.createElement('div');
+            bullet.className = 'bullet';
+            bullet.style.left = x + 'px';
+            bullet.style.top = y + 'px';
+            gameArea.appendChild(bullet);
+            setTimeout(() => {
+                bullet.remove();
+            }, 1000);
+        }
 
-        document.addEventListener('mousemove', onMouseMove);
-        document.addEventListener('click', onMouseClick);
-
-        // Mobile specific
-        setInterval(() => {
-            const scopeRect = scope.getBoundingClientRect();
-            shootBullet(scopeRect.left + scopeRect.width / 2, scopeRect.top + scopeRect.height / 2);
-        }, 250);
-
-        document.addEventListener('touchstart', (event) => {
-            onMouseMove(event.touches[0]);
+        gameArea.addEventListener('mousemove', (e) => {
+            scope.style.left = e.clientX - 50 + 'px';
+            scope.style.top = e.clientY - 50 + 'px';
         });
-        document.addEventListener('touchmove', (event) => {
-            onMouseMove(event.touches[0]);
+
+        gameArea.addEventListener('click', (e) => {
+            const clickX = e.clientX;
+            const clickY = e.clientY;
+            createBullet(clickX, clickY);
+            targets.forEach(target => {
+                const targetRect = target.getBoundingClientRect();
+                const distance = Math.hypot(targetRect.left + 10 - clickX, targetRect.top + 10 - clickY);
+                if (distance <= 5) {
+                    handleTargetHit(target);
+                }
+            });
         });
+
+        // Initial setup
+        targets.forEach(target => {
+            spawnTarget(target);
+        });
+
+        updateHealthBar();
+        updateExperienceBar();
+        updateScore();
+        updateLevel();
     </script>
 </body>
 </html>
