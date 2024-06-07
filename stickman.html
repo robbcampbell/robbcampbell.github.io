@@ -12,14 +12,14 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background: linear-gradient(180deg, #87CEEB, #4682B4); /* Cool sky background */
+            background: linear-gradient(180deg, #87CEEB, #4682B4);
         }
         #gameArea {
             width: 100vw;
             height: 100vh;
             position: relative;
             background-color: #fff;
-            cursor: none; /* Hide cursor */
+            cursor: none;
         }
         .person {
             position: absolute;
@@ -36,7 +36,7 @@
             position: absolute;
             top: 0;
             left: 0;
-            transition: background-color 0.2s ease; /* Smooth transition */
+            transition: background-color 0.2s ease;
         }
         .body {
             width: 4px;
@@ -95,7 +95,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 10; /* Ensure scope is in front of everything */
+            z-index: 10;
         }
         .scope-cursor::after {
             content: '';
@@ -137,15 +137,6 @@
         .health-bar-inner {
             height: 100%;
             background-color: #00ff00;
-            position: relative;
-        }
-        .health-bar-inner::after {
-            content: attr(data-health) '%';
-            position: absolute;
-            right: 5px;
-            top: 2px;
-            color: #000;
-            font-weight: bold;
         }
         .bullet {
             width: 10px;
@@ -179,40 +170,38 @@
                 opacity: 0;
             }
         }
-        .flash {
-            animation: flash-red 0.2s ease;
-        }
-        @keyframes flash-red {
-            0% { border-color: #000; }
-            100% { border-color: #ff0000; }
-        }
-        .rocket {
-            width: 50px;
-            height: 25px;
-            background-color: #000;
+        .target-health-bar {
             position: absolute;
-            border-radius: 50%;
-            z-index: 15;
-        }
-        .fire-button {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100px;
-            height: 50px;
+            top: -10px;
+            left: 0;
+            width: 100%;
+            height: 5px;
             background-color: red;
-            color: white;
-            font-size: 20px;
-            border: none;
-            border-radius: 10px;
-            z-index: 30;
-            display: none;
         }
-        @media (max-width: 768px) {
-            .fire-button {
-                display: block;
-            }
+        .target-health-bar-inner {
+            height: 100%;
+            background-color: green;
+        }
+        .flash {
+            animation: flash 1s;
+        }
+        @keyframes flash {
+            0% { background-color: gold; }
+            100% { background-color: transparent; }
+        }
+        .experience-bar {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            width: 200px;
+            height: 20px;
+            border: 2px solid gold;
+            background: rgba(255, 215, 0, 0.25);
+            z-index: 20;
+        }
+        .experience-bar-inner {
+            height: 100%;
+            background-color: gold;
         }
     </style>
 </head>
@@ -224,6 +213,7 @@
             <div class="body"></div>
             <div class="arms"></div>
             <div class="legs"></div>
+            <div class="target-health-bar"><div class="target-health-bar-inner"></div></div>
         </div>
         <!-- Add 10 more stick figures -->
         <div class="person target" id="target2" style="animation-delay: 1s;">
@@ -231,185 +221,196 @@
             <div class="body"></div>
             <div class="arms"></div>
             <div class="legs"></div>
+            <div class="target-health-bar"><div class="target-health-bar-inner"></div></div>
         </div>
         <div class="person target" id="target3" style="animation-delay: 2s;">
             <div class="head"></div>
             <div class="body"></div>
             <div class="arms"></div>
             <div class="legs"></div>
+            <div class="target-health-bar"><div class="target-health-bar-inner"></div></div>
         </div>
         <div class="person target" id="target4" style="animation-delay: 3s;">
             <div class="head"></div>
             <div class="body"></div>
             <div class="arms"></div>
             <div class="legs"></div>
+            <div class="target-health-bar"><div class="target-health-bar-inner"></div></div>
         </div>
         <div class="person target" id="target5" style="animation-delay: 4s;">
             <div class="head"></div>
             <div class="body"></div>
             <div class="arms"></div>
             <div class="legs"></div>
+            <div class="target-health-bar"><div class="target-health-bar-inner"></div></div>
         </div>
         <!-- Add more stick figures here -->
         <div id="score" class="scoreboard">0</div>
         <div class="health-bar">
-            <div id="health" class="health-bar-inner" style="width: 100%;" data-health="100"></div>
+            <div id="health" class="health-bar-inner" style="width: 100%;"></div>
         </div>
+        <div class="experience-bar">
+            <div id="experience" class="experience-bar-inner" style="width: 0%;"></div>
+        </div>
+        <div id="level" class="scoreboard" style="top: 40px; right: 10px; left: unset;">Level 1</div>
     </div>
-    <button class="fire-button" id="fireButton">FIRE</button>
 
     <script>
         const targets = document.querySelectorAll('.person.target');
         const scope = document.getElementById('scope');
         const gameArea = document.getElementById('gameArea');
         const healthBarInner = document.getElementById('health');
-        const fireButton = document.getElementById('fireButton');
-        let myscore = 0;
-        let health = 100;
+        const experienceBarInner = document.getElementById('experience');
+        const scoreDisplay = document.getElementById('score');
+        const levelDisplay = document.getElementById('level');
 
-        function setRandomPosition(element) {
-            const x = Math.random() * (gameArea.clientWidth - element.offsetWidth);
-            const y = Math.random() * (gameArea.clientHeight - element.offsetHeight);
-            element.style.transform = `translate(${x}px, ${y}px)`;
-            element.dataset.direction = Math.random() < 0.5 ? 'left' : 'right'; // Set random initial direction
+        let playerHealth = 100;
+        let playerMaxHealth = 100;
+        let playerDamage = 5;
+        let playerLevel = 1;
+        let playerExperience = 0;
+        let requiredExperience = 100;
+        let score = 0;
+
+        function updateHealthBar() {
+            healthBarInner.style.width = (playerHealth / playerMaxHealth) * 100 + '%';
         }
 
-        targets.forEach(setRandomPosition);
-
-        function moveTargets() {
-            targets.forEach(target => {
-                let currentPosition = parseFloat(target.style.transform.match(/-?\d+\.?\d*/g)[0]);
-                const direction = target.dataset.direction;
-
-                if (direction === 'left') {
-                    currentPosition -= 2;
-                    if (currentPosition <= 0) {
-                        target.dataset.direction = 'right';
-                    }
-                } else {
-                    currentPosition += 2;
-                    if (currentPosition >= gameArea.clientWidth - target.offsetWidth) {
-                        target.dataset.direction = 'left';
-                    }
-                }
-
-                target.style.transform = `translate(${currentPosition}px, ${parseFloat(target.style.transform.match(/-?\d+\.?\d*/g)[1])}px)`;
-
-                if (Math.random() < 0.01) {
-                    fireBullet(target);
-                }
-            });
+        function updateExperienceBar() {
+            experienceBarInner.style.width = (playerExperience / requiredExperience) * 100 + '%';
         }
 
-        function fireBullet(target) {
-            const bullet = document.createElement('div');
-            bullet.classList.add('bullet');
-            bullet.style.left = `${target.offsetLeft + target.offsetWidth / 2}px`;
-            bullet.style.top = `${target.offsetTop + target.offsetHeight / 2}px`;
-            gameArea.appendChild(bullet);
-
-            const interval = setInterval(() => {
-                const rect = bullet.getBoundingClientRect();
-                const scopeRect = scope.getBoundingClientRect();
-
-                const dx = scopeRect.left + scopeRect.width / 2 - rect.left;
-                const dy = scopeRect.top + scopeRect.height / 2 - rect.top;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-
-                if (distance < 10) {
-                    gameArea.removeChild(bullet);
-                    clearInterval(interval);
-                    health -= 5;
-                    if (health < 0) health = 0;
-                    healthBarInner.style.width = `${health}%`;
-                    healthBarInner.dataset.health = health;
-                    scope.classList.add('flash');
-                    setTimeout(() => scope.classList.remove('flash'), 200);
-                    if (health === 0) {
-                        alert('Game Over! Score: ' + myscore);
-                        resetGame();
-                    }
-                }
-
-                bullet.style.left = `${bullet.offsetLeft + dx * 0.05}px`;
-                bullet.style.top = `${bullet.offsetTop + dy * 0.05}px`;
-
-                if (bullet.offsetLeft < 0 || bullet.offsetLeft > gameArea.clientWidth || bullet.offsetTop < 0 || bullet.offsetTop > gameArea.clientHeight) {
-                    gameArea.removeChild(bullet);
-                    clearInterval(interval);
-                }
-            }, 16);
+        function updateScore() {
+            scoreDisplay.textContent = score;
         }
 
-        gameArea.addEventListener('mousemove', event => {
-            scope.style.left = `${event.clientX - scope.offsetWidth / 2}px`;
-            scope.style.top = `${event.clientY - scope.offsetHeight / 2}px`;
+        function updateLevel() {
+            levelDisplay.textContent = 'Level ' + playerLevel;
+        }
 
-            targets.forEach(target => {
-                const rect = target.querySelector('.head').getBoundingClientRect();
-                if (event.clientX > rect.left && event.clientX < rect.right && event.clientY > rect.top && event.clientY < rect.bottom) {
-                    target.querySelector('.head').style.backgroundColor = 'red';
-                } else {
-                    target.querySelector('.head').style.backgroundColor = 'black';
+        function flashGoldBackground() {
+            document.body.classList.add('flash');
+            setTimeout(() => {
+                document.body.classList.remove('flash');
+            }, 1000);
+        }
+
+        function spawnTarget(target) {
+            const x = Math.random() * (gameArea.offsetWidth - 20);
+            const y = Math.random() * (gameArea.offsetHeight - 60);
+            target.style.left = x + 'px';
+            target.style.top = y + 'px';
+            target.dataset.health = 10;
+            target.querySelector('.target-health-bar-inner').style.width = '100%';
+        }
+
+        function handleTargetHit(target) {
+            let health = parseInt(target.dataset.health) - playerDamage;
+            if (health <= 0) {
+                score += 2;
+                playerExperience += 2;
+                if (playerExperience >= requiredExperience) {
+                    playerExperience = 0;
+                    playerLevel++;
+                    playerMaxHealth *= 1.5;
+                    playerHealth = playerMaxHealth;
+                    playerDamage *= 1.25;
+                    requiredExperience *= 1.05;
+                    flashGoldBackground();
+                    updateLevel();
                 }
-            });
-        });
-
-        gameArea.addEventListener('click', event => {
-            targets.forEach(target => {
-                const rect = target.querySelector('.head').getBoundingClientRect();
-                if (event.clientX > rect.left && event.clientX < rect.right && event.clientY > rect.top && event.clientY < rect.bottom) {
-                    target.querySelector('.head').style.backgroundColor = 'red';
-                    createExplosion(rect.left, rect.top);
-                    setRandomPosition(target);
-                    myscore += 10;
-                    document.getElementById('score').textContent = myscore;
+                spawnTarget(target);
+                createExplosion(target.offsetLeft, target.offsetTop);
+                if (Math.random() < 0.05) {
+                    chainLightning(target.offsetLeft, target.offsetTop);
                 }
-            });
-        });
-
-        fireButton.addEventListener('click', () => {
-            const event = new MouseEvent('click', {
-                clientX: scope.getBoundingClientRect().left + scope.offsetWidth / 2,
-                clientY: scope.getBoundingClientRect().top + scope.offsetHeight / 2
-            });
-            gameArea.dispatchEvent(event);
-        });
-
-        gameArea.addEventListener('touchmove', event => {
-            const touch = event.touches[0];
-            scope.style.left = `${touch.clientX - scope.offsetWidth / 2}px`;
-            scope.style.top = `${touch.clientY - scope.offsetHeight / 2}px`;
-
-            targets.forEach(target => {
-                const rect = target.querySelector('.head').getBoundingClientRect();
-                if (touch.clientX > rect.left && touch.clientX < rect.right && touch.clientY > rect.top && touch.clientY < rect.bottom) {
-                    target.querySelector('.head').style.backgroundColor = 'red';
-                } else {
-                    target.querySelector('.head').style.backgroundColor = 'black';
-                }
-            });
-        });
+            } else {
+                target.dataset.health = health;
+                target.querySelector('.target-health-bar-inner').style.width = (health / 10) * 100 + '%';
+            }
+            updateHealthBar();
+            updateExperienceBar();
+            updateScore();
+        }
 
         function createExplosion(x, y) {
             const explosion = document.createElement('div');
-            explosion.classList.add('explosion');
-            explosion.style.left = `${x}px`;
-            explosion.style.top = `${y}px`;
+            explosion.className = 'explosion';
+            explosion.style.left = x + 'px';
+            explosion.style.top = y + 'px';
             gameArea.appendChild(explosion);
-
-            setTimeout(() => gameArea.removeChild(explosion), 500);
+            setTimeout(() => {
+                explosion.remove();
+            }, 500);
+            targets.forEach(target => {
+                const targetRect = target.getBoundingClientRect();
+                const explosionRect = explosion.getBoundingClientRect();
+                if (
+                    targetRect.left < explosionRect.right &&
+                    targetRect.right > explosionRect.left &&
+                    targetRect.top < explosionRect.bottom &&
+                    targetRect.bottom > explosionRect.top
+                ) {
+                    handleTargetHit(target);
+                }
+            });
         }
 
-        function resetGame() {
-            myscore = 0;
-            health = 100;
-            document.getElementById('score').textContent = myscore;
-            healthBarInner.style.width = `${health}%`;
-            healthBarInner.dataset.health = health;
+        function chainLightning(x, y) {
+            targets.forEach(target => {
+                const targetRect = target.getBoundingClientRect();
+                const distance = Math.hypot(targetRect.left - x, targetRect.top - y);
+                if (distance <= 200) {
+                    target.dataset.health -= 20;
+                    if (target.dataset.health <= 0) {
+                        score += 2;
+                        playerExperience += 2;
+                        spawnTarget(target);
+                    } else {
+                        target.querySelector('.target-health-bar-inner').style.width = (target.dataset.health / 10) * 100 + '%';
+                    }
+                }
+            });
         }
 
-        setInterval(moveTargets, 1000 / 60);
+        function createBullet(x, y) {
+            const bullet = document.createElement('div');
+            bullet.className = 'bullet';
+            bullet.style.left = x + 'px';
+            bullet.style.top = y + 'px';
+            gameArea.appendChild(bullet);
+            setTimeout(() => {
+                bullet.remove();
+            }, 1000);
+        }
+
+        gameArea.addEventListener('mousemove', (e) => {
+            scope.style.left = e.clientX - 50 + 'px';
+            scope.style.top = e.clientY - 50 + 'px';
+        });
+
+        gameArea.addEventListener('click', (e) => {
+            const clickX = e.clientX;
+            const clickY = e.clientY;
+            createBullet(clickX, clickY);
+            targets.forEach(target => {
+                const targetRect = target.getBoundingClientRect();
+                const distance = Math.hypot(targetRect.left + 10 - clickX, targetRect.top + 10 - clickY);
+                if (distance <= 5) {
+                    handleTargetHit(target);
+                }
+            });
+        });
+
+        // Initial setup
+        targets.forEach(target => {
+            spawnTarget(target);
+        });
+
+        updateHealthBar();
+        updateExperienceBar();
+        updateScore();
+        updateLevel();
     </script>
 </body>
 </html>
