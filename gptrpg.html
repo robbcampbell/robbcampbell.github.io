@@ -2,16 +2,29 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple RPG Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Enhanced RPG Game</title>
     <link rel="stylesheet" href="gptrpg.css">
 </head>
 <body>
     <div id="game-container">
-        <div id="health-bar"></div>
-        <div id="xp-bar"></div>
-        <canvas id="gameCanvas"></canvas>
+        <div id="player-health-bar-container">
+            <div id="player-health-bar"></div>
+        </div>
+        <div id="player-xp-bar-container">
+            <div id="player-xp-bar"></div>
+        </div>
+        <div id="level-display">Level: 1</div>
+        <div id="canvas-container"></div>
+        <div id="mobile-controls" class="hidden">
+            <div id="joystick">
+                <div id="joystick-handle"></div>
+            </div>
+            <button id="swing-button">Swing</button>
+        </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.17.1/matter.min.js"></script>
     <script src="gptrpg.js"></script>
 </body>
 </html>
