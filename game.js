@@ -329,11 +329,13 @@ function requestDeviceOrientationPermission() {
 }
 
 function handleOrientation(event) {
+    console.log('Device orientation event:', event);
     const gamma = event.gamma; // Left to right tilt
     const beta = event.beta; // Front to back tilt
 
     barbarian.dx = gamma / 45 * barbarian.speed;
     barbarian.dy = beta / 45 * barbarian.speed;
+    console.log('Barbarian dx:', barbarian.dx, 'dy:', barbarian.dy);
 }
 
 function handleTouchStart() {
