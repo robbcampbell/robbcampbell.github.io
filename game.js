@@ -316,6 +316,18 @@ function moveBarbarian() {
     if (barbarian.y > canvas.height - barbarian.radius) barbarian.y = canvas.height - barbarian.radius;
 }
 
+function requestDeviceOrientationPermission() {
+    if (typeof DeviceMotionEvent.requestPermission === 'function') {
+        DeviceMotionEvent.requestPermission().then(permissionState => {
+            if (permissionState === 'granted') {
+                window.addEventListener('deviceorientation', handleOrientation);
+            }
+        }).catch(console.error);
+    } else {
+        window.addEventListener('deviceorientation', handleOrientation);
+    }
+}
+
 function handleOrientation(event) {
     const gamma = event.gamma; // Left to right tilt
     const beta = event.beta; // Front to back tilt
@@ -344,7 +356,10 @@ function animate() {
     requestAnimationFrame(animate);
 }
 
-window.addEventListener('deviceorientation', handleOrientation);
+// Request device orientation permission on user interaction
+document.addEventListener('click', requestDeviceOrientationPermission);
+document.addEventListener('touchstart', requestDeviceOrientationPermission);
+
 window.addEventListener('touchstart', handleTouchStart);
 
 spawnInterval = setInterval(spawnEnemies, enemySpawnRate);
