@@ -12,7 +12,7 @@ const barbarian = {
     bullets: [],
     health: 100,
     maxHealth: 100,
-    damage: 20,
+    damage: 5,
     speed: 3,
     dx: 0,
     dy: 0
@@ -73,27 +73,43 @@ function drawEnemyHealthBar(enemy) {
     ctx.fillStyle = 'green';
     ctx.fillRect(barX, barY, barWidth * (enemy.health / enemy.maxHealth), barHeight);
 
-    //ctx.strokeStyle = 'white';
-    //ctx.strokeRect(barX, barY, barWidth, barHeight);
+    ctx.strokeStyle = 'white';
+    ctx.strokeRect(barX, barY, barWidth, barHeight);
 }
 
 function drawStars() {
     stars.forEach(star => {
+        // Create a radial gradient for the shiny silver effect
+        const gradient = ctx.createRadialGradient(star.x, star.y, 2, star.x, star.y, 10);
+        gradient.addColorStop(0, 'silver');
+        gradient.addColorStop(0.5, '#C0C0C0');
+        gradient.addColorStop(1, '#A9A9A9');
+
+        ctx.save(); // Save the current state
+        ctx.translate(star.x, star.y); // Move to the star's position
+        ctx.rotate(Math.atan2(star.y - barbarian.y, star.x - barbarian.x)); // Rotate to align with the direction
+
         ctx.beginPath();
-        ctx.moveTo(barbarian.x, barbarian.y);
-        ctx.lineTo(star.x, star.y);
-        ctx.strokeStyle = 'yellow';
-        ctx.lineWidth = 5;
-        ctx.stroke();
+        ctx.ellipse(0, 0, 3, 20, 0, 0, Math.PI * 2); // Draw a skinny ellipsoid
+        ctx.fillStyle = gradient;
+        ctx.fill();
         ctx.closePath();
+
+        ctx.restore(); // Restore the previous state
     });
 }
 
 function drawBullets() {
     barbarian.bullets.forEach(bullet => {
+        // Create a radial gradient for the shiny gold effect
+        const gradient = ctx.createRadialGradient(bullet.x, bullet.y, 2, bullet.x, bullet.y, 10);
+        gradient.addColorStop(0, 'gold');
+        gradient.addColorStop(0.5, '#FFD700');
+        gradient.addColorStop(1, '#B8860B');
+
         ctx.beginPath();
-        ctx.ellipse(bullet.x, bullet.y, 5, 10, Math.atan2(bullet.dy, bullet.dx), 0, Math.PI * 2);
-        ctx.fillStyle = 'yellow';
+        ctx.ellipse(bullet.x, bullet.y, 15, 2, Math.atan2(bullet.dy, bullet.dx), 0, Math.PI * 2);
+        ctx.fillStyle = gradient;
         ctx.fill();
         ctx.closePath();
     });
@@ -112,7 +128,7 @@ function drawEnemies() {
 
 function drawDamageTexts() {
     damageTexts.forEach((text, index) => {
-        ctx.fillStyle = `rgba(255, 0, 0, ${text.opacity})`;
+        ctx.fillStyle = `rgba(255, 255, 255, ${text.opacity})`;  // Use white color with fading opacity
         ctx.font = '12px Arial';
         ctx.fillText(text.amount, text.x, text.y);
         text.y -= 1;
@@ -129,8 +145,18 @@ function updateStars() {
         star.x = barbarian.x + Math.cos(star.angle) * star.distance;
         star.y = barbarian.y + Math.sin(star.angle) * star.distance;
 
+        // Increment the distance gradually
+        star.distance += 0.5;
+
+        // Increment the rotation count when a full rotation is completed
         if (star.angle >= Math.PI * 2) {
-            stars.splice(index, 1);  // Remove the star after one full rotation
+            star.angle -= Math.PI * 2;
+            star.rotationCount++;
+        }
+
+        // Remove the star after 3 rotations
+        if (star.rotationCount >= 3) {
+            stars.splice(index, 1);
         }
     });
 }
@@ -144,14 +170,14 @@ function updateBullets() {
 }
 
 function updateEnemies() {
-    enemies.forEach((enemy, index) => {
+    enemies.forEach((enemy, enemyIndex) => {
         const angle = Math.atan2(barbarian.y - enemy.y, barbarian.x - enemy.x);
         enemy.x += Math.cos(angle) * enemy.speed;
         enemy.y += Math.sin(angle) * enemy.speed;
 
         // Check collision with barbarian
         if (Math.hypot(barbarian.x - enemy.x, barbarian.y - enemy.y) < barbarian.radius + enemy.radius) {
-            enemies.splice(index, 1);
+            enemies.splice(enemyIndex, 1);
             barbarian.health -= 10;  // Reduce health by 10 when hit by an enemy
             if (barbarian.health <= 0) {
                 barbarian.health = 0;
@@ -171,21 +197,22 @@ function updateEnemies() {
                     shootEnemyBullets(enemy);
                     exp += 20;
                     checkLevelUp();
-                    enemies.splice(index, 1);
+                    enemies.splice(enemyIndex, 1);
                 }
             }
         });
 
         // Check collision with stars
         stars.forEach((star, starIndex) => {
-            if (Math.hypot(star.x - enemy.x, star.y - enemy.y) < star.radius + enemy.radius) {
-                enemy.health -= 80;
-                showDamageText(80, enemy.x, enemy.y);
+            if (Math.hypot(star.x - enemy.x, star.y - enemy.y) < 10 + enemy.radius) { // Adjust collision radius as needed
+                enemy.health -= 20;
+                showDamageText(20, enemy.x, enemy.y);
+                stars.splice(starIndex, 1); // Remove the star on collision
                 if (enemy.health <= 0) {
                     shootEnemyBullets(enemy);
                     exp += 20;
                     checkLevelUp();
-                    enemies.splice(index, 1);
+                    enemies.splice(enemyIndex, 1);
                 }
             }
         });
@@ -254,7 +281,8 @@ function spinAttack() {
         radius: 10,
         color: 'yellow',
         angle: 0,
-        distance: 50
+        distance: 100, // Starting distance of the star
+        rotationCount: 0 // Initialize rotation count
     });
 }
 
