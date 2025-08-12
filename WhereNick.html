@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Find‑Your‑Friend — Web Mini‑Game</title>
+  <meta name="description" content="A tiny, mobile‑friendly Where’s‑Waldo‑style game. Load any image, set a target, and play!" />
+  <style>
+    :root{ --bg:#0d1117; --ink:#e6edf3; --muted:#9fb0c2; --card:#111826; --line:rgba(255,255,255,.08); --accent:#7aa2ff; --accent2:#68d7c5; --danger:#ff6b6b; --radius:16px }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Inter,Roboto,Arial,sans-serif}
+    a{color:#a7c6ff;text-decoration:none}
+
+    .wrap{min-height:100vh;display:flex;flex-direction:column}
+    header{position:sticky;top:0;z-index:20;background:linear-gradient(180deg, rgba(13,17,23,.9), rgba(13,17,23,.6) 60%, transparent);backdrop-filter:blur(8px)}
+    .nav{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:10px 12px}
+    .brand{font-weight:900}
+    .pill{font-size:12px;color:#0b1322;background:linear-gradient(135deg,var(--accent2),#7df5de);padding:2px 10px;border-radius:999px}
+
+    .panel{padding:12px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+
+    .toolbar{display:grid;grid-template-columns:1fr;gap:8px;padding:10px}
+    @media (min-width: 900px){ .toolbar{grid-template-columns:1.4fr .8fr .8fr auto auto auto auto;align-items:end} }
+
+    label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px}
+    input[type="text"], input[type="url"], input[type="number"], .fileBtn, button{width:100%;padding:10px;border-radius:12px;border:1px solid var(--line);background:#0b1322;color:var(--ink)}
+    .fileBtn{display:flex;align-items:center;justify-content:center;cursor:pointer}
+    button{font-weight:700;cursor:pointer}
+    .primary{background:linear-gradient(135deg,var(--accent),#5f89ff);border:none}
+    .danger{background:transparent;border:1px solid rgba(255,107,107,.5)}
+
+    .board{position:relative;height:70vh;touch-action:none;background:#0b1322}
+    .viewport{position:absolute;left:0;top:0;transform-origin:0 0;cursor:grab}
+    .viewport.dragging{cursor:grabbing}
+    .img{display:block}
+
+    .hud{position:absolute;left:8px;top:8px;display:flex;gap:6px;z-index:10}
+    .hud button{padding:8px 10px}
+
+    .status{display:flex;gap:10px;flex-wrap:wrap;padding:8px 12px;color:var(--muted);font-size:12px;border-top:1px solid var(--line)}
+    .status strong{color:var(--ink)}
+
+    .marker{position:absolute;border:2px dashed #62d5c4;border-radius:50%;pointer-events:none;box-shadow:0 0 0 2px rgba(98,213,196,.25)}
+    .hit{position:absolute;border:3px solid #62d5c4;border-radius:50%;box-shadow:0 0 0 6px rgba(98,213,196,.25);animation:pop .4s ease-out forwards}
+    @keyframes pop{ from{transform:scale(.7);opacity:.8} to{transform:scale(1);opacity:1} }
+    .miss{position:absolute;border:2px solid rgba(255,255,255,.5);border-radius:50%;opacity:.8;animation:fade .6s ease-out forwards}
+    @keyframes fade{ from{transform:scale(.9);opacity:.7} to{transform:scale(1.4);opacity:0} }
+
+    .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:#111826;border:1px solid var(--line);padding:10px 12px;border-radius:12px;z-index:40;box-shadow:0 12px 30px rgba(0,0,0,.4)}
+
+    .confetti{position:fixed;inset:0;pointer-events:none}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="nav">
+        <div class="brand">🔎 Find‑Your‑Friend</div>
+        <div class="pill" id="modePill">Setup</div>
+      </div>
+    </header>
+
+    <main class="panel">
+      <div class="card">
+        <div class="toolbar">
+          <div>
+            <label>Image URL (for sharing)</label>
+            <input id="imgUrl" type="url" placeholder="https://…/your-photo.jpg" />
+          </div>
+          <label class="fileBtn" for="fileInput">or Upload Image</label>
+          <input id="fileInput" type="file" accept="image/*" style="display:none" />
+          <div>
+            <label>Target size (px radius)</label>
+            <input id="radius" type="number" min="10" step="2" value="40" />
+          </div>
+          <button class="primary" id="loadBtn">Load</button>
+          <button id="setTargetBtn">Set Target</button>
+          <button id="playBtn">Play</button>
+          <button class="danger" id="resetBtn">Reset</button>
+        </div>
+
+        <div class="board" id="board">
+          <div class="hud">
+            <button id="zoomIn">＋</button>
+            <button id="zoomOut">－</button>
+            <button id="zoomReset">Reset</button>
+          </div>
+          <div class="viewport" id="viewport">
+            <img id="photo" class="img" alt="Game image" />
+            <div id="marker" class="marker" style="display:none"></div>
+          </div>
+        </div>
+
+        <div class="status">
+          <div>Mode: <strong id="mode">Setup</strong></div>
+          <div>Time: <strong id="time">0.0s</strong></div>
+          <div>Clicks: <strong id="clicks">0</strong></div>
+          <div style="margin-left:auto">Share: <a id="shareLink" href="#">(generate)</a></div>
+        </div>
+      </div>
+
+      <div class="toast" id="toast" style="display:none"></div>
+      <canvas class="confetti" id="confetti"></canvas>
+    </main>
+  </div>
+
+  <script>
+    // --- Elements
+    const imgEl = document.getElementById('photo');
+    const viewport = document.getElementById('viewport');
+    const board = document.getElementById('board');
+    const marker = document.getElementById('marker');
+    const imgUrlEl = document.getElementById('imgUrl');
+    const fileInput = document.getElementById('fileInput');
+    const radiusEl = document.getElementById('radius');
+    const loadBtn = document.getElementById('loadBtn');
+    const setTargetBtn = document.getElementById('setTargetBtn');
+    const playBtn = document.getElementById('playBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    const modeEl = document.getElementById('mode');
+    const modePill = document.getElementById('modePill');
+    const timeEl = document.getElementById('time');
+    const clicksEl = document.getElementById('clicks');
+    const shareLink = document.getElementById('shareLink');
+    const toast = document.getElementById('toast');
+
+    const zoomInBtn = document.getElementById('zoomIn');
+    const zoomOutBtn = document.getElementById('zoomOut');
+    const zoomResetBtn = document.getElementById('zoomReset');
+
+    // --- State
+    let mode = 'setup'; // 'setup' | 'target' | 'play'
+    let scale = 1, minScale = .5, maxScale = 5;
+    let offsetX = 0, offsetY = 0; // viewport translation
+    let dragging = false, dragStart = null;
+    let imgNatural = { w: 0, h: 0 };
+    let target = null; // {x, y, r} in image coordinates
+    let clicks = 0; let startTs = null; let timerHandle = null;
+
+    function setMode(m){
+      mode = m; modeEl.textContent = m.charAt(0).toUpperCase()+m.slice(1);
+      modePill.textContent = m.charAt(0).toUpperCase()+m.slice(1);
+      showToast(m === 'play' ? 'Game started! Tap to find.' : m === 'target' ? 'Click the person’s face to set the target.' : 'Setup mode.');
+    }
+
+    function showToast(msg){ toast.textContent = msg; toast.style.display='block'; clearTimeout(showToast._t); showToast._t=setTimeout(()=>toast.style.display='none',1600); }
+
+    function updateTransform(){ viewport.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`; }
+    function zoomBy(f, center){
+      const old = scale; scale = Math.min(maxScale, Math.max(minScale, scale*f));
+      // zoom around pointer: adjust offset so the visual point stays roughly fixed
+      if(center){
+        const dx = center.x - offsetX; const dy = center.y - offsetY;
+        const k = scale/old; offsetX = center.x - dx*k; offsetY = center.y - dy*k;
+      }
+      updateTransform();
+    }
+
+    function fitToBoard(){
+      if(!imgNatural.w) return;
+      const pad = 20;
+      const sx = (board.clientWidth - pad) / imgNatural.w;
+      const sy = (board.clientHeight - pad) / imgNatural.h;
+      scale = Math.min(sx, sy);
+      minScale = Math.min(.4, scale);
+      offsetX = (board.clientWidth - imgNatural.w*scale)/2;
+      offsetY = (board.clientHeight - imgNatural.h*scale)/2;
+      updateTransform();
+    }
+
+    function canvasToImageCoords(clientX, clientY){
+      // transform a click in board space to image native coordinates
+      const x = (clientX - board.getBoundingClientRect().left - offsetX) / scale;
+      const y = (clientY - board.getBoundingClientRect().top - offsetY) / scale;
+      return { x, y };
+    }
+
+    function placeMarker(){
+      if(!target) { marker.style.display='none'; return; }
+      marker.style.display='block';
+      marker.style.width = `${target.r*2}px`;
+      marker.style.height = `${target.r*2}px`;
+      marker.style.left = `${target.x - target.r}px`;
+      marker.style.top = `${target.y - target.r}px`;
+      // account for transform? marker is inside viewport so inherits scaling
+    }
+
+    function startTimer(){
+      startTs = performance.now();
+      if(timerHandle) cancelAnimationFrame(timerHandle);
+      const tick = ()=>{
+        const elapsed = (performance.now() - startTs)/1000;
+        timeEl.textContent = elapsed.toFixed(1)+'s';
+        timerHandle = requestAnimationFrame(tick);
+      };
+      timerHandle = requestAnimationFrame(tick);
+    }
+    function stopTimer(){ if(timerHandle) cancelAnimationFrame(timerHandle); timerHandle=null; }
+
+    function sprinkleConfetti(){
+      const c = document.getElementById('confetti');
+      const ctx = c.getContext('2d');
+      c.width = innerWidth; c.height = innerHeight;
+      const pieces = Array.from({length: 80},()=>({
+        x: Math.random()*c.width,
+        y: -20 - Math.random()*80,
+        r: 2+Math.random()*4,
+        vy: 2+Math.random()*3,
+        vx: (Math.random()-.5)*2,
+        a: Math.random()*Math.PI
+      }));
+      let t = 0;
+      function step(){
+        ctx.clearRect(0,0,c.width,c.height);
+        pieces.forEach(p=>{
+          p.x+=p.vx; p.y+=p.vy; p.a+=.1; ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.a);
+          ctx.fillStyle = ['#7aa2ff','#68d7c5','#ffd166','#ef476f'][p.r%4];
+          ctx.fillRect(-p.r,-p.r,p.r*2,p.r*2);
+          ctx.restore();
+        });
+        if((t+=1) < 120) requestAnimationFrame(step); else ctx.clearRect(0,0,c.width,c.height);
+      }
+      step();
+    }
+
+    // --- Loading image
+    async function loadFromUrl(url){
+      return new Promise((resolve,reject)=>{
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = ()=> resolve(img);
+        img.onerror = ()=> reject(new Error('Failed to load image.')); img.src = url;
+      });
+    }
+
+    function setImage(img){
+      imgEl.src = img.src; imgNatural = { w: img.naturalWidth, h: img.naturalHeight };
+      // size viewport to native image size so transforms are clean
+      viewport.style.width = imgNatural.w+'px'; viewport.style.height = imgNatural.h+'px';
+      fitToBoard(); clicks=0; clicksEl.textContent = '0'; timeEl.textContent='0.0s';
+      target = null; placeMarker(); updateShareLink(); setMode('setup');
+    }
+
+    function updateShareLink(){
+      const params = new URLSearchParams();
+      if(imgEl.src.startsWith('blob:')){ shareLink.textContent = '(upload not shareable)'; shareLink.removeAttribute('href'); return; }
+      if(imgEl.src) params.set('img', imgEl.src);
+      if(target){ params.set('x', Math.round(target.x)); params.set('y', Math.round(target.y)); params.set('r', Math.round(target.r)); }
+      const url = location.origin + location.pathname + '?' + params.toString();
+      shareLink.href = url; shareLink.textContent = 'copy link';
+      shareLink.onclick = (e)=>{ e.preventDefault(); navigator.clipboard.writeText(url); showToast('Link copied!'); };
+    }
+
+    async function handleLoad(){
+      try{
+        let img;
+        const url = imgUrlEl.value.trim();
+        if(url){ img = await loadFromUrl(url); }
+        else if(fileInput.files[0]){ img = await new Promise((res)=>{ const o = URL.createObjectURL(fileInput.files[0]); const i = new Image(); i.onload=()=>res(i); i.src=o; }); }
+        else { showToast('Provide an image URL or upload a file.'); return; }
+        setImage(img);
+      }catch(e){ showToast(e.message || 'Load failed'); }
+    }
+
+    // --- Interactions
+    board.addEventListener('pointerdown', (e)=>{
+      dragging = true; dragStart = { x: e.clientX - offsetX, y: e.clientY - offsetY };
+      viewport.classList.add('dragging'); board.setPointerCapture(e.pointerId);
+    });
+    board.addEventListener('pointermove', (e)=>{
+      if(!dragging) return; offsetX = e.clientX - dragStart.x; offsetY = e.clientY - dragStart.y; updateTransform();
+    });
+    board.addEventListener('pointerup', (e)=>{ dragging=false; viewport.classList.remove('dragging'); board.releasePointerCapture(e.pointerId); });
+
+    board.addEventListener('dblclick', (e)=>{ zoomBy(1.35, { x: e.clientX - board.getBoundingClientRect().left, y: e.clientY - board.getBoundingClientRect().top }); });
+
+    board.addEventListener('click', (e)=>{
+      // On tap/click, either set target (target mode) or guess (play mode)
+      const pt = canvasToImageCoords(e.clientX, e.clientY);
+      if(mode === 'target'){
+        const r = Math.max(10, parseInt(radiusEl.value||'40',10));
+        target = { x: pt.x, y: pt.y, r };
+        placeMarker(); updateShareLink(); setMode('setup');
+      } else if(mode === 'play' && imgNatural.w){
+        clicks += 1; clicksEl.textContent = String(clicks);
+        const dist = target ? Math.hypot(pt.x - target.x, pt.y - target.y) : Infinity;
+        const guessDisplay = document.createElement('div');
+        guessDisplay.className = dist <= (target?.r||0) ? 'hit' : 'miss';
+        const localX = (pt.x)*scale + offsetX - (dist <= (target?.r||0) ? (target.r*scale) : 12);
+        const localY = (pt.y)*scale + offsetY - (dist <= (target?.r||0) ? (target.r*scale) : 12);
+        if(dist <= (target?.r||0)){
+          guessDisplay.style.width = guessDisplay.style.height = (target.r*2*scale)+'px';
+        } else {
+          guessDisplay.style.width = guessDisplay.style.height = 24+'px';
+        }
+        guessDisplay.style.left = localX+'px'; guessDisplay.style.top = localY+'px';
+        board.appendChild(guessDisplay); setTimeout(()=>guessDisplay.remove(), 900);
+        if(dist <= (target?.r||0)){
+          stopTimer(); sprinkleConfetti(); showToast(`Found in ${timeEl.textContent} with ${clicks} clicks!`);
+          setMode('setup');
+        }
+      }
+    });
+
+    zoomInBtn.onclick = ()=> zoomBy(1.2, { x: board.clientWidth/2, y: board.clientHeight/2 });
+    zoomOutBtn.onclick = ()=> zoomBy(1/1.2, { x: board.clientWidth/2, y: board.clientHeight/2 });
+    zoomResetBtn.onclick = ()=> fitToBoard();
+
+    loadBtn.onclick = handleLoad;
+    setTargetBtn.onclick = ()=> setMode('target');
+    playBtn.onclick = ()=> { if(!imgEl.src) return showToast('Load an image first.'); if(!target) return showToast('Set the target first.'); clicks=0; clicksEl.textContent='0'; startTimer(); setMode('play'); };
+    resetBtn.onclick = ()=>{ target=null; placeMarker(); updateShareLink(); clicks=0; clicksEl.textContent='0'; timeEl.textContent='0.0s'; setMode('setup'); };
+
+    fileInput.addEventListener('change', ()=>{ imgUrlEl.value=''; });
+
+    // If query params present, auto-load
+    (async function initFromQuery(){
+      const q = new URLSearchParams(location.search);
+      const url = q.get('img');
+      if(url){ try{ const img = await loadFromUrl(url); setImage(img); }catch(e){ console.warn(e); } }
+      const x = parseFloat(q.get('x')); const y = parseFloat(q.get('y')); const r = parseFloat(q.get('r'));
+      if(!isNaN(x) && !isNaN(y) && !isNaN(r)){ target = { x, y, r }; placeMarker(); }
+      updateShareLink();
+    })();
+
+    window.addEventListener('resize', fitToBoard);
+  </script>
+</body>
+</html>
