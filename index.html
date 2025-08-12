@@ -2,290 +2,165 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Road Trip Facts Mapper</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>PC Life Hacks — Tools & Mini‑Apps</title>
+  <meta name="description" content="Handy single‑page tools and mini‑apps: MapHacks, converters, travel toys, and more." />
+  <meta property="og:title" content="PC Life Hacks — Tools & Mini‑Apps" />
+  <meta property="og:description" content="Handy single‑page tools and mini‑apps you can use right from your phone." />
+  <meta property="og:type" content="website" />
+  <meta name="theme-color" content="#0d1117" />
   <style>
-    :root {
-      --bg: #0b1020; /* deep navy */
-      --fg: #e7ecf6; /* light text */
-      --muted: #a9b4c7;
-      --card: #121934;
-      --accent: #7aa2ff;
-      --accent-2: #62d5c4;
-      --danger: #ff6b6b;
-    }
+    :root{ --bg:#0d1117; --ink:#e6edf3; --muted:#9fb0c2; --card:#111826; --line:rgba(255,255,255,.08); --brand:#7aa2ff; --brand2:#68d7c5; --radius:18px; }
     *{box-sizing:border-box}
-    body{margin:0;background:linear-gradient(180deg,#0b1020,#0d1430);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,"Helvetica Neue",Arial,sans-serif;color:var(--fg)}
-    .container{max-width:1080px;margin:0 auto;padding:20px}
-    h1{font-size:clamp(24px,4vw,36px);margin:6px 0 4px}
-    p.sub{color:var(--muted);margin:0 0 20px}
+    html,body{height:100%}
+    body{margin:0;background:radial-gradient(1200px 600px at -10% -20%, rgba(122,162,255,.12), transparent 60%),radial-gradient(800px 400px at 110% -10%, rgba(104,215,197,.10), transparent 60%),var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Inter,Roboto,Arial,sans-serif}
+    a{color:inherit;text-decoration:none}
+    .wrap{min-height:100vh;display:flex;flex-direction:column}
+    header{position:sticky;top:0;z-index:10;background:linear-gradient(180deg, rgba(10,14,28,.85), rgba(10,14,28,.55) 60%, transparent);backdrop-filter:blur(8px)}
+    .nav{max-width:1100px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:10px}
+    .brand{font-weight:900;letter-spacing:.3px}
+    .pill{font-size:12px;color:#0b1322;background:linear-gradient(135deg,var(--brand2),#7df5de);padding:2px 10px;border-radius:999px;margin-left:auto}
 
-    .grid{display:grid;grid-template-columns:1fr;gap:16px}
-    @media (min-width: 880px){.grid{grid-template-columns:340px 1fr}}
+    .hero{max-width:1100px;margin:10px auto 0;padding:16px}
+    .heroCard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;display:grid;grid-template-columns:1fr;gap:14px}
+    .hero h1{font-size:clamp(26px,6vw,40px);margin:0}
+    .sub{color:var(--muted);margin:0}
+    .cta{display:flex;gap:10px;flex-wrap:wrap}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:#0b1322;color:var(--ink);font-weight:700}
+    .btn-primary{background:linear-gradient(135deg,var(--brand),#5f89ff);border:none}
 
-    .card{background:radial-gradient(1200px 500px at -10% -20%,rgba(122,162,255,0.18),transparent 60%),
-                      radial-gradient(800px 400px at 120% -10%,rgba(98,213,196,0.14),transparent 60%),
-                      var(--card);border:1px solid rgba(255,255,255,0.06);border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,0.35)}
-    .card .pad{padding:16px}
+    .grid{max-width:1100px;margin:14px auto;padding:0 16px;display:grid;gap:14px;grid-template-columns:1fr}
+    @media (min-width:720px){ .grid{grid-template-columns:repeat(2,1fr)} }
+    @media (min-width:1040px){ .grid{grid-template-columns:repeat(3,1fr)} }
 
-    label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
-    input, textarea, button{width:100%;border-radius:12px;border:1px solid rgba(255,255,255,0.14);background:rgba(255,255,255,0.04);color:var(--fg);padding:10px 12px}
-    input:focus, textarea:focus{outline:2px solid rgba(122,162,255,.6);border-color:transparent}
-    textarea{min-height:90px;resize:vertical}
-    .row{display:flex;gap:10px}
-    .row > *{flex:1}
-    .btn{cursor:pointer;font-weight:600}
-    .btn-primary{background:linear-gradient(135deg,var(--accent),#5f89ff);border:none}
-    .btn-secondary{background:transparent}
-    .hint{color:var(--muted);font-size:12px;margin-top:8px}
-    .error{background:rgba(255,107,107,0.12);border:1px solid rgba(255,107,107,0.4);color:#ffd1d1;padding:10px;border-radius:12px;margin-top:8px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;min-height:160px}
+    .thumb{height:120px;background:linear-gradient(135deg, rgba(122,162,255,.18), rgba(104,215,197,.20));display:flex;align-items:center;justify-content:center}
+    .thumb svg{width:48px;height:48px;opacity:.9}
+    .pad{padding:14px}
+    .title{font-weight:800;margin:0 0 6px}
+    .desc{color:var(--muted);margin:0 0 12px}
+    .card .actions{margin-top:auto;padding:0 14px 14px}
+    .small{font-size:12px;color:var(--muted)}
 
-    #map{height:420px;border-bottom-left-radius:18px;border-bottom-right-radius:18px}
-    .map-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.06)}
-
-    details{border-top:1px solid rgba(255,255,255,0.06)}
-    details[open]{background:rgba(255,255,255,0.02)}
-    summary{list-style:none;cursor:pointer;padding:14px 16px;display:flex;align-items:center;gap:10px}
-    summary::-webkit-details-marker{display:none}
-    .badge{font-size:11px;color:#0b1020;background:linear-gradient(135deg,var(--accent-2),#7df5de);padding:2px 8px;border-radius:999px}
-    .fact{padding:0 16px 16px 16px;color:#dfe6f4;line-height:1.6}
-    .muted{color:var(--muted)}
-    .footer-note{font-size:12px;color:var(--muted);margin-top:12px}
-    a{color:#a7c6ff}
+    footer{margin-top:auto;padding:18px 16px;border-top:1px solid var(--line);color:var(--muted);text-align:center}
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Road Trip Facts Mapper</h1>
-    <p class="sub">Type your route, see it on the map, and read quick history blurbs for towns along the way. Single-file. Drop on GitHub Pages.</p>
+  <div class="wrap">
+    <header>
+      <div class="nav">
+        <div class="brand">🧰 PC Life Hacks</div>
+        <div class="pill">Single‑page tools</div>
+      </div>
+    </header>
 
-    <div class="grid">
-      <div class="card">
-        <div class="pad">
-          <div>
-            <label>Origin</label>
-            <input id="origin" placeholder="e.g., Dallas, TX" />
-          </div>
-          <div style="margin-top:10px">
-            <label>Destination</label>
-            <input id="destination" placeholder="e.g., Denver, CO" />
-          </div>
-          <div style="margin-top:10px">
-            <label>Waypoints (optional, one per line)</label>
-            <textarea id="waypoints" placeholder="Amarillo, TX\nSanta Fe, NM"></textarea>
-          </div>
-          <div class="row" style="margin-top:12px">
-            <button class="btn btn-primary" id="buildBtn">Build route</button>
-            <button class="btn btn-secondary" id="clearBtn">Clear</button>
-          </div>
-          <div class="hint">Uses OpenStreetMap (Nominatim + tiles), OSRM for routing, and Wikipedia for facts. Be mindful of API rate limits.</div>
-          <div id="error" class="error" style="display:none"></div>
+    <section class="hero">
+      <div class="heroCard">
+        <div>
+          <h1>Fast, tiny tools you can use anywhere.</h1>
+          <p class="sub">No installs. Mobile‑friendly. Built for quick wins — maps, travel toys, converters, and more.</p>
         </div>
+        <div class="cta">
+          <a class="btn btn-primary" href="/MapHacks">Open MapHacks</a>
+          <a class="btn" href="#apps">Browse all apps</a>
+        </div>
+        <div class="small">Tip: Add this site to your phone’s Home Screen for a native‑app feel.</div>
       </div>
+    </section>
 
-      <div class="card">
-        <div class="map-header"><strong>Map</strong><span class="muted" id="status">Idle</span></div>
-        <div id="map"></div>
-      </div>
-    </div>
+    <section id="apps" class="grid">
+      <!-- MapHacks Card -->
+      <a class="card" href="/MapHacks">
+        <div class="thumb" aria-hidden="true">
+          <!-- Map pin icon -->
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.686 2 6 4.686 6 8c0 4.5 6 12 6 12s6-7.5 6-12c0-3.314-2.686-6-6-6zm0 8.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
+        </div>
+        <div class="pad">
+          <p class="title">MapHacks</p>
+          <p class="desc">Plot a road‑trip route and get bite‑sized history and facts for towns along the way.</p>
+        </div>
+        <div class="actions"><span class="small">/MapHacks</span></div>
+      </a>
 
-    <div class="card" style="margin-top:16px">
-      <div class="pad"><strong>Town Facts Along the Way</strong></div>
-      <div id="facts"></div>
-    </div>
+      <!-- Placeholder cards for future tools -->
+      <a class="card" href="#" onclick="alert('Coming soon!'); return false;">
+        <div class="thumb" aria-hidden="true">
+          <!-- Globe / dice icon -->
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2zm-1 3h2v6h-2V5zm1 14a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg>
+        </div>
+        <div class="pad">
+          <p class="title">Random Destination</p>
+          <p class="desc">Feeling spontaneous? Get a surprise city with quick tips and a map.</p>
+        </div>
+        <div class="actions"><span class="small">Coming soon</span></div>
+      </a>
 
-    <div class="footer-note">For heavier use, proxy these requests through your own backend and cache responses.</div>
+      <a class="card" href="#" onclick="alert('Coming soon!'); return false;">
+        <div class="thumb" aria-hidden="true">
+          <!-- Calendar icon -->
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 2h2v2h6V2h2v2h3a1 1 0 0 1 1 1v3H3V5a1 1 0 0 1 1-1h3V2zm14 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9h18zm-5 3H8v2h8v-2z"/></svg>
+        </div>
+        <div class="pad">
+          <p class="title">Today in History</p>
+          <p class="desc">A quick, scrollable feed of historical events for this date.</p>
+        </div>
+        <div class="actions"><span class="small">Coming soon</span></div>
+      </a>
+
+      <a class="card" href="#" onclick="alert('Coming soon!'); return false;">
+        <div class="thumb" aria-hidden="true">
+          <!-- Weather icon -->
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 14a4 4 0 1 1 3.874-5H10a5 5 0 1 1 0 10H6a4 4 0 0 1 0-8z"/></svg>
+        </div>
+        <div class="pad">
+          <p class="title">Sunrise & Weather</p>
+          <p class="desc">Enter a place to get current weather plus sunrise/sunset times.</p>
+        </div>
+        <div class="actions"><span class="small">Coming soon</span></div>
+      </a>
+
+      <a class="card" href="#" onclick="alert('Coming soon!'); return false;">
+        <div class="thumb" aria-hidden="true">
+          <!-- Calculator icon -->
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 2h14a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1zm3 4h8v4H8V6zm0 6h3v3H8v-3zm0 5h3v3H8v-3zm5-5h3v3h-3v-3zm0 5h3v3h-3v-3z"/></svg>
+        </div>
+        <div class="pad">
+          <p class="title">Currency Converter</p>
+          <p class="desc">Simple, snappy FX conversions (with cached rates for speed).</p>
+        </div>
+        <div class="actions"><span class="small">Coming soon</span></div>
+      </a>
+
+      <a class="card" href="#" onclick="alert('Coming soon!'); return false;">
+        <div class="thumb" aria-hidden="true">
+          <!-- Gamepad icon -->
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 8a6 6 0 0 0-6 6v2a2 2 0 0 0 2 2h4l2-2h8l2 2h4a2 2 0 0 0 2-2v-2a6 6 0 0 0-6-6H6zm1 4h2v2H7v2H5v-2H3v-2h2v-2h2v2zm10 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm2-1a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>
+        </div>
+        <div class="pad">
+          <p class="title">Retro Arcade</p>
+          <p class="desc">A tiny JS game for quick dopamine hits.</p>
+        </div>
+        <div class="actions"><span class="small">Coming soon</span></div>
+      </a>
+
+    </section>
+
+    <footer>
+      © <span id="year"></span> PC Life Hacks • Built for speed and phones • <a href="https://pclifehacks.com" target="_blank" rel="noreferrer">pclifehacks.com</a>
+    </footer>
   </div>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script>
-    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+    // Set current year
+    document.getElementById('year').textContent = new Date().getFullYear();
 
-    const statusEl = document.getElementById('status');
-    const errorEl = document.getElementById('error');
-    const factsEl = document.getElementById('facts');
-
-    // Map init
-    const map = L.map('map', { zoomControl: true }).setView([37.5, -96], 4);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 18,
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-
-    let routeLayer = null;
-    let markers = [];
-
-    function setStatus(txt){ statusEl.textContent = txt; }
-    function setError(msg){ errorEl.style.display = msg ? 'block' : 'none'; errorEl.textContent = msg || ''; }
-
-    function haversine(a, b){
-      const R = 6371e3;
-      const toRad = (d) => d*Math.PI/180;
-      const dLat = toRad(b[1]-a[1]);
-      const dLon = toRad(b[0]-a[0]);
-      const lat1 = toRad(a[1]);
-      const lat2 = toRad(b[1]);
-      const s = Math.sin(dLat/2)**2 + Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLon/2)**2;
-      return 2*R*Math.asin(Math.sqrt(s));
-    }
-
-    function samplePolyline(coords, spacingMeters=20000){
-      if(!coords || !coords.length) return [];
-      const pts=[coords[0]]; let acc=0;
-      for(let i=1;i<coords.length;i++){
-        const seg = haversine(coords[i-1], coords[i]);
-        acc += seg;
-        if(acc >= spacingMeters){ pts.push(coords[i]); acc = 0; }
-      }
-      pts.push(coords[coords.length-1]);
-      return pts;
-    }
-
-    function dedupe(items, keyFn){
-      const s=new Set(), out=[]; for(const it of items){ const k=keyFn(it); if(k && !s.has(k)){ s.add(k); out.push(it); } } return out;
-    }
-
-    async function geocode(q){
-      const url = new URL('https://nominatim.openstreetmap.org/search');
-      url.searchParams.set('q', q);
-      url.searchParams.set('format', 'jsonv2');
-      url.searchParams.set('addressdetails', '1');
-      const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
-      if(!res.ok) throw new Error('Geocoding failed');
-      const j = await res.json();
-      if(!j?.length) throw new Error('No results for '+q);
-      return { lat: parseFloat(j[0].lat), lon: parseFloat(j[0].lon) };
-    }
-
-    async function reverseGeocode(lat, lon){
-      const url = new URL('https://nominatim.openstreetmap.org/reverse');
-      url.searchParams.set('lat', String(lat));
-      url.searchParams.set('lon', String(lon));
-      url.searchParams.set('format', 'jsonv2');
-      url.searchParams.set('zoom', '10');
-      const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
-      if(!res.ok) return null;
-      const j = await res.json();
-      const a = j?.address || {};
-      const name = a.town || a.city || a.village || a.hamlet || null;
-      const state = a.state || a.region || '';
-      const country = a.country || '';
-      if(!name) return null;
-      return { key: `${name}, ${state}, ${country}`.trim(), name, display: `${name}${state? ', '+state: ''}`, lat, lon };
-    }
-
-    async function wikiSummary(name){
-      try{
-        // Search first to get best page title
-        const searchUrl = new URL('https://en.wikipedia.org/w/api.php');
-        searchUrl.searchParams.set('origin', '*');
-        searchUrl.searchParams.set('action', 'query');
-        searchUrl.searchParams.set('list', 'search');
-        searchUrl.searchParams.set('srsearch', name);
-        searchUrl.searchParams.set('format', 'json');
-        const sr = await fetch(searchUrl);
-        const sj = await sr.json();
-        const title = sj?.query?.search?.[0]?.title;
-        if(!title) return null;
-        const sumUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
-        const sres = await fetch(sumUrl);
-        if(!sres.ok) return null;
-        const sj2 = await sres.json();
-        return { title: sj2.title, summary: sj2.extract, url: sj2.content_urls?.desktop?.page || null, description: sj2.description || null };
-      }catch{ return null; }
-    }
-
-    async function buildRoute(){
-      setError(''); factsEl.innerHTML = ''; markers.forEach(m => map.removeLayer(m)); markers=[];
-      if(routeLayer){ map.removeLayer(routeLayer); routeLayer=null; }
-
-      const origin = document.getElementById('origin').value.trim();
-      const destination = document.getElementById('destination').value.trim();
-      const waypoints = document.getElementById('waypoints').value.split('\n').map(s=>s.trim()).filter(Boolean);
-      if(!origin || !destination){ setError('Please enter origin and destination.'); return; }
-
-      try{
-        setStatus('Geocoding…');
-        const o = await geocode(origin);
-        await sleep(150);
-        const d = await geocode(destination);
-        const wps = [];
-        for(const w of waypoints){
-          try{ const c = await geocode(w); wps.push(c); await sleep(150);}catch(e){ console.warn('Waypoint fail', w, e); }
-        }
-
-        setStatus('Routing…');
-        const coords = [o, ...wps, d].map(p => `${p.lon},${p.lat}`).join(';');
-        const osrmUrl = new URL(`https://router.project-osrm.org/route/v1/driving/${coords}`);
-        osrmUrl.searchParams.set('overview','full');
-        osrmUrl.searchParams.set('geometries','geojson');
-        osrmUrl.searchParams.set('steps','false');
-        const osrmRes = await fetch(osrmUrl);
-        if(!osrmRes.ok) throw new Error('Routing failed');
-        const osrmData = await osrmRes.json();
-        const route = osrmData?.routes?.[0]?.geometry;
-        if(!route) throw new Error('No route found');
-
-        const latlngs = route.coordinates.map(c => [c[1], c[0]]);
-        routeLayer = L.polyline(latlngs, { weight: 6, opacity: 0.9 }).addTo(map);
-        map.fitBounds(routeLayer.getBounds(), { padding: [30,30] });
-
-        // Start + End markers
-        markers.push(L.marker(latlngs[0]).addTo(map).bindPopup('Start'));
-        markers.push(L.marker(latlngs[latlngs.length-1]).addTo(map).bindPopup('Destination'));
-
-        setStatus('Sampling towns…');
-        const samples = samplePolyline(route.coordinates, 20000);
-        const found = [];
-        for(const [lon, lat] of samples){
-          const t = await reverseGeocode(lat, lon);
-          if(t) found.push(t);
-          await sleep(120);
-        }
-        const unique = dedupe(found, t => t.key);
-
-        setStatus('Fetching facts…');
-        const enriched = [];
-        for(const t of unique){
-          const w = await wikiSummary(t.name);
-          enriched.push({ ...t, wiki: w });
-          await sleep(120);
-        }
-
-        // Render facts list
-        factsEl.innerHTML = '';
-        if(!enriched.length){ factsEl.innerHTML = `<div class="pad muted">No towns found along the sampled route.</div>`; setStatus('Done'); return; }
-        let i = 0;
-        for(const t of enriched){
-          const id = `det-${i++}`;
-          const subtitle = t.wiki?.description ? `<span class="badge">${escapeHtml(t.wiki.description)}</span>` : '';
-          const summary = t.wiki?.summary ? escapeHtml(t.wiki.summary) : 'No summary found.';
-          const more = t.wiki?.url ? ` <a href="${t.wiki.url}" target="_blank" rel="noreferrer">Read more</a>` : '';
-          const details = document.createElement('details');
-          details.innerHTML = `
-            <summary><strong>${escapeHtml(t.display)}</strong> ${subtitle}</summary>
-            <div class="fact">${summary}${more}</div>
-          `;
-          factsEl.appendChild(details);
-        }
-        setStatus('Done');
-      }catch(e){
-        console.error(e);
-        setError(e.message || 'Something went wrong');
-        setStatus('Error');
-      }
-    }
-
-    function escapeHtml(s){
-      return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]));
-    }
-
-    document.getElementById('buildBtn').addEventListener('click', buildRoute);
-    document.getElementById('clearBtn').addEventListener('click', () => {
-      setError(''); setStatus('Idle'); factsEl.innerHTML = '';
-      if(routeLayer){ map.removeLayer(routeLayer); routeLayer=null; }
-      markers.forEach(m => map.removeLayer(m)); markers=[];
+    // Optional: smooth-scroll to apps
+    document.querySelectorAll('a[href^="#"]').forEach(a=>{
+      a.addEventListener('click', (e)=>{
+        const id = a.getAttribute('href').slice(1);
+        const el = document.getElementById(id);
+        if(el){ e.preventDefault(); el.scrollIntoView({behavior:'smooth', block:'start'}); }
+      });
     });
   </script>
 </body>
