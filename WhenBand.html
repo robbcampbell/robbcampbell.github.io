@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Band Album Timeline</title>
-  <meta name="description" content="Type a band/artist name to plot all their album releases on a shared timeline. Add multiple bands and compare discographies. Covers via Cover Art Archive (MusicBrainz)." />
+  <title>Band Album Timeline — Compact + Grouping</title>
+  <meta name="description" content="Plot album releases for multiple bands on one timeline. New: compact mode (covers only) and overlap grouping with expandable stacks." />
   <style>
     :root{ --bg:#0d1117; --ink:#e6edf3; --muted:#9fb0c2; --card:#111826; --line:rgba(255,255,255,.08); --brand:#7aa2ff; --brand2:#68d7c5; --radius:16px; --cover:96px }
     *{box-sizing:border-box}
@@ -34,6 +34,11 @@
     .btn-primary{background:linear-gradient(135deg,var(--brand),#5f89ff);border:none}
     .btn-ghost{background:transparent}
 
+    .options{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+    @media (max-width:760px){ .options{grid-template-columns:1fr 1fr} }
+    .switch{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:12px;padding:8px 10px;background:#0b1322}
+    .switch input{width:auto}
+
     .hstack{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
     .chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:#0b1322}
     .chip .dot{width:10px;height:10px;border-radius:50%}
@@ -51,16 +56,24 @@
 
     .content{position:relative;margin-left:140px;min-width:1400px}
 
-    .album{position:absolute;transform:translate(-50%,0);width:var(--cover);top:8px}
+    .album, .group{position:absolute;transform:translate(-50%,0);top:8px}
+    .album{width:var(--cover)}
     .cover{width:var(--cover);height:var(--cover);border-radius:8px;border:1px solid var(--line);object-fit:cover;background:#0b1322}
     .tag{font-size:10px;color:#0b1322;background:linear-gradient(135deg,var(--brand2),#7df5de);padding:2px 6px;border-radius:999px;display:inline-block;margin-top:4px}
     .title{font-size:11px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:calc(var(--cover) + 40px)}
+    .compact .title{display:none}
+
+    /* Group pile */
+    .pile{position:relative;display:inline-block}
+    .badge{position:absolute;right:4px;bottom:4px;background:#0b1322;color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:2px 6px;font-size:10px}
+    .group.open .stack{display:grid}
+    .stack{display:none;grid-template-columns:repeat(4, var(--cover));gap:8px;margin-top:8px}
 
     .legend{padding:10px;border-top:1px solid var(--line)}
 
     .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:#111826;border:1px solid var(--line);padding:10px 12px;border-radius:12px;z-index:40;box-shadow:0 12px 30px rgba(0,0,0,.4)}
 
-    @media (max-width: 760px){ :root{ --cover:76px } .content{ margin-left:110px; min-width:1200px } }
+    @media (max-width: 760px){ :root{ --cover:76px } .content{ margin-left:110px; min-width:1200px } .stack{grid-template-columns:repeat(3, var(--cover))} }
   </style>
 </head>
 <body>
@@ -104,18 +117,25 @@
               <button class="btn btn-primary" id="addBtn">Add band</button>
             </div>
           </div>
+
+          <div class="options">
+            <label class="switch"><input type="checkbox" id="compactToggle"/> Compact mode (covers only)</label>
+            <label class="switch">Group overlap (px) <input type="range" id="overlapRange" min="10" max="64" value="28"/></label>
+            <label class="switch">Cover size <input type="range" id="coverRange" min="64" max="128" value="96"/></label>
+          </div>
+
           <div style="height:8px"></div>
           <div id="picked" class="hstack"></div>
         </div>
       </div>
 
       <div class="card" style="margin-top:12px">
-        <div class="head"><strong>Timeline</strong><span class="muted">Scroll sideways • Use multiple bands</span></div>
+        <div class="head"><strong>Timeline</strong><span class="muted">Scroll sideways • Tap a stack to expand</span></div>
         <div class="tl-wrap">
           <div class="yearbar"><div class="yearline" id="yearline"></div></div>
           <div class="lanes" id="lanes"></div>
         </div>
-        <div class="legend muted">Covers & dates from community data; occasional missing dates or art can happen. Click an album to open its MusicBrainz page.</div>
+        <div class="legend muted">Covers & dates from community data; missing dates or art can happen. Click a cover to open MusicBrainz.</div>
       </div>
     </main>
   </div>
@@ -139,6 +159,10 @@
     const yearlineEl = document.getElementById('yearline');
     const pickedEl = document.getElementById('picked');
     const resetBtn = document.getElementById('resetBtn');
+
+    const compactToggle = document.getElementById('compactToggle');
+    const overlapRange = document.getElementById('overlapRange');
+    const coverRange = document.getElementById('coverRange');
 
     const pickDlg = document.getElementById('pickDlg');
     const pickList = document.getElementById('pickList');
@@ -174,7 +198,6 @@
       state.minDate = new Date(minY,0,1).getTime();
       state.maxDate = new Date(maxY,0,1).getTime();
 
-      // width computation
       const containerWidth = Math.max(1400, (maxY - minY + 1) * 120); // 120px per year baseline
       state.width = containerWidth;
       yearlineEl.style.width = containerWidth + 'px';
@@ -194,8 +217,24 @@
 
     function timeToX(t, width){ return state.minDate===null?0 : ((t - state.minDate) / (state.maxDate - state.minDate)) * width; }
 
+    function clusterItems(items, width, threshold){
+      // items: sorted by time; output clusters with average x
+      const withX = items.map(it=>({ ...it, x: timeToX(it.time, width) })).sort((a,b)=>a.x-b.x);
+      const clusters = []; let cur=null;
+      for(const it of withX){
+        if(!cur){ cur={x:it.x, items:[it]}; clusters.push(cur); continue; }
+        const last = cur.items[cur.items.length-1];
+        if(Math.abs(it.x - last.x) <= threshold){ cur.items.push(it); cur.x = cur.items.reduce((s,p)=>s+p.x,0)/cur.items.length; }
+        else { cur={x:it.x, items:[it]}; clusters.push(cur); }
+      }
+      return clusters;
+    }
+
     function renderLanes(){
       lanesEl.innerHTML = '';
+      const compact = compactToggle.checked;
+      document.body.classList.toggle('compact', compact);
+
       state.bands.forEach((band)=>{
         const lane = document.createElement('div'); lane.className='lane';
         const label = document.createElement('div'); label.className='label';
@@ -208,13 +247,52 @@
         const content = document.createElement('div'); content.className='content'; content.style.width = state.width+'px'; lane.appendChild(content);
 
         const items = filterByYears(band.items);
-        items.forEach(it=>{
-          const x = timeToX(it.time, state.width);
-          const el = document.createElement('a'); el.href = it.url; el.target='_blank'; el.rel='noreferrer'; el.className='album'; el.style.left = x+'px'; el.title = `${it.title} — ${it.date||it.year}`;
-          el.innerHTML = `<img class="cover" loading="lazy" src="${it.cover}" alt="${escapeHtml(it.title)}" onerror="this.src='https://placehold.co/300x300?text=No+Art'"/><div class="tag" style="background:${band.color}">${it.year}</div><div class="title">${escapeHtml(it.title)}</div>`;
-          content.appendChild(el);
+        const threshold = parseInt(overlapRange.value,10);
+        const clusters = clusterItems(items, state.width, threshold);
+
+        let maxBottom = 8 + parseInt(getComputedStyle(document.documentElement).getPropertyValue('--cover')) + 24; // default cover height + padding
+
+        clusters.forEach((cl, idx)=>{
+          if(cl.items.length === 1){
+            const it = cl.items[0];
+            const el = document.createElement('a'); el.href = it.url; el.target='_blank'; el.rel='noreferrer'; el.className='album'; el.style.left = cl.x+'px'; el.title = `${it.title} — ${it.date||it.year}`;
+            el.innerHTML = `<img class="cover" loading="lazy" src="${it.cover}" alt="${escapeHtml(it.title)}" onerror="this.src='https://placehold.co/300x300?text=No+Art'"/><div class="tag" style="background:${band.color}">${it.year}</div><div class="title">${escapeHtml(it.title)}</div>`;
+            content.appendChild(el);
+          } else {
+            const g = document.createElement('div'); g.className='group'; g.style.left = cl.x+'px';
+            const pile = document.createElement('div'); pile.className='pile';
+            const lead = cl.items[0];
+            pile.innerHTML = `<img class="cover" loading="lazy" src="${lead.cover}" alt="${escapeHtml(lead.title)}" onerror="this.src='https://placehold.co/300x300?text=No+Art'"/><span class='badge'>×${cl.items.length}</span>`;
+            g.appendChild(pile);
+
+            const stack = document.createElement('div'); stack.className='stack';
+            cl.items.forEach(it=>{
+              const a = document.createElement('a'); a.href=it.url; a.target='_blank'; a.rel='noreferrer'; a.title = `${it.title} — ${it.date||it.year}`;
+              a.innerHTML = `<img class='cover' loading='lazy' src='${it.cover}' alt='${escapeHtml(it.title)}' onerror="this.src='https://placehold.co/300x300?text=No+Art'"/>${compact?'' : `<div class='title'>${escapeHtml(it.title)}</div>`}`;
+              stack.appendChild(a);
+            });
+            g.appendChild(stack);
+
+            g.addEventListener('click', (e)=>{
+              e.preventDefault(); e.stopPropagation();
+              g.classList.toggle('open');
+              // recompute lane height to fit expanded stacks
+              requestAnimationFrame(()=>{
+                const covers = g.querySelectorAll('.cover');
+                const rect = g.getBoundingClientRect();
+                const laneRect = lane.getBoundingClientRect();
+                const bottom = (g.offsetTop + g.offsetHeight) + 24; // within lane
+                maxBottom = Math.max(maxBottom, bottom);
+                lane.style.minHeight = Math.ceil(maxBottom) + 'px';
+              });
+            });
+
+            content.appendChild(g);
+          }
         });
 
+        // ensure lane is tall enough for any open groups
+        lane.style.minHeight = Math.ceil(maxBottom) + 'px';
         lanesEl.appendChild(lane);
       });
     }
@@ -310,6 +388,9 @@
     typeFilter.onchange = ()=> reapplyFilters();
     sinceYearEl.addEventListener('input', updateYearScale);
     untilYearEl.addEventListener('input', updateYearScale);
+    compactToggle.addEventListener('change', renderLanes);
+    overlapRange.addEventListener('input', renderLanes);
+    coverRange.addEventListener('input', ()=>{ document.documentElement.style.setProperty('--cover', coverRange.value + 'px'); renderLanes(); });
     resetBtn.onclick = ()=>{ state.bands=[]; pickedEl.innerHTML=''; yearlineEl.innerHTML=''; lanesEl.innerHTML=''; statusEl.textContent='Idle'; };
 
     // Resize handler to recompute widths
