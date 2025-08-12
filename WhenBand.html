@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Band Album Timeline</title>
+  <meta name="description" content="Type a band/artist name to plot all their album releases on a shared timeline. Add multiple bands and compare discographies. Covers via Cover Art Archive (MusicBrainz)." />
+  <style>
+    :root{ --bg:#0d1117; --ink:#e6edf3; --muted:#9fb0c2; --card:#111826; --line:rgba(255,255,255,.08); --brand:#7aa2ff; --brand2:#68d7c5; --radius:16px }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:radial-gradient(1200px 600px at -10% -20%, rgba(122,162,255,.10), transparent 60%),radial-gradient(900px 500px at 110% -10%, rgba(104,215,197,.08), transparent 60%),var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Inter,Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+    a{color:#a7c6ff;text-decoration:none}
+
+    .wrap{min-height:100vh;display:flex;flex-direction:column}
+    header{position:sticky;top:0;z-index:20;background:linear-gradient(180deg, rgba(13,17,23,.85), rgba(13,17,23,.55) 60%, transparent);backdrop-filter:blur(8px)}
+    .bar{max-width:1200px;margin:0 auto;padding:10px 12px;display:flex;align-items:center;gap:8px}
+    .brand{font-weight:900}
+    .pill{font-size:12px;color:#0b1322;background:linear-gradient(135deg,var(--brand2),#7df5de);padding:2px 10px;border-radius:999px}
+    .spacer{flex:1}
+
+    main{max-width:1200px;margin:8px auto;padding:12px}
+
+    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+    .pad{padding:12px}
+    .head{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--line)}
+    .muted{color:var(--muted);font-size:12px}
+
+    label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
+    input, select, button{width:100%;padding:10px;border-radius:12px;border:1px solid var(--line);background:#0b1322;color:var(--ink)}
+    .row{display:grid;grid-template-columns:1.1fr .6fr .6fr .6fr auto;gap:8px}
+    @media (max-width: 880px){ .row{grid-template-columns:1fr 1fr 1fr;grid-auto-rows:auto} .row .wide{grid-column:1/-1} }
+    .btn{font-weight:800;cursor:pointer}
+    .btn-primary{background:linear-gradient(135deg,var(--brand),#5f89ff);border:none}
+    .btn-ghost{background:transparent}
+
+    .hstack{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:#0b1322}
+    .chip .dot{width:10px;height:10px;border-radius:50%}
+
+    .results{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
+    .pick{display:flex;gap:8px;align-items:center;padding:8px;border-radius:12px;border:1px solid var(--line);background:#0b1322;cursor:pointer}
+    .pick:hover{background:rgba(122,162,255,.12)}
+
+    /* Timeline */
+    .tl-wrap{overflow:auto;border-top:1px solid var(--line)}
+    .tl{position:relative;min-height:260px}
+    .yearbar{position:sticky;top:0;background:#0b1322;border-bottom:1px solid var(--line);z-index:5;white-space:nowrap}
+    .yearbar .tick{display:inline-block;border-left:1px solid rgba(255,255,255,.14);padding-left:6px;margin-right:40px;height:28px;line-height:28px;font-size:12px;color:var(--muted)}
+
+    .lanes{position:relative}
+    .lane{position:relative;border-bottom:1px dashed rgba(255,255,255,.12);padding:28px 0}
+    .lane .label{position:absolute;left:0;top:0;display:flex;gap:8px;align-items:center;font-weight:800}
+    .lane .label .dot{width:12px;height:12px;border-radius:50%}
+
+    .content{position:relative;margin-left:120px;min-width:1200px;height:100%}
+
+    .album{position:absolute;transform:translate(-50%,0);width:80px}
+    .cover{width:80px;height:80px;border-radius:8px;border:1px solid var(--line);object-fit:cover;background:#0b1322}
+    .tag{font-size:10px;color:#0b1322;background:linear-gradient(135deg,var(--brand2),#7df5de);padding:2px 6px;border-radius:999px;display:inline-block;margin-top:4px}
+    .title{font-size:11px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .date{font-size:10px;color:var(--muted)}
+
+    .legend{padding:10px;border-top:1px solid var(--line)}
+
+    .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:#111826;border:1px solid var(--line);padding:10px 12px;border-radius:12px;z-index:40;box-shadow:0 12px 30px rgba(0,0,0,.4)}
+    dialog{border:1px solid var(--line);background:var(--card);border-radius:12px;color:var(--ink)}
+    dialog .dlg{padding:16px;min-width:300px}
+    dialog::backdrop{background:rgba(0,0,0,.5)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="bar">
+        <div class="brand">📀 Band Album Timeline</div>
+        <span class="pill" id="status">Idle</span>
+        <div class="spacer"></div>
+        <button class="btn btn-ghost" id="resetBtn">Clear all</button>
+      </div>
+    </header>
+
+    <main>
+      <div class="card">
+        <div class="head"><strong>Add bands</strong><span class="muted">Data: MusicBrainz + Cover Art Archive</span></div>
+        <div class="pad">
+          <div class="row">
+            <div class="wide">
+              <label>Band/Artist name</label>
+              <input id="artistInput" placeholder="e.g., Metallica, Radiohead, Taylor Swift"/>
+            </div>
+            <div>
+              <label>Include</label>
+              <select id="typeFilter">
+                <option value="album">Albums only</option>
+                <option value="album,ep">Albums + EPs</option>
+                <option value="album,ep,single">Albums + EPs + Singles</option>
+              </select>
+            </div>
+            <div>
+              <label>Since year</label>
+              <input id="sinceYear" type="number" min="1900" max="2100" placeholder="1960"/>
+            </div>
+            <div>
+              <label>Until year</label>
+              <input id="untilYear" type="number" min="1900" max="2100" placeholder="2025"/>
+            </div>
+            <div>
+              <label>&nbsp;</label>
+              <button class="btn btn-primary" id="addBtn">Add band</button>
+            </div>
+          </div>
+          <div style="height:8px"></div>
+          <div id="picked" class="hstack"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div class="head"><strong>Timeline</strong><span class="muted">Scroll sideways • Use multiple bands</span></div>
+        <div class="tl-wrap">
+          <div class="yearbar" id="yearbar"></div>
+          <div class="lanes" id="lanes"></div>
+        </div>
+        <div class="legend muted">Covers & dates from community data; occasional missing dates or art can happen. Click an album to open its MusicBrainz page.</div>
+      </div>
+    </main>
+  </div>
+
+  <dialog id="pickDlg"><div class="dlg">
+    <h3 style="margin:0 0 8px 0">Pick an artist</h3>
+    <div id="pickList" class="results"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:10px"><button class="btn btn-ghost" id="pickCancel">Cancel</button></div>
+  </div></dialog>
+
+  <div class="toast" id="toast" style="display:none"></div>
+
+  <script>
+    const statusEl = document.getElementById('status');
+    const artistInput = document.getElementById('artistInput');
+    const typeFilter = document.getElementById('typeFilter');
+    const sinceYearEl = document.getElementById('sinceYear');
+    const untilYearEl = document.getElementById('untilYear');
+    const addBtn = document.getElementById('addBtn');
+    const lanesEl = document.getElementById('lanes');
+    const yearbarEl = document.getElementById('yearbar');
+    const pickedEl = document.getElementById('picked');
+    const resetBtn = document.getElementById('resetBtn');
+
+    const pickDlg = document.getElementById('pickDlg');
+    const pickList = document.getElementById('pickList');
+    const pickCancel = document.getElementById('pickCancel');
+
+    const toast = document.getElementById('toast');
+    function showToast(msg){ toast.textContent = msg; toast.style.display='block'; clearTimeout(showToast._t); showToast._t=setTimeout(()=>toast.style.display='none',1600); }
+
+    const palette = ['#7aa2ff','#68d7c5','#ffd166','#ef476f','#b97aff','#7aff86','#ffa3a3','#9ad1ff','#f1b8ff','#a3ffc7'];
+    let nextColor = 0;
+
+    const state = {
+      bands: [], // {id, name, color, items:[{id,title,date,year,mbid,cover,url,type}]}
+      minDate: null,
+      maxDate: null,
+    };
+
+    function isoToTime(iso){ if(!iso) return null; // iso may be YYYY or YYYY-MM or YYYY-MM-DD
+      const parts = iso.split('-').map(n=>parseInt(n,10));
+      const y=parts[0]; const m=(parts[1]||1)-1; const d=parts[2]||1; return new Date(y,m,d).getTime(); }
+
+    function filterByYears(items){
+      const since = parseInt(sinceYearEl.value,10); const until = parseInt(untilYearEl.value,10);
+      return items.filter(it=>{
+        if(!it.year) return false; if(!isNaN(since) && it.year < since) return false; if(!isNaN(until) && it.year > until) return false; return true;
+      });
+    }
+
+    function updateYearScale(){
+      // recompute global min/max years
+      const all = state.bands.flatMap(b=>b.items);
+      const years = all.map(x=>x.year).filter(Boolean);
+      if(years.length===0){ yearbarEl.innerHTML=''; lanesEl.innerHTML=''; return; }
+      const minY = Math.min(...years) - 1; const maxY = Math.max(...years) + 1;
+      state.minDate = new Date(minY,0,1).getTime();
+      state.maxDate = new Date(maxY,0,1).getTime();
+
+      // draw year ticks across a wide content area
+      const content = document.createElement('div'); content.className = 'content'; content.style.width = '2000px';
+      const spanYears = maxY - minY + 1; const pxPerYear = Math.max(80, content.clientWidth / spanYears);
+      content.style.width = (spanYears * pxPerYear) + 'px';
+      yearbarEl.innerHTML=''; yearbarEl.appendChild(content);
+      for(let y=minY; y<=maxY; y++){
+        const x = ( (new Date(y,0,1).getTime() - state.minDate) / (state.maxDate - state.minDate) ) * content.clientWidth;
+        const tick = document.createElement('div'); tick.className='tick'; tick.style.marginLeft = Math.max(0, x - (yearbarEl.lastX||0)) + 'px'; tick.textContent = y; yearbarEl.appendChild(tick); yearbarEl.lastX = x;
+      }
+
+      renderLanes(content.clientWidth);
+    }
+
+    function timeToX(t, width){ return state.minDate===null?0 : ((t - state.minDate) / (state.maxDate - state.minDate)) * width; }
+
+    function renderLanes(width){
+      lanesEl.innerHTML = '';
+      state.bands.forEach((band, idx)=>{
+        const lane = document.createElement('div'); lane.className='lane';
+        const label = document.createElement('div'); label.className='label';
+        const dot = document.createElement('span'); dot.className='dot'; dot.style.background = band.color; label.appendChild(dot);
+        const name = document.createElement('span'); name.textContent = band.name; label.appendChild(name);
+        const remove = document.createElement('button'); remove.className='btn btn-ghost'; remove.textContent='Remove'; remove.style.marginLeft='8px';
+        remove.onclick = ()=>{ state.bands = state.bands.filter(b=>b.id!==band.id); document.getElementById('chip-'+band.id)?.remove(); updateYearScale(); };
+        label.appendChild(remove);
+        lane.appendChild(label);
+
+        const content = document.createElement('div'); content.className='content'; content.style.width = width+'px'; lane.appendChild(content);
+
+        const items = filterByYears(band.items);
+        items.forEach(it=>{
+          const x = timeToX(it.time, width);
+          const el = document.createElement('a'); el.href = it.url; el.target='_blank'; el.rel='noreferrer'; el.className='album'; el.style.left = x+'px'; el.title = `${it.title} — ${it.date||it.year}`;
+          el.innerHTML = `<img class="cover" loading="lazy" src="${it.cover}" alt="${escapeHtml(it.title)}"/><div class="tag" style="background:${band.color}">${it.year}</div><div class="title">${escapeHtml(it.title)}</div>`;
+          content.appendChild(el);
+        });
+
+        lanesEl.appendChild(lane);
+      });
+    }
+
+    function addChip(band){
+      const chip = document.createElement('div'); chip.className='chip'; chip.id='chip-'+band.id;
+      const dot = document.createElement('span'); dot.className='dot'; dot.style.background=band.color; chip.appendChild(dot);
+      const name = document.createElement('span'); name.textContent = band.name; chip.appendChild(name);
+      const x = document.createElement('button'); x.textContent='×'; x.className='btn btn-ghost'; x.style.padding='4px 8px'; x.onclick=()=>{ state.bands=state.bands.filter(b=>b.id!==band.id); chip.remove(); updateYearScale(); };
+      chip.appendChild(x); pickedEl.appendChild(chip);
+    }
+
+    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m])); }
+
+    // ===== MusicBrainz helpers
+    const MB_BASE = 'https://musicbrainz.org/ws/2';
+    async function mbSearchArtist(q){
+      const url = new URL(MB_BASE + '/artist'); url.searchParams.set('query', q); url.searchParams.set('fmt','json'); url.searchParams.set('limit','8');
+      const res = await fetch(url, { headers: { 'Accept':'application/json' } }); if(!res.ok) throw new Error('Artist search failed');
+      const j = await res.json(); return j.artists||[];
+    }
+
+    async function mbReleaseGroups(artistId){
+      // We fetch up to 200 release-groups (albums/eps/singles). We'll filter by primary-type locally.
+      const url = new URL(MB_BASE + '/release-group'); url.searchParams.set('artist', artistId); url.searchParams.set('fmt','json'); url.searchParams.set('limit','200');
+      const res = await fetch(url, { headers: { 'Accept':'application/json' } }); if(!res.ok) throw new Error('Release groups failed');
+      const j = await res.json(); return j['release-groups']||[];
+    }
+
+    function coverUrlForReleaseGroup(mbid){
+      // Try release-group front at 250px; CAA will 404 if missing (the <img> onerror will swap to placeholder)
+      return `https://coverartarchive.org/release-group/${mbid}/front-250`;
+    }
+
+    function normalizeItems(rgs, typeMask){
+      const types = typeMask.split(',');
+      const out = [];
+      for(const rg of rgs){
+        const primary = (rg['primary-type']||'').toLowerCase();
+        if(primary && !types.includes(primary)) continue;
+        const date = rg['first-release-date']||''; const time = isoToTime(date); const year = date? parseInt(date.slice(0,4),10) : null; if(!year) continue;
+        const title = rg.title; const url = `https://musicbrainz.org/release-group/${rg.id}`;
+        out.push({ id: rg.id, title, date, year, time, mbid: rg.id, cover: coverUrlForReleaseGroup(rg.id), url, type: primary });
+      }
+      // sort by date
+      out.sort((a,b)=> (a.time||0)-(b.time||0));
+      return out;
+    }
+
+    async function addBandFlow(name){
+      statusEl.textContent='Searching…';
+      // Prefer group/artist with highest score; offer a picker if there are multiple plausible matches
+      const results = await mbSearchArtist(`artist:${name}`);
+      if(results.length===0){ showToast('No artist found'); statusEl.textContent='Idle'; return; }
+      // If top score is close to others, show picker
+      const top = results[0]; const needPick = results.length>1 && (top.score<100);
+      if(needPick){
+        pickList.innerHTML = results.map(a=>{
+          const life = [a['life-span']?.begin, a['life-span']?.end].filter(Boolean).join('–');
+          const type=a.type||''; const area=a.area?.name||''; const dis = [type, area, life].filter(Boolean).join(' • ');
+          return `<div class="pick" data-id="${a.id}" data-name="${escapeHtml(a.name)}"><div style="font-weight:800">${escapeHtml(a.name)}</div><div class="muted">${escapeHtml(dis)}</div></div>`;
+        }).join('');
+        pickDlg.showModal();
+        const select = (e)=>{
+          const el = e.target.closest('.pick'); if(!el) return; pickDlg.close(); pickList.removeEventListener('click', select);
+          addBandById(el.dataset.id, el.dataset.name);
+        };
+        pickList.addEventListener('click', select);
+        pickCancel.onclick = ()=>{ pickDlg.close(); pickList.removeEventListener('click', select); statusEl.textContent='Idle'; };
+      } else {
+        addBandById(top.id, top.name);
+      }
+    }
+
+    async function addBandById(artistId, artistName){
+      try{
+        statusEl.textContent='Loading releases…';
+        const rgs = await mbReleaseGroups(artistId);
+        const items = normalizeItems(rgs, typeFilter.value);
+        if(items.length===0){ showToast('No releases matched filters'); statusEl.textContent='Idle'; return; }
+        const color = palette[nextColor++ % palette.length];
+        const band = { id: artistId, name: artistName, color, items };
+        state.bands.push(band);
+        addChip(band);
+        updateYearScale();
+        statusEl.textContent='Done';
+      }catch(e){ console.error(e); showToast(e.message||'Failed to load'); statusEl.textContent='Error'; }
+    }
+
+    // ===== Events
+    addBtn.onclick = ()=>{ const name = artistInput.value.trim(); if(!name) return showToast('Enter a band/artist name'); addBandFlow(name); };
+    artistInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ addBtn.click(); }});
+    typeFilter.onchange = ()=>{ // re-normalize items per band
+      state.bands = state.bands.map(b=>({ ...b, items: normalizeItems(b.itemsRaw||b.items, typeFilter.value) })); updateYearScale();
+    };
+    resetBtn.onclick = ()=>{ state.bands=[]; pickedEl.innerHTML=''; yearbarEl.innerHTML=''; lanesEl.innerHTML=''; statusEl.textContent='Idle'; };
+
+    // Resize handler to recompute widths
+    window.addEventListener('resize', ()=>{ if(state.minDate!==null){ updateYearScale(); } });
+  </script>
+</body>
+</html>
