@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Find‑Your‑Friend — Web Mini‑Game</title>
-  <meta name="description" content="A tiny, mobile‑friendly Where’s‑Waldo‑style game. Load any image, set a target, and play!" />
+  <meta name="description" content="A tiny, mobile‑friendly Where’s‑Waldo‑style game. Load any image, set a target, and play! Now with a preloaded gallery of busy scenes." />
   <style>
     :root{ --bg:#0d1117; --ink:#e6edf3; --muted:#9fb0c2; --card:#111826; --line:rgba(255,255,255,.08); --accent:#7aa2ff; --accent2:#68d7c5; --danger:#ff6b6b; --radius:16px }
     *{box-sizing:border-box}
@@ -30,6 +30,12 @@
     button{font-weight:700;cursor:pointer}
     .primary{background:linear-gradient(135deg,var(--accent),#5f89ff);border:none}
     .danger{background:transparent;border:1px solid rgba(255,107,107,.5)}
+
+    .gallery-head{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--line)}
+    .gallery-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(104px, 1fr));gap:8px;padding:10px}
+    .gthumb{position:relative;display:block;width:100%;height:80px;border-radius:12px;border:1px solid var(--line);overflow:hidden;background:#0b1322;cursor:pointer}
+    .gthumb img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(1.05)}
+    .gthumb span{position:absolute;left:8px;bottom:6px;font-size:11px;background:rgba(0,0,0,.4);padding:2px 6px;border-radius:999px}
 
     .board{position:relative;height:70vh;touch-action:none;background:#0b1322}
     .viewport{position:absolute;left:0;top:0;transform-origin:0 0;cursor:grab}
@@ -81,6 +87,9 @@
           <button class="danger" id="resetBtn">Reset</button>
         </div>
 
+        <div class="gallery-head"><strong>Sample backgrounds</strong><span class="muted">Tap any image to load</span></div>
+        <div class="gallery-grid" id="gallery"></div>
+
         <div class="board" id="board">
           <div class="hud">
             <button id="zoomIn">＋</button>
@@ -130,6 +139,8 @@
     const zoomInBtn = document.getElementById('zoomIn');
     const zoomOutBtn = document.getElementById('zoomOut');
     const zoomResetBtn = document.getElementById('zoomReset');
+
+    const galleryEl = document.getElementById('gallery');
 
     // --- State
     let mode = 'setup'; // 'setup' | 'target' | 'play'
@@ -316,8 +327,42 @@
 
     fileInput.addEventListener('change', ()=>{ imgUrlEl.value=''; });
 
+    // --- Preloaded sample gallery (picsum seeds for variety)
+    const SAMPLES = [
+      { id:'crowd1', label:'Crowd' },
+      { id:'market1', label:'Market' },
+      { id:'parade1', label:'Parade' },
+      { id:'festival1', label:'Festival' },
+      { id:'city1', label:'City' },
+      { id:'stadium1', label:'Stadium' },
+      { id:'plaza1', label:'Plaza' },
+      { id:'bazaar1', label:'Bazaar' },
+      { id:'crosswalk1', label:'Crosswalk' },
+      { id:'harbor1', label:'Harbor' }
+    ];
+    function fullUrl(id){ return `https://picsum.photos/seed/${encodeURIComponent(id)}/1400/900`; }
+    function thumbUrl(id){ return `https://picsum.photos/seed/${encodeURIComponent(id)}/320/220`; }
+    function buildGallery(){
+      const f = document.createDocumentFragment();
+      SAMPLES.forEach(s=>{
+        const btn = document.createElement('button');
+        btn.className = 'gthumb'; btn.title = s.label;
+        const img = document.createElement('img'); img.loading='lazy'; img.alt = s.label; img.src = thumbUrl(s.id);
+        const cap = document.createElement('span'); cap.textContent = s.label;
+        btn.appendChild(img); btn.appendChild(cap);
+        btn.onclick = async ()=>{
+          imgUrlEl.value = fullUrl(s.id);
+          await handleLoad();
+          showToast('Sample scene loaded. Now set target and hit Play.');
+        };
+        f.appendChild(btn);
+      });
+      galleryEl.appendChild(f);
+    }
+
     // If query params present, auto-load
     (async function initFromQuery(){
+      buildGallery();
       const q = new URLSearchParams(location.search);
       const url = q.get('img');
       if(url){ try{ const img = await loadFromUrl(url); setImage(img); }catch(e){ console.warn(e); } }
