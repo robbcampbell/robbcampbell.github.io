@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Band Album Timeline — Compact + Grouping</title>
-  <meta name="description" content="Plot album releases for multiple bands on one timeline. New: compact mode (covers only) and overlap grouping with expandable stacks." />
+  <title>Band Album Timeline — Compact + Grouping + Auto‑Scroll</title>
+  <meta name="description" content="Plot album releases for multiple bands on one timeline. Compact mode (covers only), overlap grouping with expandable stacks, and auto vertical scroll only when needed." />
   <style>
     :root{ --bg:#0d1117; --ink:#e6edf3; --muted:#9fb0c2; --card:#111826; --line:rgba(255,255,255,.08); --brand:#7aa2ff; --brand2:#68d7c5; --radius:16px; --cover:96px }
     *{box-sizing:border-box}
@@ -131,7 +131,7 @@
 
       <div class="card" style="margin-top:12px">
         <div class="head"><strong>Timeline</strong><span class="muted">Scroll sideways • Tap a stack to expand</span></div>
-        <div class="tl-wrap">
+        <div class="tl-wrap" id="tlwrap">
           <div class="yearbar"><div class="yearline" id="yearline"></div></div>
           <div class="lanes" id="lanes"></div>
         </div>
@@ -159,6 +159,8 @@
     const yearlineEl = document.getElementById('yearline');
     const pickedEl = document.getElementById('picked');
     const resetBtn = document.getElementById('resetBtn');
+
+    const tlwrap = document.getElementById('tlwrap');
 
     const compactToggle = document.getElementById('compactToggle');
     const overlapRange = document.getElementById('overlapRange');
@@ -190,10 +192,16 @@
       });
     }
 
+    function updatePageScroll(){
+      // Hide the page's vertical scrollbar unless content actually needs it
+      const need = document.documentElement.scrollHeight > window.innerHeight + 2; // tolerance
+      document.body.style.overflowY = need ? 'auto' : 'hidden';
+    }
+
     function updateYearScale(){
       const all = state.bands.flatMap(b=>filterByYears(b.items));
       const years = all.map(x=>x.year).filter(Boolean);
-      if(years.length===0){ yearlineEl.innerHTML=''; lanesEl.innerHTML=''; return; }
+      if(years.length===0){ yearlineEl.innerHTML=''; lanesEl.innerHTML=''; updatePageScroll(); return; }
       const minY = Math.min(...years) - 1; const maxY = Math.max(...years) + 1;
       state.minDate = new Date(minY,0,1).getTime();
       state.maxDate = new Date(maxY,0,1).getTime();
@@ -218,7 +226,6 @@
     function timeToX(t, width){ return state.minDate===null?0 : ((t - state.minDate) / (state.maxDate - state.minDate)) * width; }
 
     function clusterItems(items, width, threshold){
-      // items: sorted by time; output clusters with average x
       const withX = items.map(it=>({ ...it, x: timeToX(it.time, width) })).sort((a,b)=>a.x-b.x);
       const clusters = []; let cur=null;
       for(const it of withX){
@@ -250,25 +257,25 @@
         const threshold = parseInt(overlapRange.value,10);
         const clusters = clusterItems(items, state.width, threshold);
 
-        let maxBottom = 8 + parseInt(getComputedStyle(document.documentElement).getPropertyValue('--cover')) + 24; // default cover height + padding
+        let maxBottom = 8 + parseInt(getComputedStyle(document.documentElement).getPropertyValue('--cover')) + 24;
 
-        clusters.forEach((cl, idx)=>{
+        clusters.forEach((cl)=>{
           if(cl.items.length === 1){
             const it = cl.items[0];
             const el = document.createElement('a'); el.href = it.url; el.target='_blank'; el.rel='noreferrer'; el.className='album'; el.style.left = cl.x+'px'; el.title = `${it.title} — ${it.date||it.year}`;
-            el.innerHTML = `<img class="cover" loading="lazy" src="${it.cover}" alt="${escapeHtml(it.title)}" onerror="this.src='https://placehold.co/300x300?text=No+Art'"/><div class="tag" style="background:${band.color}">${it.year}</div><div class="title">${escapeHtml(it.title)}</div>`;
+            el.innerHTML = `<img class=\"cover\" loading=\"lazy\" src=\"${it.cover}\" alt=\"${escapeHtml(it.title)}\" onerror=\"this.src='https://placehold.co/300x300?text=No+Art'\"/><div class=\"tag\" style=\"background:${band.color}\">${it.year}</div><div class=\"title\">${escapeHtml(it.title)}</div>`;
             content.appendChild(el);
           } else {
             const g = document.createElement('div'); g.className='group'; g.style.left = cl.x+'px';
             const pile = document.createElement('div'); pile.className='pile';
             const lead = cl.items[0];
-            pile.innerHTML = `<img class="cover" loading="lazy" src="${lead.cover}" alt="${escapeHtml(lead.title)}" onerror="this.src='https://placehold.co/300x300?text=No+Art'"/><span class='badge'>×${cl.items.length}</span>`;
+            pile.innerHTML = `<img class=\"cover\" loading=\"lazy\" src=\"${lead.cover}\" alt=\"${escapeHtml(lead.title)}\" onerror=\"this.src='https://placehold.co/300x300?text=No+Art'\"/><span class='badge'>×${cl.items.length}</span>`;
             g.appendChild(pile);
 
             const stack = document.createElement('div'); stack.className='stack';
             cl.items.forEach(it=>{
               const a = document.createElement('a'); a.href=it.url; a.target='_blank'; a.rel='noreferrer'; a.title = `${it.title} — ${it.date||it.year}`;
-              a.innerHTML = `<img class='cover' loading='lazy' src='${it.cover}' alt='${escapeHtml(it.title)}' onerror="this.src='https://placehold.co/300x300?text=No+Art'"/>${compact?'' : `<div class='title'>${escapeHtml(it.title)}</div>`}`;
+              a.innerHTML = `<img class='cover' loading='lazy' src='${it.cover}' alt='${escapeHtml(it.title)}' onerror=\"this.src='https://placehold.co/300x300?text=No+Art'\"/>${compact?'' : `<div class='title'>${escapeHtml(it.title)}</div>`}`;
               stack.appendChild(a);
             });
             g.appendChild(stack);
@@ -276,14 +283,11 @@
             g.addEventListener('click', (e)=>{
               e.preventDefault(); e.stopPropagation();
               g.classList.toggle('open');
-              // recompute lane height to fit expanded stacks
               requestAnimationFrame(()=>{
-                const covers = g.querySelectorAll('.cover');
-                const rect = g.getBoundingClientRect();
-                const laneRect = lane.getBoundingClientRect();
-                const bottom = (g.offsetTop + g.offsetHeight) + 24; // within lane
+                const bottom = (g.offsetTop + g.offsetHeight) + 24;
                 maxBottom = Math.max(maxBottom, bottom);
                 lane.style.minHeight = Math.ceil(maxBottom) + 'px';
+                updatePageScroll();
               });
             });
 
@@ -291,10 +295,12 @@
           }
         });
 
-        // ensure lane is tall enough for any open groups
         lane.style.minHeight = Math.ceil(maxBottom) + 'px';
         lanesEl.appendChild(lane);
       });
+
+      // After rendering lanes, decide whether the page needs a vertical scrollbar
+      updatePageScroll();
     }
 
     function addChip(band){
@@ -305,7 +311,7 @@
       chip.appendChild(x); pickedEl.appendChild(chip);
     }
 
-    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m])); }
+    function escapeHtml(s){ return String(s).replace(/[&<>\"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;','\'':'&#39;'}[m])); }
 
     // ===== MusicBrainz helpers
     const MB_BASE = 'https://musicbrainz.org/ws/2';
@@ -348,7 +354,7 @@
         pickList.innerHTML = results.map(a=>{
           const life = [a['life-span']?.begin, a['life-span']?.end].filter(Boolean).join('–');
           const type=a.type||''; const area=a.area?.name||''; const dis = [type, area, life].filter(Boolean).join(' • ');
-          return `<div class="pick" data-id="${a.id}" data-name="${escapeHtml(a.name)}" style="display:flex;gap:8px;align-items:center;padding:8px;border-radius:12px;border:1px solid var(--line);background:#0b1322;cursor:pointer"><div style="font-weight:800">${escapeHtml(a.name)}</div><div class="muted">${escapeHtml(dis)}</div></div>`;
+          return `<div class=\"pick\" data-id=\"${a.id}\" data-name=\"${escapeHtml(a.name)}\" style=\"display:flex;gap:8px;align-items:center;padding:8px;border-radius:12px;border:1px solid var(--line);background:#0b1322;cursor:pointer\"><div style=\"font-weight:800\">${escapeHtml(a.name)}</div><div class=\"muted\">${escapeHtml(dis)}</div></div>`;
         }).join('');
         pickDlg.showModal();
         const select = (e)=>{
@@ -391,10 +397,13 @@
     compactToggle.addEventListener('change', renderLanes);
     overlapRange.addEventListener('input', renderLanes);
     coverRange.addEventListener('input', ()=>{ document.documentElement.style.setProperty('--cover', coverRange.value + 'px'); renderLanes(); });
-    resetBtn.onclick = ()=>{ state.bands=[]; pickedEl.innerHTML=''; yearlineEl.innerHTML=''; lanesEl.innerHTML=''; statusEl.textContent='Idle'; };
+    resetBtn.onclick = ()=>{ state.bands=[]; pickedEl.innerHTML=''; yearlineEl.innerHTML=''; lanesEl.innerHTML=''; statusEl.textContent='Idle'; updatePageScroll(); };
 
-    // Resize handler to recompute widths
-    window.addEventListener('resize', ()=>{ if(state.minDate!==null){ updateYearScale(); } });
+    // Resize handler to recompute widths + scroll need
+    window.addEventListener('resize', ()=>{ if(state.minDate!==null){ updateYearScale(); } else { updatePageScroll(); } });
+
+    // Boot: ensure we start with no vertical scrollbar if not needed
+    updatePageScroll();
   </script>
 </body>
 </html>
