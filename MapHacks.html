@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Road Trip Facts Mapper</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <style>
+    :root {
+      --bg: #0b1020; /* deep navy */
+      --fg: #e7ecf6; /* light text */
+      --muted: #a9b4c7;
+      --card: #121934;
+      --accent: #7aa2ff;
+      --accent-2: #62d5c4;
+      --danger: #ff6b6b;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,#0b1020,#0d1430);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,"Helvetica Neue",Arial,sans-serif;color:var(--fg)}
+    .container{max-width:1080px;margin:0 auto;padding:20px}
+    h1{font-size:clamp(24px,4vw,36px);margin:6px 0 4px}
+    p.sub{color:var(--muted);margin:0 0 20px}
+
+    .grid{display:grid;grid-template-columns:1fr;gap:16px}
+    @media (min-width: 880px){.grid{grid-template-columns:340px 1fr}}
+
+    .card{background:radial-gradient(1200px 500px at -10% -20%,rgba(122,162,255,0.18),transparent 60%),
+                      radial-gradient(800px 400px at 120% -10%,rgba(98,213,196,0.14),transparent 60%),
+                      var(--card);border:1px solid rgba(255,255,255,0.06);border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,0.35)}
+    .card .pad{padding:16px}
+
+    label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
+    input, textarea, button{width:100%;border-radius:12px;border:1px solid rgba(255,255,255,0.14);background:rgba(255,255,255,0.04);color:var(--fg);padding:10px 12px}
+    input:focus, textarea:focus{outline:2px solid rgba(122,162,255,.6);border-color:transparent}
+    textarea{min-height:90px;resize:vertical}
+    .row{display:flex;gap:10px}
+    .row > *{flex:1}
+    .btn{cursor:pointer;font-weight:600}
+    .btn-primary{background:linear-gradient(135deg,var(--accent),#5f89ff);border:none}
+    .btn-secondary{background:transparent}
+    .hint{color:var(--muted);font-size:12px;margin-top:8px}
+    .error{background:rgba(255,107,107,0.12);border:1px solid rgba(255,107,107,0.4);color:#ffd1d1;padding:10px;border-radius:12px;margin-top:8px}
+
+    #map{height:420px;border-bottom-left-radius:18px;border-bottom-right-radius:18px}
+    .map-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.06)}
+
+    details{border-top:1px solid rgba(255,255,255,0.06)}
+    details[open]{background:rgba(255,255,255,0.02)}
+    summary{list-style:none;cursor:pointer;padding:14px 16px;display:flex;align-items:center;gap:10px}
+    summary::-webkit-details-marker{display:none}
+    .badge{font-size:11px;color:#0b1020;background:linear-gradient(135deg,var(--accent-2),#7df5de);padding:2px 8px;border-radius:999px}
+    .fact{padding:0 16px 16px 16px;color:#dfe6f4;line-height:1.6}
+    .muted{color:var(--muted)}
+    .footer-note{font-size:12px;color:var(--muted);margin-top:12px}
+    a{color:#a7c6ff}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Road Trip Facts Mapper</h1>
+    <p class="sub">Type your route, see it on the map, and read quick history blurbs for towns along the way. Single-file. Drop on GitHub Pages.</p>
+
+    <div class="grid">
+      <div class="card">
+        <div class="pad">
+          <div>
+            <label>Origin</label>
+            <input id="origin" placeholder="e.g., Dallas, TX" />
+          </div>
+          <div style="margin-top:10px">
+            <label>Destination</label>
+            <input id="destination" placeholder="e.g., Denver, CO" />
+          </div>
+          <div style="margin-top:10px">
+            <label>Waypoints (optional, one per line)</label>
+            <textarea id="waypoints" placeholder="Amarillo, TX\nSanta Fe, NM"></textarea>
+          </div>
+          <div class="row" style="margin-top:12px">
+            <button class="btn btn-primary" id="buildBtn">Build route</button>
+            <button class="btn btn-secondary" id="clearBtn">Clear</button>
+          </div>
+          <div class="hint">Uses OpenStreetMap (Nominatim + tiles), OSRM for routing, and Wikipedia for facts. Be mindful of API rate limits.</div>
+          <div id="error" class="error" style="display:none"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="map-header"><strong>Map</strong><span class="muted" id="status">Idle</span></div>
+        <div id="map"></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="pad"><strong>Town Facts Along the Way</strong></div>
+      <div id="facts"></div>
+    </div>
+
+    <div class="footer-note">For heavier use, proxy these requests through your own backend and cache responses.</div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script>
+    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+    const statusEl = document.getElementById('status');
+    const errorEl = document.getElementById('error');
+    const factsEl = document.getElementById('facts');
+
+    // Map init
+    const map = L.map('map', { zoomControl: true }).setView([37.5, -96], 4);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    let routeLayer = null;
+    let markers = [];
+
+    function setStatus(txt){ statusEl.textContent = txt; }
+    function setError(msg){ errorEl.style.display = msg ? 'block' : 'none'; errorEl.textContent = msg || ''; }
+
+    function haversine(a, b){
+      const R = 6371e3;
+      const toRad = (d) => d*Math.PI/180;
+      const dLat = toRad(b[1]-a[1]);
+      const dLon = toRad(b[0]-a[0]);
+      const lat1 = toRad(a[1]);
+      const lat2 = toRad(b[1]);
+      const s = Math.sin(dLat/2)**2 + Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLon/2)**2;
+      return 2*R*Math.asin(Math.sqrt(s));
+    }
+
+    function samplePolyline(coords, spacingMeters=20000){
+      if(!coords || !coords.length) return [];
+      const pts=[coords[0]]; let acc=0;
+      for(let i=1;i<coords.length;i++){
+        const seg = haversine(coords[i-1], coords[i]);
+        acc += seg;
+        if(acc >= spacingMeters){ pts.push(coords[i]); acc = 0; }
+      }
+      pts.push(coords[coords.length-1]);
+      return pts;
+    }
+
+    function dedupe(items, keyFn){
+      const s=new Set(), out=[]; for(const it of items){ const k=keyFn(it); if(k && !s.has(k)){ s.add(k); out.push(it); } } return out;
+    }
+
+    async function geocode(q){
+      const url = new URL('https://nominatim.openstreetmap.org/search');
+      url.searchParams.set('q', q);
+      url.searchParams.set('format', 'jsonv2');
+      url.searchParams.set('addressdetails', '1');
+      const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+      if(!res.ok) throw new Error('Geocoding failed');
+      const j = await res.json();
+      if(!j?.length) throw new Error('No results for '+q);
+      return { lat: parseFloat(j[0].lat), lon: parseFloat(j[0].lon) };
+    }
+
+    async function reverseGeocode(lat, lon){
+      const url = new URL('https://nominatim.openstreetmap.org/reverse');
+      url.searchParams.set('lat', String(lat));
+      url.searchParams.set('lon', String(lon));
+      url.searchParams.set('format', 'jsonv2');
+      url.searchParams.set('zoom', '10');
+      const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+      if(!res.ok) return null;
+      const j = await res.json();
+      const a = j?.address || {};
+      const name = a.town || a.city || a.village || a.hamlet || null;
+      const state = a.state || a.region || '';
+      const country = a.country || '';
+      if(!name) return null;
+      return { key: `${name}, ${state}, ${country}`.trim(), name, display: `${name}${state? ', '+state: ''}`, lat, lon };
+    }
+
+    async function wikiSummary(name){
+      try{
+        // Search first to get best page title
+        const searchUrl = new URL('https://en.wikipedia.org/w/api.php');
+        searchUrl.searchParams.set('origin', '*');
+        searchUrl.searchParams.set('action', 'query');
+        searchUrl.searchParams.set('list', 'search');
+        searchUrl.searchParams.set('srsearch', name);
+        searchUrl.searchParams.set('format', 'json');
+        const sr = await fetch(searchUrl);
+        const sj = await sr.json();
+        const title = sj?.query?.search?.[0]?.title;
+        if(!title) return null;
+        const sumUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
+        const sres = await fetch(sumUrl);
+        if(!sres.ok) return null;
+        const sj2 = await sres.json();
+        return { title: sj2.title, summary: sj2.extract, url: sj2.content_urls?.desktop?.page || null, description: sj2.description || null };
+      }catch{ return null; }
+    }
+
+    async function buildRoute(){
+      setError(''); factsEl.innerHTML = ''; markers.forEach(m => map.removeLayer(m)); markers=[];
+      if(routeLayer){ map.removeLayer(routeLayer); routeLayer=null; }
+
+      const origin = document.getElementById('origin').value.trim();
+      const destination = document.getElementById('destination').value.trim();
+      const waypoints = document.getElementById('waypoints').value.split('\n').map(s=>s.trim()).filter(Boolean);
+      if(!origin || !destination){ setError('Please enter origin and destination.'); return; }
+
+      try{
+        setStatus('Geocoding…');
+        const o = await geocode(origin);
+        await sleep(150);
+        const d = await geocode(destination);
+        const wps = [];
+        for(const w of waypoints){
+          try{ const c = await geocode(w); wps.push(c); await sleep(150);}catch(e){ console.warn('Waypoint fail', w, e); }
+        }
+
+        setStatus('Routing…');
+        const coords = [o, ...wps, d].map(p => `${p.lon},${p.lat}`).join(';');
+        const osrmUrl = new URL(`https://router.project-osrm.org/route/v1/driving/${coords}`);
+        osrmUrl.searchParams.set('overview','full');
+        osrmUrl.searchParams.set('geometries','geojson');
+        osrmUrl.searchParams.set('steps','false');
+        const osrmRes = await fetch(osrmUrl);
+        if(!osrmRes.ok) throw new Error('Routing failed');
+        const osrmData = await osrmRes.json();
+        const route = osrmData?.routes?.[0]?.geometry;
+        if(!route) throw new Error('No route found');
+
+        const latlngs = route.coordinates.map(c => [c[1], c[0]]);
+        routeLayer = L.polyline(latlngs, { weight: 6, opacity: 0.9 }).addTo(map);
+        map.fitBounds(routeLayer.getBounds(), { padding: [30,30] });
+
+        // Start + End markers
+        markers.push(L.marker(latlngs[0]).addTo(map).bindPopup('Start'));
+        markers.push(L.marker(latlngs[latlngs.length-1]).addTo(map).bindPopup('Destination'));
+
+        setStatus('Sampling towns…');
+        const samples = samplePolyline(route.coordinates, 20000);
+        const found = [];
+        for(const [lon, lat] of samples){
+          const t = await reverseGeocode(lat, lon);
+          if(t) found.push(t);
+          await sleep(120);
+        }
+        const unique = dedupe(found, t => t.key);
+
+        setStatus('Fetching facts…');
+        const enriched = [];
+        for(const t of unique){
+          const w = await wikiSummary(t.name);
+          enriched.push({ ...t, wiki: w });
+          await sleep(120);
+        }
+
+        // Render facts list
+        factsEl.innerHTML = '';
+        if(!enriched.length){ factsEl.innerHTML = `<div class="pad muted">No towns found along the sampled route.</div>`; setStatus('Done'); return; }
+        let i = 0;
+        for(const t of enriched){
+          const id = `det-${i++}`;
+          const subtitle = t.wiki?.description ? `<span class="badge">${escapeHtml(t.wiki.description)}</span>` : '';
+          const summary = t.wiki?.summary ? escapeHtml(t.wiki.summary) : 'No summary found.';
+          const more = t.wiki?.url ? ` <a href="${t.wiki.url}" target="_blank" rel="noreferrer">Read more</a>` : '';
+          const details = document.createElement('details');
+          details.innerHTML = `
+            <summary><strong>${escapeHtml(t.display)}</strong> ${subtitle}</summary>
+            <div class="fact">${summary}${more}</div>
+          `;
+          factsEl.appendChild(details);
+        }
+        setStatus('Done');
+      }catch(e){
+        console.error(e);
+        setError(e.message || 'Something went wrong');
+        setStatus('Error');
+      }
+    }
+
+    function escapeHtml(s){
+      return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]));
+    }
+
+    document.getElementById('buildBtn').addEventListener('click', buildRoute);
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      setError(''); setStatus('Idle'); factsEl.innerHTML = '';
+      if(routeLayer){ map.removeLayer(routeLayer); routeLayer=null; }
+      markers.forEach(m => map.removeLayer(m)); markers=[];
+    });
+  </script>
+</body>
+</html>
