@@ -6,7 +6,7 @@
   <title>Band Album Timeline</title>
   <meta name="description" content="Type a band/artist name to plot all their album releases on a shared timeline. Add multiple bands and compare discographies. Covers via Cover Art Archive (MusicBrainz)." />
   <style>
-    :root{ --bg:#0d1117; --ink:#e6edf3; --muted:#9fb0c2; --card:#111826; --line:rgba(255,255,255,.08); --brand:#7aa2ff; --brand2:#68d7c5; --radius:16px }
+    :root{ --bg:#0d1117; --ink:#e6edf3; --muted:#9fb0c2; --card:#111826; --line:rgba(255,255,255,.08); --brand:#7aa2ff; --brand2:#68d7c5; --radius:16px; --cover:96px }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{margin:0;background:radial-gradient(1200px 600px at -10% -20%, rgba(122,162,255,.10), transparent 60%),radial-gradient(900px 500px at 110% -10%, rgba(104,215,197,.08), transparent 60%),var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Inter,Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased}
@@ -38,35 +38,29 @@
     .chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:#0b1322}
     .chip .dot{width:10px;height:10px;border-radius:50%}
 
-    .results{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
-    .pick{display:flex;gap:8px;align-items:center;padding:8px;border-radius:12px;border:1px solid var(--line);background:#0b1322;cursor:pointer}
-    .pick:hover{background:rgba(122,162,255,.12)}
-
     /* Timeline */
-    .tl-wrap{overflow:auto;border-top:1px solid var(--line)}
-    .tl{position:relative;min-height:260px}
-    .yearbar{position:sticky;top:0;background:#0b1322;border-bottom:1px solid var(--line);z-index:5;white-space:nowrap}
-    .yearbar .tick{display:inline-block;border-left:1px solid rgba(255,255,255,.14);padding-left:6px;margin-right:40px;height:28px;line-height:28px;font-size:12px;color:var(--muted)}
+    .tl-wrap{overflow-x:auto; overflow-y:visible; border-top:1px solid var(--line)}
+    .yearbar{position:sticky;top:0;background:#0b1322;border-bottom:1px solid var(--line);z-index:5}
+    .yearline{position:relative;height:28px}
+    .tick{position:absolute;top:0;height:28px;border-left:1px solid rgba(255,255,255,.14);padding-left:6px;line-height:28px;font-size:12px;color:var(--muted);transform:translateX(-50%)}
 
     .lanes{position:relative}
-    .lane{position:relative;border-bottom:1px dashed rgba(255,255,255,.12);padding:28px 0}
+    .lane{position:relative;border-bottom:1px dashed rgba(255,255,255,.12);padding:22px 0;min-height:calc(var(--cover) + 56px)}
     .lane .label{position:absolute;left:0;top:0;display:flex;gap:8px;align-items:center;font-weight:800}
     .lane .label .dot{width:12px;height:12px;border-radius:50%}
 
-    .content{position:relative;margin-left:120px;min-width:1200px;height:100%}
+    .content{position:relative;margin-left:140px;min-width:1400px}
 
-    .album{position:absolute;transform:translate(-50%,0);width:80px}
-    .cover{width:80px;height:80px;border-radius:8px;border:1px solid var(--line);object-fit:cover;background:#0b1322}
+    .album{position:absolute;transform:translate(-50%,0);width:var(--cover);top:8px}
+    .cover{width:var(--cover);height:var(--cover);border-radius:8px;border:1px solid var(--line);object-fit:cover;background:#0b1322}
     .tag{font-size:10px;color:#0b1322;background:linear-gradient(135deg,var(--brand2),#7df5de);padding:2px 6px;border-radius:999px;display:inline-block;margin-top:4px}
-    .title{font-size:11px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .date{font-size:10px;color:var(--muted)}
+    .title{font-size:11px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:calc(var(--cover) + 40px)}
 
     .legend{padding:10px;border-top:1px solid var(--line)}
 
     .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:#111826;border:1px solid var(--line);padding:10px 12px;border-radius:12px;z-index:40;box-shadow:0 12px 30px rgba(0,0,0,.4)}
-    dialog{border:1px solid var(--line);background:var(--card);border-radius:12px;color:var(--ink)}
-    dialog .dlg{padding:16px;min-width:300px}
-    dialog::backdrop{background:rgba(0,0,0,.5)}
+
+    @media (max-width: 760px){ :root{ --cover:76px } .content{ margin-left:110px; min-width:1200px } }
   </style>
 </head>
 <body>
@@ -118,7 +112,7 @@
       <div class="card" style="margin-top:12px">
         <div class="head"><strong>Timeline</strong><span class="muted">Scroll sideways • Use multiple bands</span></div>
         <div class="tl-wrap">
-          <div class="yearbar" id="yearbar"></div>
+          <div class="yearbar"><div class="yearline" id="yearline"></div></div>
           <div class="lanes" id="lanes"></div>
         </div>
         <div class="legend muted">Covers & dates from community data; occasional missing dates or art can happen. Click an album to open its MusicBrainz page.</div>
@@ -142,7 +136,7 @@
     const untilYearEl = document.getElementById('untilYear');
     const addBtn = document.getElementById('addBtn');
     const lanesEl = document.getElementById('lanes');
-    const yearbarEl = document.getElementById('yearbar');
+    const yearlineEl = document.getElementById('yearline');
     const pickedEl = document.getElementById('picked');
     const resetBtn = document.getElementById('resetBtn');
 
@@ -157,14 +151,13 @@
     let nextColor = 0;
 
     const state = {
-      bands: [], // {id, name, color, items:[{id,title,date,year,mbid,cover,url,type}]}
+      bands: [], // {id, name, color, itemsRaw, items:[{id,title,date,year,mbid,cover,url,type,time}]}
       minDate: null,
       maxDate: null,
+      width: 1600,
     };
 
-    function isoToTime(iso){ if(!iso) return null; // iso may be YYYY or YYYY-MM or YYYY-MM-DD
-      const parts = iso.split('-').map(n=>parseInt(n,10));
-      const y=parts[0]; const m=(parts[1]||1)-1; const d=parts[2]||1; return new Date(y,m,d).getTime(); }
+    function isoToTime(iso){ if(!iso) return null; const parts = iso.split('-').map(n=>parseInt(n,10)); const y=parts[0]; const m=(parts[1]||1)-1; const d=parts[2]||1; return new Date(y,m,d).getTime(); }
 
     function filterByYears(items){
       const since = parseInt(sinceYearEl.value,10); const until = parseInt(untilYearEl.value,10);
@@ -174,48 +167,51 @@
     }
 
     function updateYearScale(){
-      // recompute global min/max years
-      const all = state.bands.flatMap(b=>b.items);
+      const all = state.bands.flatMap(b=>filterByYears(b.items));
       const years = all.map(x=>x.year).filter(Boolean);
-      if(years.length===0){ yearbarEl.innerHTML=''; lanesEl.innerHTML=''; return; }
+      if(years.length===0){ yearlineEl.innerHTML=''; lanesEl.innerHTML=''; return; }
       const minY = Math.min(...years) - 1; const maxY = Math.max(...years) + 1;
       state.minDate = new Date(minY,0,1).getTime();
       state.maxDate = new Date(maxY,0,1).getTime();
 
-      // draw year ticks across a wide content area
-      const content = document.createElement('div'); content.className = 'content'; content.style.width = '2000px';
-      const spanYears = maxY - minY + 1; const pxPerYear = Math.max(80, content.clientWidth / spanYears);
-      content.style.width = (spanYears * pxPerYear) + 'px';
-      yearbarEl.innerHTML=''; yearbarEl.appendChild(content);
+      // width computation
+      const containerWidth = Math.max(1400, (maxY - minY + 1) * 120); // 120px per year baseline
+      state.width = containerWidth;
+      yearlineEl.style.width = containerWidth + 'px';
+      yearlineEl.innerHTML = '';
+
       for(let y=minY; y<=maxY; y++){
-        const x = ( (new Date(y,0,1).getTime() - state.minDate) / (state.maxDate - state.minDate) ) * content.clientWidth;
-        const tick = document.createElement('div'); tick.className='tick'; tick.style.marginLeft = Math.max(0, x - (yearbarEl.lastX||0)) + 'px'; tick.textContent = y; yearbarEl.appendChild(tick); yearbarEl.lastX = x;
+        const x = timeToX(new Date(y,0,1).getTime(), containerWidth);
+        const tick = document.createElement('span');
+        tick.className = 'tick';
+        tick.style.left = x + 'px';
+        tick.textContent = y;
+        yearlineEl.appendChild(tick);
       }
 
-      renderLanes(content.clientWidth);
+      renderLanes();
     }
 
     function timeToX(t, width){ return state.minDate===null?0 : ((t - state.minDate) / (state.maxDate - state.minDate)) * width; }
 
-    function renderLanes(width){
+    function renderLanes(){
       lanesEl.innerHTML = '';
-      state.bands.forEach((band, idx)=>{
+      state.bands.forEach((band)=>{
         const lane = document.createElement('div'); lane.className='lane';
         const label = document.createElement('div'); label.className='label';
         const dot = document.createElement('span'); dot.className='dot'; dot.style.background = band.color; label.appendChild(dot);
         const name = document.createElement('span'); name.textContent = band.name; label.appendChild(name);
-        const remove = document.createElement('button'); remove.className='btn btn-ghost'; remove.textContent='Remove'; remove.style.marginLeft='8px';
-        remove.onclick = ()=>{ state.bands = state.bands.filter(b=>b.id!==band.id); document.getElementById('chip-'+band.id)?.remove(); updateYearScale(); };
+        const remove = document.createElement('button'); remove.className='btn btn-ghost'; remove.textContent='Remove'; remove.style.marginLeft='8px'; remove.onclick = ()=>{ state.bands = state.bands.filter(b=>b.id!==band.id); document.getElementById('chip-'+band.id)?.remove(); updateYearScale(); };
         label.appendChild(remove);
         lane.appendChild(label);
 
-        const content = document.createElement('div'); content.className='content'; content.style.width = width+'px'; lane.appendChild(content);
+        const content = document.createElement('div'); content.className='content'; content.style.width = state.width+'px'; lane.appendChild(content);
 
         const items = filterByYears(band.items);
         items.forEach(it=>{
-          const x = timeToX(it.time, width);
+          const x = timeToX(it.time, state.width);
           const el = document.createElement('a'); el.href = it.url; el.target='_blank'; el.rel='noreferrer'; el.className='album'; el.style.left = x+'px'; el.title = `${it.title} — ${it.date||it.year}`;
-          el.innerHTML = `<img class="cover" loading="lazy" src="${it.cover}" alt="${escapeHtml(it.title)}"/><div class="tag" style="background:${band.color}">${it.year}</div><div class="title">${escapeHtml(it.title)}</div>`;
+          el.innerHTML = `<img class="cover" loading="lazy" src="${it.cover}" alt="${escapeHtml(it.title)}" onerror="this.src='https://placehold.co/300x300?text=No+Art'"/><div class="tag" style="background:${band.color}">${it.year}</div><div class="title">${escapeHtml(it.title)}</div>`;
           content.appendChild(el);
         });
 
@@ -242,14 +238,12 @@
     }
 
     async function mbReleaseGroups(artistId){
-      // We fetch up to 200 release-groups (albums/eps/singles). We'll filter by primary-type locally.
       const url = new URL(MB_BASE + '/release-group'); url.searchParams.set('artist', artistId); url.searchParams.set('fmt','json'); url.searchParams.set('limit','200');
       const res = await fetch(url, { headers: { 'Accept':'application/json' } }); if(!res.ok) throw new Error('Release groups failed');
       const j = await res.json(); return j['release-groups']||[];
     }
 
     function coverUrlForReleaseGroup(mbid){
-      // Try release-group front at 250px; CAA will 404 if missing (the <img> onerror will swap to placeholder)
       return `https://coverartarchive.org/release-group/${mbid}/front-250`;
     }
 
@@ -263,23 +257,20 @@
         const title = rg.title; const url = `https://musicbrainz.org/release-group/${rg.id}`;
         out.push({ id: rg.id, title, date, year, time, mbid: rg.id, cover: coverUrlForReleaseGroup(rg.id), url, type: primary });
       }
-      // sort by date
       out.sort((a,b)=> (a.time||0)-(b.time||0));
       return out;
     }
 
     async function addBandFlow(name){
       statusEl.textContent='Searching…';
-      // Prefer group/artist with highest score; offer a picker if there are multiple plausible matches
       const results = await mbSearchArtist(`artist:${name}`);
       if(results.length===0){ showToast('No artist found'); statusEl.textContent='Idle'; return; }
-      // If top score is close to others, show picker
       const top = results[0]; const needPick = results.length>1 && (top.score<100);
       if(needPick){
         pickList.innerHTML = results.map(a=>{
           const life = [a['life-span']?.begin, a['life-span']?.end].filter(Boolean).join('–');
           const type=a.type||''; const area=a.area?.name||''; const dis = [type, area, life].filter(Boolean).join(' • ');
-          return `<div class="pick" data-id="${a.id}" data-name="${escapeHtml(a.name)}"><div style="font-weight:800">${escapeHtml(a.name)}</div><div class="muted">${escapeHtml(dis)}</div></div>`;
+          return `<div class="pick" data-id="${a.id}" data-name="${escapeHtml(a.name)}" style="display:flex;gap:8px;align-items:center;padding:8px;border-radius:12px;border:1px solid var(--line);background:#0b1322;cursor:pointer"><div style="font-weight:800">${escapeHtml(a.name)}</div><div class="muted">${escapeHtml(dis)}</div></div>`;
         }).join('');
         pickDlg.showModal();
         const select = (e)=>{
@@ -300,7 +291,7 @@
         const items = normalizeItems(rgs, typeFilter.value);
         if(items.length===0){ showToast('No releases matched filters'); statusEl.textContent='Idle'; return; }
         const color = palette[nextColor++ % palette.length];
-        const band = { id: artistId, name: artistName, color, items };
+        const band = { id: artistId, name: artistName, color, itemsRaw: rgs, items };
         state.bands.push(band);
         addChip(band);
         updateYearScale();
@@ -308,13 +299,18 @@
       }catch(e){ console.error(e); showToast(e.message||'Failed to load'); statusEl.textContent='Error'; }
     }
 
+    function reapplyFilters(){
+      state.bands = state.bands.map(b=>({ ...b, items: normalizeItems(b.itemsRaw, typeFilter.value) }));
+      updateYearScale();
+    }
+
     // ===== Events
     addBtn.onclick = ()=>{ const name = artistInput.value.trim(); if(!name) return showToast('Enter a band/artist name'); addBandFlow(name); };
     artistInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ addBtn.click(); }});
-    typeFilter.onchange = ()=>{ // re-normalize items per band
-      state.bands = state.bands.map(b=>({ ...b, items: normalizeItems(b.itemsRaw||b.items, typeFilter.value) })); updateYearScale();
-    };
-    resetBtn.onclick = ()=>{ state.bands=[]; pickedEl.innerHTML=''; yearbarEl.innerHTML=''; lanesEl.innerHTML=''; statusEl.textContent='Idle'; };
+    typeFilter.onchange = ()=> reapplyFilters();
+    sinceYearEl.addEventListener('input', updateYearScale);
+    untilYearEl.addEventListener('input', updateYearScale);
+    resetBtn.onclick = ()=>{ state.bands=[]; pickedEl.innerHTML=''; yearlineEl.innerHTML=''; lanesEl.innerHTML=''; statusEl.textContent='Idle'; };
 
     // Resize handler to recompute widths
     window.addEventListener('resize', ()=>{ if(state.minDate!==null){ updateYearScale(); } });
