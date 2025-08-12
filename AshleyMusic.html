@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>Wrapped‑Style — Spotify Stats (Unofficial)</title>
+  <meta name="description" content="Sign in with Spotify and see a Wrapped‑style dashboard: top artists & tracks, genres, and audio profile. All client‑side."/>
+  <meta name="theme-color" content="#0d1117"/>
+  <style>
+    :root{--bg:#0d1117;--ink:#e6edf3;--muted:#9fb0c2;--card:#111826;--line:rgba(255,255,255,.08);--brand:#7aa2ff;--brand2:#68d7c5;--radius:16px}
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:radial-gradient(1200px 600px at -10% -20%, rgba(122,162,255,.12), transparent 60%),radial-gradient(800px 400px at 110% -10%, rgba(104,215,197,.10), transparent 60%),var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Inter,Segoe UI,Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+    a{color:#a7c6ff;text-decoration:none}
+
+    .wrap{min-height:100vh;display:flex;flex-direction:column}
+    header{position:sticky;top:0;z-index:20;background:linear-gradient(180deg, rgba(13,17,23,.85), rgba(13,17,23,.55) 60%, transparent);backdrop-filter:blur(8px)}
+    .bar{max-width:1080px;margin:0 auto;padding:10px 12px;display:flex;align-items:center;gap:10px}
+    .brand{font-weight:900}
+    .spacer{flex:1}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:#0b1322;color:var(--ink);font-weight:700;cursor:pointer}
+    .btn-primary{background:linear-gradient(135deg,var(--brand),#5f89ff);border:none}
+    .btn-ghost{background:transparent}
+
+    main{max-width:1080px;margin:8px auto;padding:12px}
+    .grid{display:grid;grid-template-columns:1fr;gap:12px}
+    @media(min-width:960px){.grid{grid-template-columns:1fr 1fr}}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+    .pad{padding:12px}
+    .head{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--line)}
+    .muted{color:var(--muted);font-size:12px}
+    .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+    .kpi{background:#0b1322;border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+    .big{font-size:20px;font-weight:800}
+    .pill{font-size:12px;color:#0b1322;background:linear-gradient(135deg,var(--brand2),#7df5de);padding:2px 10px;border-radius:999px}
+
+    .list{display:grid;grid-template-columns:1fr;gap:8px}
+    .row{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:8px;border-radius:12px;border:1px solid var(--line);background:#0b1322}
+    .row img{width:44px;height:44px;border-radius:8px;object-fit:cover}
+    .row .meta{font-size:12px;color:var(--muted)}
+
+    .tabs{display:flex;gap:6px;flex-wrap:wrap}
+    .tab{padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:#0b1322;cursor:pointer;font-size:12px}
+    .tab.active{background:linear-gradient(135deg,var(--brand),#5f89ff);border:none}
+
+    footer{margin:18px auto 24px;max-width:1080px;padding:0 12px;color:var(--muted);font-size:12px}
+
+    .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:#111826;border:1px solid var(--line);padding:10px 12px;border-radius:12px;z-index:40;box-shadow:0 12px 30px rgba(0,0,0,.4)}
+    dialog{border:1px solid var(--line);background:var(--card);border-radius:12px;color:var(--ink)}
+    dialog .dlg{padding:16px;min-width:280px}
+    dialog::backdrop{background:rgba(0,0,0,.5)}
+    input, select{width:100%;padding:10px;border-radius:12px;border:1px solid var(--line);background:#0b1322;color:var(--ink)}
+    .flex{display:flex;gap:8px;align-items:center}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="bar">
+        <div class="brand">🎧 Wrapped‑Style</div>
+        <span class="pill" id="statusPill">Signed out</span>
+        <div class="spacer"></div>
+        <button class="btn" id="settingsBtn">Settings</button>
+        <button class="btn btn-primary" id="loginBtn">Sign in with Spotify</button>
+        <button class="btn btn-ghost" id="logoutBtn" style="display:none">Sign out</button>
+      </div>
+    </header>
+
+    <main>
+      <!-- Profile / KPIs -->
+      <div class="grid">
+        <div class="card" id="profileCard" style="display:none">
+          <div class="head"><strong>Profile</strong><span class="muted">Your account basics</span></div>
+          <div class="pad flex">
+            <img id="userAvatar" alt="avatar" style="width:64px;height:64px;border-radius:12px;object-fit:cover;border:1px solid var(--line)"/>
+            <div>
+              <div id="userName" style="font-weight:800"></div>
+              <div id="userId" class="muted"></div>
+              <div id="userCountry" class="muted"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" id="kpiCard" style="display:none">
+          <div class="head"><strong>Quick stats</strong><span class="muted">Based on your top tracks</span></div>
+          <div class="pad kpis">
+            <div class="kpi"><div class="big" id="kpiTopArtist">—</div><div class="muted">Top artist</div></div>
+            <div class="kpi"><div class="big" id="kpiTopTrack">—</div><div class="muted">Top track</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="card" id="tabsCard" style="display:none;margin-top:12px">
+        <div class="head"><strong>Your year‑ish</strong><span class="muted">Change time range</span></div>
+        <div class="pad tabs">
+          <button class="tab active" data-range="short_term">Last 4 weeks</button>
+          <button class="tab" data-range="medium_term">Last 6 months</button>
+          <button class="tab" data-range="long_term">About a year</button>
+        </div>
+      </div>
+
+      <!-- Top artists / tracks -->
+      <div class="grid">
+        <div class="card" id="artistsCard" style="display:none">
+          <div class="head"><strong>Top artists</strong><span class="muted" id="artistsSub">—</span></div>
+          <div class="pad list" id="artistList"></div>
+        </div>
+        <div class="card" id="tracksCard" style="display:none">
+          <div class="head"><strong>Top tracks</strong><span class="muted" id="tracksSub">—</span></div>
+          <div class="pad list" id="trackList"></div>
+        </div>
+      </div>
+
+      <!-- Genres & Audio profile -->
+      <div class="grid" style="margin-top:12px">
+        <div class="card" id="genresCard" style="display:none">
+          <div class="head"><strong>Genre mix</strong><span class="muted">From your top artists</span></div>
+          <div class="pad">
+            <canvas id="genreChart" height="220"></canvas>
+          </div>
+        </div>
+        <div class="card" id="audioCard" style="display:none">
+          <div class="head"><strong>Audio profile</strong><span class="muted">Avg from your top tracks</span></div>
+          <div class="pad">
+            <canvas id="radarChart" height="220"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recently played (last ~50) -->
+      <div class="card" id="recentCard" style="display:none;margin-top:12px">
+        <div class="head"><strong>Recently played</strong><span class="muted">From the last ~50 plays</span></div>
+        <div class="pad list" id="recentList"></div>
+      </div>
+
+      <footer>
+        This is an unofficial, in‑browser viewer that uses the Spotify Web API. It can’t reproduce official Wrapped (e.g., true minutes‑listened over the year) without your privacy export. No server, no tracking—tokens are stored locally in your browser.
+      </footer>
+    </main>
+  </div>
+
+  <!-- Dialog: Settings -->
+  <dialog id="settingsDlg">
+    <div class="dlg">
+      <h3 style="margin:0 0 8px 0">Setup (one‑time)</h3>
+      <p class="muted" style="margin:0 0 10px 0">Create a Spotify app at <em>developer.spotify.com</em>, add your site’s full URL as a Redirect URI, then paste your Client ID here.</p>
+      <label>Client ID
+        <input id="clientIdInput" placeholder="your_spotify_client_id"/>
+      </label>
+      <div style="height:8px"></div>
+      <label>Redirect URI
+        <input id="redirectInput"/>
+      </label>
+      <div class="muted" style="margin-top:8px">Tip: If hosting at GitHub Pages <code>https://USER.github.io/REPO/</code>, set this to that exact URL (include trailing slash if your file is <code>index.html</code> at the root).</div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+        <button class="btn btn-ghost" id="closeSettings">Cancel</button>
+        <button class="btn btn-primary" id="saveSettings">Save</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" style="display:none"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script>
+    // ===== Config (stored in localStorage) =====
+    const LS = {
+      clientId: 'sw_client_id',
+      redirectUri: 'sw_redirect_uri',
+      codeVerifier: 'sw_code_verifier',
+      token: 'sw_token', // JSON: {access_token, refresh_token, expires_at}
+    };
+
+    const DEFAULT_REDIRECT = location.origin + location.pathname; // you can override in Settings
+
+    const SCOPES = [
+      'user-top-read',
+      'user-read-recently-played',
+      'user-read-email',
+      'user-read-private',
+    ];
+
+    const statusPill = document.getElementById('statusPill');
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const settingsBtn = document.getElementById('settingsBtn');
+    const toast = document.getElementById('toast');
+
+    const settingsDlg = document.getElementById('settingsDlg');
+    const clientIdInput = document.getElementById('clientIdInput');
+    const redirectInput = document.getElementById('redirectInput');
+    const saveSettings = document.getElementById('saveSettings');
+    const closeSettings = document.getElementById('closeSettings');
+
+    function showToast(msg){ toast.textContent = msg; toast.style.display = 'block'; clearTimeout(showToast._t); showToast._t = setTimeout(()=>toast.style.display='none',1600); }
+
+    function getClientId(){ return localStorage.getItem(LS.clientId) || ''; }
+    function getRedirectUri(){ return localStorage.getItem(LS.redirectUri) || DEFAULT_REDIRECT; }
+
+    // ===== OAuth PKCE helpers =====
+    const enc = new TextEncoder();
+    function base64url(ab){
+      return btoa(String.fromCharCode(...new Uint8Array(ab))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+    }
+    async function sha256(str){ return await crypto.subtle.digest('SHA-256', enc.encode(str)); }
+    function randStr(len=64){ const a = new Uint8Array(len); crypto.getRandomValues(a); return Array.from(a).map(b=>('0'+b.toString(16)).slice(-2)).join(''); }
+
+    async function beginLogin(){
+      const client_id = getClientId();
+      const redirect_uri = getRedirectUri();
+      if(!client_id){ settingsDlg.showModal(); showToast('Add your Client ID in Settings.'); return; }
+      const verifier = randStr(64);
+      const challenge = base64url(await sha256(verifier));
+      localStorage.setItem(LS.codeVerifier, verifier);
+      const url = new URL('https://accounts.spotify.com/authorize');
+      url.searchParams.set('response_type','code');
+      url.searchParams.set('client_id', client_id);
+      url.searchParams.set('redirect_uri', redirect_uri);
+      url.searchParams.set('code_challenge_method','S256');
+      url.searchParams.set('code_challenge', challenge);
+      url.searchParams.set('scope', SCOPES.join(' '));
+      location.assign(url.toString());
+    }
+
+    async function exchangeCodeForToken(code){
+      const client_id = getClientId();
+      const redirect_uri = getRedirectUri();
+      const verifier = localStorage.getItem(LS.codeVerifier);
+      const body = new URLSearchParams({
+        grant_type: 'authorization_code',
+        code, redirect_uri, client_id, code_verifier: verifier,
+      });
+      const res = await fetch('https://accounts.spotify.com/api/token', {
+        method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body
+      });
+      if(!res.ok) throw new Error('Token exchange failed');
+      const t = await res.json();
+      const now = Math.floor(Date.now()/1000);
+      const token = {
+        access_token: t.access_token,
+        refresh_token: t.refresh_token,
+        expires_at: now + (t.expires_in || 3600) - 30,
+      };
+      localStorage.setItem(LS.token, JSON.stringify(token));
+      return token;
+    }
+
+    async function refreshToken(){
+      const raw = localStorage.getItem(LS.token); if(!raw) return null;
+      const old = JSON.parse(raw); if(!old.refresh_token) return null;
+      const client_id = getClientId();
+      const body = new URLSearchParams({ grant_type: 'refresh_token', refresh_token: old.refresh_token, client_id });
+      const res = await fetch('https://accounts.spotify.com/api/token', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body });
+      if(!res.ok) { console.warn('refresh failed'); return null; }
+      const t = await res.json();
+      const now = Math.floor(Date.now()/1000);
+      const token = {
+        access_token: t.access_token,
+        refresh_token: t.refresh_token || old.refresh_token,
+        expires_at: now + (t.expires_in || 3600) - 30,
+      };
+      localStorage.setItem(LS.token, JSON.stringify(token));
+      return token;
+    }
+
+    async function getAccessToken(){
+      const raw = localStorage.getItem(LS.token);
+      if(raw){ const t = JSON.parse(raw); const now = Math.floor(Date.now()/1000); if(t.expires_at > now) return t.access_token; const rt = await refreshToken(); if(rt) return rt.access_token; }
+      // check for `code` in URL
+      const params = new URLSearchParams(location.search);
+      const code = params.get('code');
+      const error = params.get('error');
+      if(error){ showToast('Login canceled'); return null; }
+      if(code){
+        history.replaceState({}, '', location.pathname); // clean URL
+        const token = await exchangeCodeForToken(code);
+        return token.access_token;
+      }
+      return null;
+    }
+
+    function signOut(){
+      localStorage.removeItem(LS.token);
+      statusPill.textContent = 'Signed out';
+      loginBtn.style.display=''; logoutBtn.style.display='none';
+      document.querySelectorAll('#profileCard,#kpiCard,#tabsCard,#artistsCard,#tracksCard,#genresCard,#audioCard,#recentCard').forEach(el=>el.style.display='none');
+      showToast('Signed out');
+    }
+
+    // ===== Spotify Web API =====
+    async function api(path, params={}){
+      const at = await getAccessToken(); if(!at) throw new Error('Not authorized');
+      const url = new URL(`https://api.spotify.com/v1/${path}`);
+      Object.entries(params).forEach(([k,v])=> url.searchParams.set(k, v));
+      const res = await fetch(url, { headers: { Authorization: `Bearer ${at}` } });
+      if(res.status === 401){ await refreshToken(); return api(path, params); }
+      if(!res.ok) throw new Error('API error '+res.status);
+      return res.json();
+    }
+
+    // ===== Rendering =====
+    const profileCard = document.getElementById('profileCard');
+    const kpiCard = document.getElementById('kpiCard');
+    const tabsCard = document.getElementById('tabsCard');
+    const artistsCard = document.getElementById('artistsCard');
+    const tracksCard = document.getElementById('tracksCard');
+    const genresCard = document.getElementById('genresCard');
+    const audioCard = document.getElementById('audioCard');
+    const recentCard = document.getElementById('recentCard');
+
+    const userAvatar = document.getElementById('userAvatar');
+    const userName = document.getElementById('userName');
+    const userId = document.getElementById('userId');
+    const userCountry = document.getElementById('userCountry');
+
+    const artistList = document.getElementById('artistList');
+    const trackList = document.getElementById('trackList');
+    const recentList = document.getElementById('recentList');
+    const artistsSub = document.getElementById('artistsSub');
+    const tracksSub = document.getElementById('tracksSub');
+
+    let radarChart, genreChart;
+
+    function rowArtist(a, i){
+      const g = (a.genres||[]).slice(0,2).join(', ');
+      return `<div class="row"><img src="${(a.images?.[2]?.url||a.images?.[1]?.url||a.images?.[0]?.url||'')}" alt="${a.name}"/><div><div style="font-weight:700">${i+1}. ${a.name}</div><div class="meta">${g||'—'}</div></div><div class="meta">pop ${a.popularity}</div></div>`;
+    }
+    function rowTrack(t, i){
+      const img = t.album?.images?.[2]?.url||t.album?.images?.[1]?.url||t.album?.images?.[0]?.url||'';
+      const artists = (t.artists||[]).map(a=>a.name).join(', ');
+      return `<div class="row"><img src="${img}" alt="${t.name}"/><div><div style="font-weight:700">${i+1}. ${t.name}</div><div class="meta">${artists}</div></div><div class="meta">${(t.popularity??'')}</div></div>`;
+    }
+    function rowRecent(p){
+      const t = p.track; if(!t) return '';
+      const img = t.album?.images?.[2]?.url||t.album?.images?.[1]?.url||t.album?.images?.[0]?.url||'';
+      const artists = (t.artists||[]).map(a=>a.name).join(', ');
+      const when = new Date(p.played_at).toLocaleString();
+      return `<div class="row"><img src="${img}" alt="${t.name}"/><div><div style="font-weight:700">${t.name}</div><div class="meta">${artists}</div></div><div class="meta">${when}</div></div>`;
+    }
+
+    function topGenreCounts(artists){
+      const m = new Map();
+      for(const a of artists){ for(const g of (a.genres||[])){ m.set(g,(m.get(g)||0)+1); } }
+      return [...m.entries()].sort((a,b)=>b[1]-a[1]).slice(0,10);
+    }
+
+    function avgAudioFeatures(features){
+      const keys = ['danceability','energy','valence','acousticness','instrumentalness','liveness','speechiness'];
+      const out = {}; let n=0; for(const f of features){ if(!f) continue; n++; for(const k of keys){ out[k] = (out[k]||0) + (f[k]||0); } }
+      for(const k of Object.keys(out)){ out[k] /= (n||1); }
+      return out;
+    }
+
+    async function loadAll(range='short_term'){
+      // profile
+      const me = await api('me');
+      profileCard.style.display='';
+      userAvatar.src = me.images?.[0]?.url || 'https://placehold.co/128x128?text=%F0%9F%8E%A7';
+      userName.textContent = me.display_name || '(No name)';
+      userId.textContent = me.email ? `${me.email}` : me.id;
+      userCountry.textContent = me.country ? `Country: ${me.country}` : '';
+
+      // top artists & tracks
+      const [artists, tracks] = await Promise.all([
+        api('me/top/artists', { time_range: range, limit: 50 }),
+        api('me/top/tracks', { time_range: range, limit: 50 }),
+      ]);
+      artistsCard.style.display=''; tracksCard.style.display=''; kpiCard.style.display=''; tabsCard.style.display='';
+      artistsSub.textContent = `${artists.items.length} artists • ${range.replace('_',' ')}`;
+      tracksSub.textContent = `${tracks.items.length} tracks • ${range.replace('_',' ')}`;
+      artistList.innerHTML = artists.items.map((a,i)=>rowArtist(a,i)).join('');
+      trackList.innerHTML = tracks.items.map((t,i)=>rowTrack(t,i)).join('');
+
+      // KPIs
+      document.getElementById('kpiTopArtist').textContent = artists.items[0]?.name || '—';
+      document.getElementById('kpiTopTrack').textContent  = tracks.items[0]?.name  || '—';
+
+      // genres chart
+      const gcounts = topGenreCounts(artists.items);
+      const labels = gcounts.map(([g])=>g);
+      const data = gcounts.map(([,c])=>c);
+      genresCard.style.display='';
+      if(genreChart) genreChart.destroy();
+      genreChart = new Chart(document.getElementById('genreChart').getContext('2d'), {
+        type:'bar', data:{ labels, datasets:[{ label:'Top genres', data }] }, options:{ responsive:true, plugins:{legend:{display:false}} }
+      });
+
+      // audio features (avg)
+      const ids = tracks.items.slice(0,100).map(t=>t.id).join(',');
+      const feats = ids ? (await api('audio-features', { ids })).audio_features : [];
+      const avg = avgAudioFeatures(feats);
+      audioCard.style.display='';
+      if(radarChart) radarChart.destroy();
+      radarChart = new Chart(document.getElementById('radarChart').getContext('2d'), {
+        type:'radar', data:{ labels:['Danceability','Energy','Valence','Acoustic','Instrumental','Live','Speech'], datasets:[{ label:'Profile', data:[avg.danceability||0, avg.energy||0, avg.valence||0, avg.acousticness||0, avg.instrumentalness||0, avg.liveness||0, avg.speechiness||0] }] }, options:{ scales:{ r:{ suggestedMin:0, suggestedMax:1 } }, plugins:{legend:{display:false}} }
+      });
+
+      // recent plays
+      try { const recent = await api('me/player/recently-played', { limit: 50 }); recentCard.style.display=''; recentList.innerHTML = (recent.items||[]).map(rowRecent).join(''); } catch(e){ console.warn('recent failed', e); }
+    }
+
+    // ===== Tabs =====
+    document.querySelectorAll('.tab').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        try{ await loadAll(btn.dataset.range); }catch(e){ showToast(e.message||'Failed to load'); }
+      });
+    });
+
+    // ===== Settings dialog =====
+    settingsBtn.onclick = ()=>{
+      clientIdInput.value = getClientId();
+      redirectInput.value = getRedirectUri();
+      settingsDlg.showModal();
+    };
+    saveSettings.onclick = ()=>{
+      localStorage.setItem(LS.clientId, (clientIdInput.value||'').trim());
+      localStorage.setItem(LS.redirectUri, (redirectInput.value||'').trim()||DEFAULT_REDIRECT);
+      settingsDlg.close(); showToast('Saved settings');
+    };
+    closeSettings.onclick = ()=> settingsDlg.close();
+
+    // ===== Auth buttons =====
+    loginBtn.onclick = beginLogin;
+    logoutBtn.onclick = signOut;
+
+    // ===== Boot =====
+    (async function init(){
+      // Pre-fill redirect with current page URL by default
+      if(!localStorage.getItem(LS.redirectUri)) localStorage.setItem(LS.redirectUri, DEFAULT_REDIRECT);
+
+      const at = await getAccessToken();
+      if(at){
+        statusPill.textContent = 'Signed in';
+        loginBtn.style.display='none'; logoutBtn.style.display='';
+        try { await loadAll('short_term'); } catch(e){ showToast(e.message||'Load failed'); }
+      } else {
+        statusPill.textContent = 'Signed out';
+      }
+    })();
+  </script>
+</body>
+</html>
