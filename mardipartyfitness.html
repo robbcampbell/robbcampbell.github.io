@@ -1,317 +1,168 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Peer2Peer Whiteboard — single file</title>
-  <style>
-    :root{
-      --bg:#0f172a; --panel:#111827ee; --panel2:#1f2937; --text:#e5e7eb; --accent:#60a5fa; --danger:#ef4444;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{margin:0;background:linear-gradient(180deg,#0b1222,#0f172a 30%);color:var(--text);font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
-    .app{display:grid;grid-template-rows:auto 1fr; height:100%;}
-    header{display:flex;gap:.75rem;align-items:center;padding:.5rem .75rem;background:linear-gradient(180deg,rgba(17,24,39,.9),rgba(17,24,39,.7));backdrop-filter:blur(10px);position:sticky;top:0;z-index:10;border-bottom:1px solid rgba(148,163,184,.15)}
-    header h1{font-size:1rem;margin:0;font-weight:600;letter-spacing:.2px}
-    .toolbar{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-left:auto}
-    .btn{display:inline-flex;align-items:center;gap:.4rem;background:var(--panel2);border:1px solid rgba(148,163,184,.25);color:var(--text);padding:.35rem .6rem;border-radius:.6rem;cursor:pointer;transition:transform .04s ease, background .2s ease}
-    .btn:active{transform:translateY(1px)}
-    .btn.primary{background:linear-gradient(180deg,#2563eb,#1d4ed8);border-color:#1d4ed8}
-    .btn.danger{background:linear-gradient(180deg,#ef4444,#dc2626);border-color:#b91c1c}
-    .btn.light{background:rgba(255,255,255,.08)}
-    .btn input[type="color"], .btn input[type="range"]{background:transparent;border:none;cursor:pointer}
-    .btn input[type="range"]{width:120px}
-    .pill{padding:.25rem .55rem;border-radius:999px;border:1px solid rgba(148,163,184,.2);background:rgba(148,163,184,.08)}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Etch-A-Sketch</title>
 
-    .stage{position:relative; height:calc(100vh - 64px);}
-    canvas{position:absolute; inset:0; width:100%; height:100%; touch-action:none; background:radial-gradient(900px 900px at 10% -20%,rgba(96,165,250,.07),transparent 70%), radial-gradient(900px 900px at 90% 120%,rgba(59,130,246,.08),transparent 70%), #0b1222}
+<!-- ✅ Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3503638702287231"
+     crossorigin="anonymous"></script>
 
-    .net{display:grid; grid-template-columns:1fr 1fr; gap:.5rem; padding:.5rem; background:rgba(255,255,255,.04); border-top:1px solid rgba(148,163,184,.15)}
-    .net textarea{width:100%; min-height:100px; resize:vertical; padding:.5rem; border-radius:.5rem; background:#0b1222; color:var(--text); border:1px solid rgba(148,163,184,.25); font-family:ui-monospace,Menlo,Consolas,monospace}
-    .net .col{display:flex; flex-direction:column; gap:.5rem}
-    .net .row{display:flex; gap:.5rem; flex-wrap:wrap}
-    .status{opacity:.85}
-
-    .legend{display:flex;gap:.5rem;align-items:center}
-    .legend .swatch{width:16px;height:16px;border-radius:999px;border:1px solid rgba(255,255,255,.6)}
-  </style>
+<style>
+  body {
+    margin: 0;
+    background: #f0f0f0;
+    font-family: system-ui, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  header, footer {
+    width: 100%;
+    text-align: center;
+    margin: 5px 0;
+  }
+  .ad-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    min-height: 60px;
+    background: #fff;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+  }
+  #canvas {
+    background: #fff;
+    border: 6px solid #c00;
+    border-radius: 15px;
+    touch-action: none;
+  }
+  button {
+    margin: 10px;
+    padding: 10px 18px;
+    background: #c00;
+    border: none;
+    color: white;
+    font-size: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  button:hover {
+    background: #a00;
+  }
+</style>
 </head>
+
 <body>
-<div class="app">
-  <header>
-    <h1>🖍️ P2P Whiteboard (single-file, no servers)</h1>
-    <div class="legend"><span>Brush</span><span id="swatch" class="swatch" style="background:#ffffff"></span><span id="sizePill" class="pill">4 px</span></div>
-    <div class="toolbar">
-      <label class="btn light" title="Brush color">
-        <span>Color</span>
-        <input id="color" type="color" value="#ffffff" />
-      </label>
-      <label class="btn light" title="Brush size">
-        <span>Size</span>
-        <input id="size" type="range" min="1" max="32" value="4" />
-      </label>
-      <button id="eraser" class="btn" title="Eraser (hold E)">Eraser</button>
-      <button id="undo" class="btn" title="Undo (local)">Undo</button>
-      <button id="clear" class="btn danger" title="Clear board (broadcast)">Clear</button>
-      <button id="saveImg" class="btn primary" title="Download PNG">Save PNG</button>
-      <span class="pill">Room: <span id="roomLabel"></span></span>
-      <span class="pill status" id="netStatus">Peers: 0</span>
-    </div>
-  </header>
 
-  <div class="stage">
-    <canvas id="board"></canvas>
+<header>
+  <!-- Top ad -->
+  <div class="ad-container">
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-3503638702287231"
+         data-ad-slot="1234567890"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
   </div>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</header>
 
-  <!-- Manual signaling (copy-paste) for WebRTC, no external servers used -->
-  <section class="net">
-    <div class="col">
-      <strong>1) Host a session</strong>
-      <div class="row">
-        <button class="btn primary" id="btnHost">Create Offer</button>
-        <button class="btn" id="btnCopyOffer">Copy Offer</button>
-      </div>
-      <textarea id="offerOut" placeholder="Click 'Create Offer', then copy this blob and send it to friends (chat/text/email)."></textarea>
-      <div class="row">
-        <button class="btn" id="btnPasteAnswer">Paste Answer & Connect</button>
-      </div>
-      <textarea id="answerIn" placeholder="Paste your friend's Answer here and press 'Paste Answer & Connect'"></textarea>
-    </div>
-    <div class="col">
-      <strong>2) Join a session</strong>
-      <div class="row">
-        <button class="btn" id="btnPasteOffer">Paste Offer</button>
-        <button class="btn primary" id="btnCreateAnswer">Create Answer</button>
-        <button class="btn" id="btnCopyAnswer">Copy Answer</button>
-      </div>
-      <textarea id="offerIn" placeholder="Paste host's Offer here"></textarea>
-      <textarea id="answerOut" placeholder="Click 'Create Answer', then copy this blob and send it back to the host"></textarea>
-      <div class="row">
-        <button class="btn" id="btnDisconnect">Disconnect All</button>
-        <span class="status" id="iceNote">Note: No STUN/TURN used. Works best on same network or permissive NATs.</span>
-      </div>
-    </div>
-  </section>
-</div>
+<canvas id="canvas" width="400" height="400"></canvas>
+<button id="clearBtn">Clear</button>
+
+<footer>
+  <!-- Bottom ad -->
+  <div class="ad-container">
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-3503638702287231"
+         data-ad-slot="0987654321"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+  </div>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</footer>
 
 <script>
-(function(){
-  // ---------- Room + persistence ----------
-  const params = new URLSearchParams(location.search);
-  const roomId = (params.get('room') || location.hash.replace('#','') || (Math.random().toString(36).slice(2,10))).slice(0,12);
-  if (!location.search && !location.hash) { const url = new URL(location.href); url.searchParams.set('room', roomId); history.replaceState({},'',url); }
-  document.getElementById('roomLabel').textContent = roomId;
-  const STORAGE_KEY = 'p2p_whiteboard_' + roomId;
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+let drawing = false;
+let lastX = 0, lastY = 0;
 
-  // ---------- Canvas / drawing ----------
-  const canvas = document.getElementById('board');
-  const ctx = canvas.getContext('2d');
-  let brush = { color:'#ffffff', size:4, mode:'draw' };
-  const colorEl = document.getElementById('color');
-  const sizeEl = document.getElementById('size');
-  const eraserBtn = document.getElementById('eraser');
-  const undoBtn = document.getElementById('undo');
-  const clearBtn = document.getElementById('clear');
-  const saveImgBtn = document.getElementById('saveImg');
-  const swatchEl = document.getElementById('swatch');
-  const sizePill = document.getElementById('sizePill');
+// Load saved drawing if exists
+const saved = localStorage.getItem('etch_data');
+if (saved) {
+  const img = new Image();
+  img.onload = () => ctx.drawImage(img, 0, 0);
+  img.src = saved;
+}
 
-  function dprScale(){
-    const dpr = Math.max(1, Math.min(2, window.devicePixelRatio||1));
-    const {clientWidth:w, clientHeight:h} = canvas;
-    const was = [canvas.width, canvas.height];
-    canvas.width = w * dpr; canvas.height = h * dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
-    if (was[0] && was[1]) redrawAll();
-  }
-  new ResizeObserver(dprScale).observe(canvas);
-  window.addEventListener('load', dprScale); window.addEventListener('resize', dprScale);
+function startDraw(e) {
+  drawing = true;
+  const pos = getPos(e);
+  lastX = pos.x;
+  lastY = pos.y;
+}
+function endDraw() {
+  drawing = false;
+  localStorage.setItem('etch_data', canvas.toDataURL());
+}
+function draw(e) {
+  if (!drawing) return;
+  const pos = getPos(e);
+  ctx.beginPath();
+  ctx.moveTo(lastX, lastY);
+  ctx.lineTo(pos.x, pos.y);
+  ctx.strokeStyle = "#222";
+  ctx.lineWidth = 2;
+  ctx.lineCap = "round";
+  ctx.stroke();
+  lastX = pos.x;
+  lastY = pos.y;
+}
 
-  // Stroke log
-  const clientId = (document.cookie.match(/cid=([^;]+)/)||[])[1] || (()=>{ const v = (self.crypto&&crypto.randomUUID)?crypto.randomUUID():('cid-'+Math.random().toString(36).slice(2)); document.cookie = `cid=${v}; max-age=315360000; path=/`; return v; })();
-  let seq = 0;
-  const strokes = []; // {id, x1,y1,x2,y2,c,s,m,t,uid}
-  const strokeIds = new Set();
-
-  // Load from localStorage
-  try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');
-    if (saved && Array.isArray(saved.strokes)) {
-      for (const seg of saved.strokes){ if(!strokeIds.has(seg.id)){ strokeIds.add(seg.id); strokes.push(seg);} }
-    }
-  } catch(e){}
-
-  function persist(){
-    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify({strokes})); }catch(e){}
-  }
-
-  function drawSeg(seg){
-    const {x1,y1,x2,y2,c,s,m} = seg;
-    ctx.lineCap='round'; ctx.lineJoin='round';
-    ctx.strokeStyle = m==='erase' ? '#000000' : c;
-    ctx.globalCompositeOperation = m==='erase' ? 'destination-out' : 'source-over';
-    ctx.lineWidth = s; ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
-    ctx.globalCompositeOperation = 'source-over';
-  }
-  function redrawAll(){ ctx.clearRect(0,0,canvas.width,canvas.height); for(const s of strokes){ drawSeg(s); } }
-
-  // Input
-  let drawing=false, prev=null;
-  function pt(e){ if(e.touches && e.touches[0]) e = e.touches[0]; const r=canvas.getBoundingClientRect(); return {x:e.clientX-r.left,y:e.clientY-r.top}; }
-  canvas.addEventListener('pointerdown', e=>{ drawing=true; prev=pt(e); canvas.setPointerCapture(e.pointerId); });
-  canvas.addEventListener('pointermove', e=>{
-    if(!drawing) return; const p=pt(e);
-    const seg = { id: clientId+":"+(seq++), x1:prev.x,y1:prev.y,x2:p.x,y2:p.y,c:brush.color,s:brush.size,m:brush.mode,t:Date.now(), uid: clientId };
-    strokes.push(seg); strokeIds.add(seg.id); drawSeg(seg); broadcast({type:'stroke', data:seg}); prev=p; if((seq%10)===0) persist();
-  });
-  function endStroke(){ if(!drawing) return; drawing=false; prev=null; persist(); }
-  canvas.addEventListener('pointerup', endStroke); canvas.addEventListener('pointercancel', endStroke);
-
-  colorEl.addEventListener('input', e=>{ brush.color = e.target.value; swatchEl.style.background = brush.color; });
-  sizeEl.addEventListener('input', e=>{ brush.size = +e.target.value; sizePill.textContent = `${brush.size} px`; });
-  eraserBtn.addEventListener('click', ()=>{ brush.mode = (brush.mode==='erase'?'draw':'erase'); eraserBtn.classList.toggle('primary', brush.mode==='erase'); });
-  window.addEventListener('keydown', e=>{ if(e.key.toLowerCase()==='e'){ brush.mode='erase'; eraserBtn.classList.add('primary'); }});
-  window.addEventListener('keyup', e=>{ if(e.key.toLowerCase()==='e'){ brush.mode='draw'; eraserBtn.classList.remove('primary'); }});
-  undoBtn.addEventListener('click', ()=>{
-    for(let i=strokes.length-1;i>=0;i--){ if(strokes[i].uid===clientId){ const removed = strokes.splice(i,1)[0]; strokeIds.delete(removed.id); redrawAll(); broadcast({type:'undo', data:removed.id}); persist(); break; } }
-  });
-  clearBtn.addEventListener('click', ()=>{ if(!confirm('Clear the board for everyone?')) return; strokes.length=0; strokeIds.clear(); redrawAll(); persist(); broadcast({type:'clear'}); });
-  saveImgBtn.addEventListener('click', ()=>{ const a=document.createElement('a'); a.download=`whiteboard-${roomId}.png`; a.href=canvas.toDataURL('image/png'); a.click(); });
-
-  // Initial draw
-  redrawAll();
-
-  // ---------- P2P WebRTC (manual signaling, no external servers) ----------
-  const netStatus = document.getElementById('netStatus');
-  const offerOut = document.getElementById('offerOut');
-  const answerIn = document.getElementById('answerIn');
-  const offerIn = document.getElementById('offerIn');
-  const answerOut = document.getElementById('answerOut');
-  const btnHost = document.getElementById('btnHost');
-  const btnCopyOffer = document.getElementById('btnCopyOffer');
-  const btnPasteAnswer = document.getElementById('btnPasteAnswer');
-  const btnPasteOffer = document.getElementById('btnPasteOffer');
-  const btnCreateAnswer = document.getElementById('btnCreateAnswer');
-  const btnCopyAnswer = document.getElementById('btnCopyAnswer');
-  const btnDisconnect = document.getElementById('btnDisconnect');
-
-  const peers = new Set();
-  function updatePeerCount(){ netStatus.textContent = 'Peers: ' + peers.size + ' (same Wi‑Fi works best)'; }
-
-  function waitIceComplete(pc){
-    return new Promise(resolve=>{
-      if (pc.iceGatheringState === 'complete') return resolve();
-      const done = ()=>{ if (pc.iceGatheringState === 'complete') { pc.removeEventListener('icegatheringstatechange', done); resolve(); } };
-      pc.addEventListener('icegatheringstatechange', done);
-      // safety timeout
-      setTimeout(()=>resolve(), 1500);
-    });
-  }
-
-  function newHostPeer(){
-    const pc = new RTCPeerConnection({
-      iceServers: [
-        { urls: [
-          'stun:stun.l.google.com:19302',
-          'stun:stun1.l.google.com:19302',
-          'stun:stun2.l.google.com:19302',
-          'stun:stun3.l.google.com:19302',
-          'stun:stun4.l.google.com:19302',
-          'stun:stun.openrelay.metered.ca:80'
-        ]}
-      ],
-      iceTransportPolicy: 'all'
-    }); // no STUN/TURN per requirement
-    const dc = pc.createDataChannel('board', {ordered:true});
-
-    const peer = {pc, dc};
-    dc.onopen = ()=>{ peers.add(peer); updatePeerCount(); dc.send(JSON.stringify({type:'hello', roomId, clientId})); dc.send(JSON.stringify({type:'snapshot', strokes})); };
-    dc.onclose = ()=>{ peers.delete(peer); updatePeerCount(); };
-    dc.onmessage = onMessage;
-    return peer;
-  }
-
-  function newJoinPeer(){
-    const pc = new RTCPeerConnection({
-      iceServers: [
-        { urls: [
-          'stun:stun.l.google.com:19302',
-          'stun:stun1.l.google.com:19302',
-          'stun:stun2.l.google.com:19302',
-          'stun:stun3.l.google.com:19302',
-          'stun:stun4.l.google.com:19302',
-          'stun:stun.openrelay.metered.ca:80'
-        ]}
-      ],
-      iceTransportPolicy: 'all'
-    });
-    const peer = {pc, dc:null};
-    pc.ondatachannel = (ev)=>{
-      peer.dc = ev.channel;
-      peer.dc.onopen = ()=>{ peers.add(peer); updatePeerCount(); peer.dc.send(JSON.stringify({type:'hello', roomId, clientId})); peer.dc.send(JSON.stringify({type:'snapshot', strokes})); };
-      peer.dc.onclose = ()=>{ peers.delete(peer); updatePeerCount(); };
-      peer.dc.onmessage = onMessage;
+function getPos(e) {
+  if (e.touches && e.touches[0]) {
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: e.touches[0].clientX - rect.left,
+      y: e.touches[0].clientY - rect.top
     };
-    return peer;
+  } else {
+    return { x: e.offsetX, y: e.offsetY };
   }
+}
 
-  function onMessage(ev){
-    try{
-      const msg = JSON.parse(ev.data);
-      if(msg.type==='stroke'){
-        const seg = msg.data; if(!strokeIds.has(seg.id)){ strokeIds.add(seg.id); strokes.push(seg); drawSeg(seg); persist(); }
-      } else if(msg.type==='undo'){
-        const id = msg.data; const idx = strokes.findIndex(s=>s.id===id); if(idx>-1){ strokes.splice(idx,1); strokeIds.delete(id); redrawAll(); persist(); }
-      } else if(msg.type==='clear'){
-        strokes.length=0; strokeIds.clear(); redrawAll(); persist();
-      } else if(msg.type==='snapshot'){
-        const incoming = msg.strokes||[];
-        let added = 0; for(const s of incoming){ if(!strokeIds.has(s.id)){ strokeIds.add(s.id); strokes.push(s); added++; } }
-        if(added) { redrawAll(); persist(); }
-      }
-    }catch(e){ console.warn('bad msg',e); }
-  }
+canvas.addEventListener('mousedown', startDraw);
+canvas.addEventListener('mouseup', endDraw);
+canvas.addEventListener('mousemove', draw);
+canvas.addEventListener('touchstart', startDraw);
+canvas.addEventListener('touchend', endDraw);
+canvas.addEventListener('touchmove', draw);
 
-  function broadcast(obj){ const data = JSON.stringify(obj); peers.forEach(p=>{ if(p.dc && p.dc.readyState==='open') p.dc.send(data); }); }
+document.getElementById('clearBtn').addEventListener('click', () => {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  localStorage.removeItem('etch_data');
+});
 
-  // Host flow
-  let hostPeer = null;
-  btnHost.onclick = async ()=>{
-    hostPeer = newHostPeer();
-    await hostPeer.pc.setLocalDescription(await hostPeer.pc.createOffer({offerToReceiveAudio:false, offerToReceiveVideo:false}));
-    await waitIceComplete(hostPeer.pc);
-    offerOut.value = btoa(JSON.stringify(hostPeer.pc.localDescription));
-  };
-  btnCopyOffer.onclick = async ()=>{ if(!offerOut.value) return alert('Create Offer first.'); await navigator.clipboard.writeText(offerOut.value.trim()); alert('Offer copied'); };
-  btnPasteAnswer.onclick = async ()=>{
-    const blob = (answerIn.value||'').trim(); if(!blob) return alert('Paste an Answer first.');
-    try{ const desc = JSON.parse(atob(blob)); await hostPeer.pc.setRemoteDescription(desc); }catch(e){ alert('Invalid answer blob'); }
-  };
-
-  // Join flow
-  let joinPeer = null;
-  btnPasteOffer.onclick = ()=>{ offerIn.value = (offerIn.value||'').trim() || prompt('Paste Offer here:') || ''; };
-  btnCreateAnswer.onclick = async ()=>{
-    const blob = (offerIn.value||'').trim(); if(!blob) return alert('Paste the host\'s Offer first.');
-    joinPeer = newJoinPeer();
-    try{
-      const remote = JSON.parse(atob(blob));
-      await joinPeer.pc.setRemoteDescription(remote);
-      await joinPeer.pc.setLocalDescription(await joinPeer.pc.createAnswer());
-      await waitIceComplete(joinPeer.pc);
-      answerOut.value = btoa(JSON.stringify(joinPeer.pc.localDescription));
-    }catch(e){ alert('Invalid offer blob'); }
-  };
-  btnCopyAnswer.onclick = async ()=>{ if(!answerOut.value) return alert('Create Answer first.'); await navigator.clipboard.writeText(answerOut.value.trim()); alert('Answer copied'); };
-
-  btnDisconnect.onclick = ()=>{ peers.forEach(p=>{ try{p.dc&&p.dc.close();}catch{} try{p.pc.close();}catch{} }); peers.clear(); updatePeerCount(); };
-
-  // Show hint for mobile
-  updatePeerCount();
-  if (/Mobi|Android/i.test(navigator.userAgent)) {
-    document.getElementById('iceNote').textContent = 'Tip: Put both phones on the SAME Wi‑Fi (or hotspot). Cellular networks often block direct P2P connections without a relay.';
-  }
-})();
+// Optional: Arrow key support
+document.addEventListener('keydown', e => {
+  const move = 5;
+  ctx.beginPath();
+  ctx.moveTo(lastX, lastY);
+  if (e.key === 'ArrowUp') lastY -= move;
+  if (e.key === 'ArrowDown') lastY += move;
+  if (e.key === 'ArrowLeft') lastX -= move;
+  if (e.key === 'ArrowRight') lastX += move;
+  ctx.lineTo(lastX, lastY);
+  ctx.strokeStyle = "#222";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  localStorage.setItem('etch_data', canvas.toDataURL());
+});
 </script>
+
 </body>
 </html>
