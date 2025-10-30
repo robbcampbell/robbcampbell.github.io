@@ -1,152 +1,313 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Etch-A-Sketch</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Wooly Willy (Magnetic Hair) – Play</title>
 
-<!-- ✅ Google AdSense Auto Ads -->
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3503638702287231"
-     crossorigin="anonymous"></script>
+<!-- ✅ AdSense Auto Ads -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3503638702287231" crossorigin="anonymous"></script>
 
 <style>
-  body {
-    margin: 0;
-    font-family: system-ui, sans-serif;
-    background: #f0f0f0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  :root {
+    --red:#c00;
+    --bg:#f4f4f6;
+    --ink:#222;
   }
-  h1 {
-    margin: 10px 0;
-    color: #c00;
-    text-shadow: 1px 1px #fff;
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    display:flex; flex-direction:column; align-items:center; min-height:100svh;
   }
-  #canvas {
-    background: #fff;
-    border: 6px solid #c00;
-    border-radius: 15px;
-    touch-action: none;
+  header{padding:8px 12px; text-align:center}
+  h1{margin:.2rem 0 .4rem; color:var(--red); letter-spacing:.5px; font-size:1.25rem}
+  .card{
+    background:#fff; border:6px solid var(--red); border-radius:18px;
+    box-shadow:0 6px 18px rgba(0,0,0,.08);
+    overflow:hidden; width:min(92vw,520px);
   }
-  button {
-    margin: 10px;
-    padding: 10px 18px;
-    background: #c00;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 1rem;
-    cursor: pointer;
+  .topbar{
+    display:flex; gap:8px; flex-wrap:wrap; align-items:center; justify-content:space-between;
+    padding:10px 12px; background:#fff; border-bottom:1px solid #eee;
   }
-  button:hover {
-    background: #a00;
+  .controls{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+  button{
+    background:var(--red); color:#fff; border:none; border-radius:10px;
+    padding:8px 12px; font-size:.95rem; cursor:pointer;
   }
-  footer {
-    font-size: 0.8rem;
-    opacity: 0.6;
-    margin-bottom: 10px;
+  button.secondary{background:#444}
+  button:active{transform:translateY(1px)}
+  label{font-size:.9rem; color:#333}
+  input[type=range]{width:130px}
+  .stage{
+    position:relative; background:#fefefe;
+    display:block; width:100%; aspect-ratio:1/1;
+    touch-action:none; /* important for mobile drawing */
+  }
+  svg.face{
+    position:absolute; inset:0; width:100%; height:100%; pointer-events:none;
+  }
+  canvas#filings{position:absolute; inset:0; width:100%; height:100%}
+  footer{
+    width:100%; text-align:center; font-size:.8rem; color:#666; padding:10px 0 16px;
   }
 </style>
 </head>
-
 <body>
-  <h1>Etch-A-Sketch</h1>
-  <canvas id="canvas" width="400" height="400"></canvas>
-  <button id="clearBtn">Clear</button>
-  <footer>Draw with your finger or mouse. Shake to clear on mobile!</footer>
+  <header>
+    <h1>Wooly Willy – Magnetic Hair</h1>
+    <div style="opacity:.7;font-size:.9rem">Drag the iron filings to give Willy a beard, hair, eyebrows & more!</div>
+  </header>
+
+  <div class="card" id="app">
+    <div class="topbar">
+      <div class="controls">
+        <button id="clearBtn" title="Clear filings">Clear</button>
+        <button id="reseedBtn" class="secondary" title="Reseed filings">Reseed</button>
+      </div>
+      <div class="controls">
+        <label for="strength">Magnet</label>
+        <input id="strength" type="range" min="0" max="100" value="65" />
+      </div>
+    </div>
+
+    <!-- Playfield -->
+    <div class="stage" id="stage">
+      <!-- Face (inline SVG so we don't need external files) -->
+      <svg class="face" viewBox="0 0 1000 1000" aria-hidden="true">
+        <!-- Head -->
+        <ellipse cx="500" cy="520" rx="360" ry="430" fill="#ffe6cc" stroke="#e2c2a1" stroke-width="8"/>
+        <!-- Ears -->
+        <ellipse cx="160" cy="520" rx="55" ry="85" fill="#ffe6cc" stroke="#e2c2a1" stroke-width="6"/>
+        <ellipse cx="840" cy="520" rx="55" ry="85" fill="#ffe6cc" stroke="#e2c2a1" stroke-width="6"/>
+        <!-- Eyes -->
+        <ellipse cx="385" cy="470" rx="65" ry="45" fill="#fff" stroke="#ccc" stroke-width="6"/>
+        <ellipse cx="615" cy="470" rx="65" ry="45" fill="#fff" stroke="#ccc" stroke-width="6"/>
+        <circle cx="405" cy="475" r="18" fill="#222"/>
+        <circle cx="635" cy="475" r="18" fill="#222"/>
+        <!-- Nose -->
+        <path d="M500 480 C520 540,480 600,500 630" fill="none" stroke="#cc9a7a" stroke-width="10" stroke-linecap="round"/>
+        <!-- Mouth -->
+        <path d="M380 690 Q500 760 620 690" fill="none" stroke="#cc4d4d" stroke-width="14" stroke-linecap="round"/>
+        <!-- Light hair guides (so users know where to place filings) -->
+        <path d="M240 300 C340 160,660 160,760 300" fill="none" stroke="#eee" stroke-width="24" stroke-linecap="round"/>
+        <path d="M320 740 C420 820,580 820,680 740" fill="none" stroke="#eee" stroke-width="24" stroke-linecap="round"/>
+        <path d="M320 420 C340 400,430 400,450 420" fill="none" stroke="#eee" stroke-width="18" stroke-linecap="round"/>
+        <path d="M550 420 C570 400,660 400,680 420" fill="none" stroke="#eee" stroke-width="18" stroke-linecap="round"/>
+      </svg>
+
+      <!-- Iron filings -->
+      <canvas id="filings" width="1000" height="1000"></canvas>
+    </div>
+  </div>
+
+  <footer>Tip: Increase the magnet, then draw with your finger. Shake to clear on mobile.</footer>
 
 <script>
-const canvas = document.getElementById('canvas');
+/* ---------- Config ---------- */
+const CANVAS_SIZE = 1000;       // internal drawing resolution
+const PARTICLES_DEFAULT = 1200; // number of filings
+const SAVE_KEY = 'wooly_willy_particles_v1';
+const SAVE_EVERY_MS = 1500;
+
+/* ---------- Setup ---------- */
+const stage = document.getElementById('stage');
+const canvas = document.getElementById('filings');
 const ctx = canvas.getContext('2d');
-let drawing = false;
-let lastX = 0, lastY = 0;
+const strengthInput = document.getElementById('strength');
+const clearBtn = document.getElementById('clearBtn');
+const reseedBtn = document.getElementById('reseedBtn');
 
-// Load saved drawing
-const saved = localStorage.getItem('etch_data');
-if (saved) {
-  const img = new Image();
-  img.onload = () => ctx.drawImage(img, 0, 0);
-  img.src = saved;
+let particles = [];
+let pointer = { x: CANVAS_SIZE/2, y: CANVAS_SIZE/2, active: false };
+let magnetStrength = mapRange(+strengthInput.value, 0, 100, 0, 1.2);
+let lastSave = 0;
+let animId;
+
+/* ---------- Utilities ---------- */
+function mapRange(v,inMin,inMax,outMin,outMax){ return outMin + ( (v-inMin)*(outMax-outMin) )/(inMax-inMin); }
+function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
+function rand(min,max){ return Math.random()*(max-min)+min; }
+
+/* ---------- Persistence ---------- */
+function saveState(){
+  try {
+    const compact = particles.map(p => [p.x, p.y]); // compact form
+    localStorage.setItem(SAVE_KEY, JSON.stringify(compact));
+  } catch(e){}
+}
+function loadState(){
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if(!raw) return null;
+    const arr = JSON.parse(raw);
+    return arr.map(([x,y]) => ({x,y,vx:0,vy:0}));
+  } catch(e){ return null; }
 }
 
-function getPos(e) {
-  if (e.touches && e.touches[0]) {
-    const rect = canvas.getBoundingClientRect();
-    return {
-      x: e.touches[0].clientX - rect.left,
-      y: e.touches[0].clientY - rect.top
-    };
+/* ---------- Particles ---------- */
+function seedParticles(n=PARTICLES_DEFAULT){
+  particles = [];
+  // Start filings at the bottom “tray”
+  for(let i=0;i<n;i++){
+    particles.push({
+      x: rand(150, 850),
+      y: rand(820, 960),
+      vx: 0,
+      vy: 0
+    });
   }
-  return { x: e.offsetX, y: e.offsetY };
 }
 
-function startDraw(e) {
-  drawing = true;
-  const pos = getPos(e);
-  lastX = pos.x;
-  lastY = pos.y;
-}
-function endDraw() {
-  drawing = false;
-  localStorage.setItem('etch_data', canvas.toDataURL());
-}
-function draw(e) {
-  if (!drawing) return;
-  const pos = getPos(e);
-  ctx.beginPath();
-  ctx.moveTo(lastX, lastY);
-  ctx.lineTo(pos.x, pos.y);
-  ctx.strokeStyle = "#222";
-  ctx.lineWidth = 2;
-  ctx.lineCap = "round";
-  ctx.stroke();
-  lastX = pos.x;
-  lastY = pos.y;
+function drawParticles(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle = '#222';
+  for(const p of particles){
+    // render as tiny hair shards
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 2.1, 0, Math.PI*2);
+    ctx.fill();
+  }
 }
 
-canvas.addEventListener('mousedown', startDraw);
-canvas.addEventListener('mouseup', endDraw);
-canvas.addEventListener('mousemove', draw);
-canvas.addEventListener('touchstart', startDraw);
-canvas.addEventListener('touchend', endDraw);
-canvas.addEventListener('touchmove', draw);
+function step(dt){
+  const attract = magnetStrength * 2200; // base pull
+  const friction = 0.90;
+  const maxSpeed = 11;
 
-// Clear button
-document.getElementById('clearBtn').addEventListener('click', () => {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  localStorage.removeItem('etch_data');
+  for(const p of particles){
+    // attraction when active
+    if(pointer.active){
+      const dx = pointer.x - p.x;
+      const dy = pointer.y - p.y;
+      const dist2 = dx*dx + dy*dy + 0.0001;
+      // Inverse-square-ish pull
+      const force = attract / dist2;
+      p.vx += clamp(dx, -40, 40) * force * dt;
+      p.vy += clamp(dy, -40, 40) * force * dt;
+    } else {
+      // gentle settle gravity towards bottom tray
+      p.vy += 0.12 * dt;
+    }
+
+    // friction
+    p.vx *= friction;
+    p.vy *= friction;
+
+    // speed cap
+    const sp = Math.hypot(p.vx, p.vy);
+    if (sp > maxSpeed){
+      p.vx = (p.vx / sp) * maxSpeed;
+      p.vy = (p.vy / sp) * maxSpeed;
+    }
+
+    // integrate
+    p.x += p.vx;
+    p.y += p.vy;
+
+    // bounds
+    if(p.x < 20){ p.x = 20; p.vx *= -0.3; }
+    if(p.x > CANVAS_SIZE-20){ p.x = CANVAS_SIZE-20; p.vx *= -0.3; }
+    if(p.y < 20){ p.y = 20; p.vy *= -0.3; }
+    if(p.y > CANVAS_SIZE-20){ p.y = CANVAS_SIZE-20; p.vy *= -0.3; }
+  }
+}
+
+/* ---------- Input (pointer & touch) ---------- */
+function stageToCanvas(clientX, clientY){
+  const rect = stage.getBoundingClientRect();
+  const x = (clientX - rect.left) * (CANVAS_SIZE / rect.width);
+  const y = (clientY - rect.top)  * (CANVAS_SIZE / rect.height);
+  return {x,y};
+}
+
+stage.addEventListener('pointerdown', e=>{
+  pointer.active = true;
+  const p = stageToCanvas(e.clientX, e.clientY);
+  pointer.x = p.x; pointer.y = p.y;
+});
+stage.addEventListener('pointermove', e=>{
+  if(!pointer.active) return;
+  const p = stageToCanvas(e.clientX, e.clientY);
+  pointer.x = p.x; pointer.y = p.y;
+});
+window.addEventListener('pointerup', ()=>{ pointer.active = false; });
+
+stage.addEventListener('touchstart', e=>{
+  pointer.active = true;
+  const t = e.touches[0];
+  const p = stageToCanvas(t.clientX, t.clientY);
+  pointer.x = p.x; pointer.y = p.y;
+},{passive:true});
+stage.addEventListener('touchmove', e=>{
+  const t = e.touches[0];
+  const p = stageToCanvas(t.clientX, t.clientY);
+  pointer.x = p.x; pointer.y = p.y;
+},{passive:true});
+stage.addEventListener('touchend', ()=>{ pointer.active = false; });
+
+/* ---------- Controls ---------- */
+strengthInput.addEventListener('input', ()=>{
+  magnetStrength = mapRange(+strengthInput.value, 0, 100, 0, 1.2);
 });
 
-// Optional shake-to-clear on mobile
-if (window.DeviceMotionEvent) {
+clearBtn.addEventListener('click', ()=>{
+  // send filings back to tray
+  for(const p of particles){
+    p.vx = 0; p.vy = 0;
+    p.x = rand(150, 850);
+    p.y = rand(820, 960);
+  }
+  saveState();
+});
+
+reseedBtn.addEventListener('click', ()=>{
+  seedParticles();
+  saveState();
+});
+
+/* ---------- Shake-to-clear ---------- */
+if (window.DeviceMotionEvent){
   let lastShake = 0;
-  window.addEventListener('devicemotion', e => {
-    const accel = e.accelerationIncludingGravity;
-    const strength = Math.abs(accel.x) + Math.abs(accel.y) + Math.abs(accel.z);
-    if (strength > 40 && Date.now() - lastShake > 1000) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      localStorage.removeItem('etch_data');
+  window.addEventListener('devicemotion', e=>{
+    const a = e.accelerationIncludingGravity || {};
+    const strength = Math.abs(a.x||0)+Math.abs(a.y||0)+Math.abs(a.z||0);
+    if (strength > 40 && Date.now()-lastShake>1200){
+      clearBtn.click();
       lastShake = Date.now();
     }
   });
 }
 
-// Arrow-key drawing for desktop
-document.addEventListener('keydown', e => {
-  const move = 5;
-  ctx.beginPath();
-  ctx.moveTo(lastX, lastY);
-  if (e.key === 'ArrowUp') lastY -= move;
-  if (e.key === 'ArrowDown') lastY += move;
-  if (e.key === 'ArrowLeft') lastX -= move;
-  if (e.key === 'ArrowRight') lastX += move;
-  ctx.lineTo(lastX, lastY);
-  ctx.strokeStyle = "#222";
-  ctx.lineWidth = 2;
-  ctx.stroke();
-  localStorage.setItem('etch_data', canvas.toDataURL());
-});
+/* ---------- Animation Loop ---------- */
+let last = performance.now();
+function loop(now){
+  const dt = Math.min(32, now - last) / 16.67; // normalize to ~60fps steps
+  last = now;
+  step(dt);
+  drawParticles();
+
+  // save occasionally
+  if (now - lastSave > SAVE_EVERY_MS){
+    saveState();
+    lastSave = now;
+  }
+  animId = requestAnimationFrame(loop);
+}
+
+/* ---------- Init ---------- */
+(function init(){
+  // Restore or seed
+  const loaded = loadState();
+  if (loaded && loaded.length){
+    particles = loaded;
+  } else {
+    seedParticles();
+  }
+  drawParticles();
+  animId = requestAnimationFrame(loop);
+})();
 </script>
 </body>
 </html>
