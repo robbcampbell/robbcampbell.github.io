@@ -127,8 +127,8 @@
   new ResizeObserver(dprScale).observe(canvas);
   window.addEventListener('load', dprScale); window.addEventListener('resize', dprScale);
 
-  // Stroke log (CRDT-ish append-only). Each segment gets id = clientId:seq
-  const clientId = (document.cookie.match(/cid=([^;]+)/)||[])[1] || (()=>{ const v = crypto.randomUUID(); document.cookie = `cid=${v}; max-age=315360000; path=/`; return v; })();
+  // Stroke log
+  const clientId = (document.cookie.match(/cid=([^;]+)/)||[])[1] || (()=>{ const v = (self.crypto&&crypto.randomUUID)?crypto.randomUUID():('cid-'+Math.random().toString(36).slice(2)); document.cookie = `cid=${v}; max-age=315360000; path=/`; return v; })();
   let seq = 0;
   const strokes = []; // {id, x1,y1,x2,y2,c,s,m,t,uid}
   const strokeIds = new Set();
@@ -142,7 +142,7 @@
   } catch(e){}
 
   function persist(){
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({strokes}));
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify({strokes})); }catch(e){}
   }
 
   function drawSeg(seg){
@@ -196,21 +196,63 @@
   const btnDisconnect = document.getElementById('btnDisconnect');
 
   const peers = new Set();
-  function updatePeerCount(){ netStatus.textContent = 'Peers: ' + peers.size; }
+  function updatePeerCount(){ netStatus.textContent = 'Peers: ' + peers.size + ' (same Wi‑Fi works best)'; }
 
-  function newPeer(){
-    // No ICE servers -> host candidates only (works best on LAN)
-    const pc = new RTCPeerConnection({iceServers:[]});
+  function waitIceComplete(pc){
+    return new Promise(resolve=>{
+      if (pc.iceGatheringState === 'complete') return resolve();
+      const done = ()=>{ if (pc.iceGatheringState === 'complete') { pc.removeEventListener('icegatheringstatechange', done); resolve(); } };
+      pc.addEventListener('icegatheringstatechange', done);
+      // safety timeout
+      setTimeout(()=>resolve(), 1500);
+    });
+  }
+
+  function newHostPeer(){
+    const pc = new RTCPeerConnection({
+      iceServers: [
+        { urls: [
+          'stun:stun.l.google.com:19302',
+          'stun:stun1.l.google.com:19302',
+          'stun:stun2.l.google.com:19302',
+          'stun:stun3.l.google.com:19302',
+          'stun:stun4.l.google.com:19302',
+          'stun:stun.openrelay.metered.ca:80'
+        ]}
+      ],
+      iceTransportPolicy: 'all'
+    }); // no STUN/TURN per requirement
     const dc = pc.createDataChannel('board', {ordered:true});
 
-    dc.onopen = ()=>{ peers.add({pc,dc}); updatePeerCount(); // send snapshot
-      dc.send(JSON.stringify({type:'hello', roomId, clientId}));
-      dc.send(JSON.stringify({type:'snapshot', strokes})); };
-    dc.onclose = ()=>{ peers.forEach(p=>{if(p.dc===dc){peers.delete(p);}}); updatePeerCount(); };
+    const peer = {pc, dc};
+    dc.onopen = ()=>{ peers.add(peer); updatePeerCount(); dc.send(JSON.stringify({type:'hello', roomId, clientId})); dc.send(JSON.stringify({type:'snapshot', strokes})); };
+    dc.onclose = ()=>{ peers.delete(peer); updatePeerCount(); };
     dc.onmessage = onMessage;
+    return peer;
+  }
 
-    pc.onicecandidate = (e)=>{ if(e.candidate){ offerOut.value = btoa(JSON.stringify(pc.localDescription)); } };
-    return {pc, dc};
+  function newJoinPeer(){
+    const pc = new RTCPeerConnection({
+      iceServers: [
+        { urls: [
+          'stun:stun.l.google.com:19302',
+          'stun:stun1.l.google.com:19302',
+          'stun:stun2.l.google.com:19302',
+          'stun:stun3.l.google.com:19302',
+          'stun:stun4.l.google.com:19302',
+          'stun:stun.openrelay.metered.ca:80'
+        ]}
+      ],
+      iceTransportPolicy: 'all'
+    });
+    const peer = {pc, dc:null};
+    pc.ondatachannel = (ev)=>{
+      peer.dc = ev.channel;
+      peer.dc.onopen = ()=>{ peers.add(peer); updatePeerCount(); peer.dc.send(JSON.stringify({type:'hello', roomId, clientId})); peer.dc.send(JSON.stringify({type:'snapshot', strokes})); };
+      peer.dc.onclose = ()=>{ peers.delete(peer); updatePeerCount(); };
+      peer.dc.onmessage = onMessage;
+    };
+    return peer;
   }
 
   function onMessage(ev){
@@ -223,53 +265,52 @@
       } else if(msg.type==='clear'){
         strokes.length=0; strokeIds.clear(); redrawAll(); persist();
       } else if(msg.type==='snapshot'){
-        // merge missing
         const incoming = msg.strokes||[];
-        let added = 0;
-        for(const s of incoming){ if(!strokeIds.has(s.id)){ strokeIds.add(s.id); strokes.push(s); added++; } }
+        let added = 0; for(const s of incoming){ if(!strokeIds.has(s.id)){ strokeIds.add(s.id); strokes.push(s); added++; } }
         if(added) { redrawAll(); persist(); }
       }
     }catch(e){ console.warn('bad msg',e); }
   }
 
-  function broadcast(obj){ const data = JSON.stringify(obj); peers.forEach(p=>{ if(p.dc.readyState==='open') p.dc.send(data); }); }
+  function broadcast(obj){ const data = JSON.stringify(obj); peers.forEach(p=>{ if(p.dc && p.dc.readyState==='open') p.dc.send(data); }); }
 
   // Host flow
   let hostPeer = null;
   btnHost.onclick = async ()=>{
-    hostPeer = newPeer();
+    hostPeer = newHostPeer();
     await hostPeer.pc.setLocalDescription(await hostPeer.pc.createOffer({offerToReceiveAudio:false, offerToReceiveVideo:false}));
-    // Wait a bit for ICE; still update field immediately
+    await waitIceComplete(hostPeer.pc);
     offerOut.value = btoa(JSON.stringify(hostPeer.pc.localDescription));
   };
-  btnCopyOffer.onclick = async ()=>{ await navigator.clipboard.writeText(offerOut.value.trim()); };
+  btnCopyOffer.onclick = async ()=>{ if(!offerOut.value) return alert('Create Offer first.'); await navigator.clipboard.writeText(offerOut.value.trim()); alert('Offer copied'); };
   btnPasteAnswer.onclick = async ()=>{
-    const blob = answerIn.value.trim(); if(!blob) return alert('Paste an Answer first.');
-    try{
-      const desc = JSON.parse(atob(blob));
-      await hostPeer.pc.setRemoteDescription(desc);
-    }catch(e){ alert('Invalid answer blob'); }
+    const blob = (answerIn.value||'').trim(); if(!blob) return alert('Paste an Answer first.');
+    try{ const desc = JSON.parse(atob(blob)); await hostPeer.pc.setRemoteDescription(desc); }catch(e){ alert('Invalid answer blob'); }
   };
 
   // Join flow
-  let joinPc = null;
+  let joinPeer = null;
   btnPasteOffer.onclick = ()=>{ offerIn.value = (offerIn.value||'').trim() || prompt('Paste Offer here:') || ''; };
   btnCreateAnswer.onclick = async ()=>{
-    const blob = offerIn.value.trim(); if(!blob) return alert('Paste the host\'s Offer first.');
-    joinPc = new RTCPeerConnection({iceServers:[]});
-    joinPc.ondatachannel = (ev)=>{ const dc = ev.channel; const peer={pc:joinPc,dc}; dc.onopen=()=>{ peers.add(peer); updatePeerCount(); dc.send(JSON.stringify({type:'hello', roomId, clientId})); dc.send(JSON.stringify({type:'snapshot', strokes})); }; dc.onclose=()=>{ peers.delete(peer); updatePeerCount(); }; dc.onmessage=onMessage; };
-    joinPc.onicecandidate = (e)=>{ if(e.candidate){ answerOut.value = btoa(JSON.stringify(joinPc.localDescription)); } };
+    const blob = (offerIn.value||'').trim(); if(!blob) return alert('Paste the host\'s Offer first.');
+    joinPeer = newJoinPeer();
     try{
       const remote = JSON.parse(atob(blob));
-      await joinPc.setRemoteDescription(remote);
-      await joinPc.setLocalDescription(await joinPc.createAnswer());
-      answerOut.value = btoa(JSON.stringify(joinPc.localDescription));
+      await joinPeer.pc.setRemoteDescription(remote);
+      await joinPeer.pc.setLocalDescription(await joinPeer.pc.createAnswer());
+      await waitIceComplete(joinPeer.pc);
+      answerOut.value = btoa(JSON.stringify(joinPeer.pc.localDescription));
     }catch(e){ alert('Invalid offer blob'); }
   };
-  btnCopyAnswer.onclick = async ()=>{ await navigator.clipboard.writeText(answerOut.value.trim()); };
+  btnCopyAnswer.onclick = async ()=>{ if(!answerOut.value) return alert('Create Answer first.'); await navigator.clipboard.writeText(answerOut.value.trim()); alert('Answer copied'); };
 
-  btnDisconnect.onclick = ()=>{ peers.forEach(p=>{ try{p.dc.close();}catch{} try{p.pc.close();}catch{} }); peers.clear(); updatePeerCount(); };
+  btnDisconnect.onclick = ()=>{ peers.forEach(p=>{ try{p.dc&&p.dc.close();}catch{} try{p.pc.close();}catch{} }); peers.clear(); updatePeerCount(); };
 
+  // Show hint for mobile
+  updatePeerCount();
+  if (/Mobi|Android/i.test(navigator.userAgent)) {
+    document.getElementById('iceNote').textContent = 'Tip: Put both phones on the SAME Wi‑Fi (or hotspot). Cellular networks often block direct P2P connections without a relay.';
+  }
 })();
 </script>
 </body>
