@@ -1,321 +1,276 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MardiPartyFitness Top Fitness Picks</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(to bottom, #0074E4, #C0C0C0); /* Reverted to older gradient with extension */
-            color: #333;
-            min-height: 100vh; /* Ensure the gradient fills the entire viewport height */
-            display: flex;
-            flex-direction: column;
-        }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Peer2Peer Whiteboard — single file</title>
+  <style>
+    :root{
+      --bg:#0f172a; --panel:#111827ee; --panel2:#1f2937; --text:#e5e7eb; --accent:#60a5fa; --danger:#ef4444;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:linear-gradient(180deg,#0b1222,#0f172a 30%);color:var(--text);font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+    .app{display:grid;grid-template-rows:auto 1fr; height:100%;}
+    header{display:flex;gap:.75rem;align-items:center;padding:.5rem .75rem;background:linear-gradient(180deg,rgba(17,24,39,.9),rgba(17,24,39,.7));backdrop-filter:blur(10px);position:sticky;top:0;z-index:10;border-bottom:1px solid rgba(148,163,184,.15)}
+    header h1{font-size:1rem;margin:0;font-weight:600;letter-spacing:.2px}
+    .toolbar{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-left:auto}
+    .btn{display:inline-flex;align-items:center;gap:.4rem;background:var(--panel2);border:1px solid rgba(148,163,184,.25);color:var(--text);padding:.35rem .6rem;border-radius:.6rem;cursor:pointer;transition:transform .04s ease, background .2s ease}
+    .btn:active{transform:translateY(1px)}
+    .btn.primary{background:linear-gradient(180deg,#2563eb,#1d4ed8);border-color:#1d4ed8}
+    .btn.danger{background:linear-gradient(180deg,#ef4444,#dc2626);border-color:#b91c1c}
+    .btn.light{background:rgba(255,255,255,.08)}
+    .btn input[type="color"], .btn input[type="range"]{background:transparent;border:none;cursor:pointer}
+    .btn input[type="range"]{width:120px}
+    .pill{padding:.25rem .55rem;border-radius:999px;border:1px solid rgba(148,163,184,.2);background:rgba(148,163,184,.08)}
 
-        header {
-            background-color: rgba(255, 255, 255, 0.2); /* Glass-like header background */
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-bottom-left-radius: 40px;
-            border-bottom-right-radius: 40px;
-        }
+    .stage{position:relative; height:calc(100vh - 64px);}
+    canvas{position:absolute; inset:0; width:100%; height:100%; touch-action:none; background:radial-gradient(900px 900px at 10% -20%,rgba(96,165,250,.07),transparent 70%), radial-gradient(900px 900px at 90% 120%,rgba(59,130,246,.08),transparent 70%), #0b1222}
 
-        header h1 {
-            font-size: 48px; /* Larger title font */
-            font-family: Brush Script MT, Brush Script Std, cursive;
-            color: #fff;
-            margin: 0;
-        }
+    .net{display:grid; grid-template-columns:1fr 1fr; gap:.5rem; padding:.5rem; background:rgba(255,255,255,.04); border-top:1px solid rgba(148,163,184,.15)}
+    .net textarea{width:100%; min-height:100px; resize:vertical; padding:.5rem; border-radius:.5rem; background:#0b1222; color:var(--text); border:1px solid rgba(148,163,184,.25); font-family:ui-monospace,Menlo,Consolas,monospace}
+    .net .col{display:flex; flex-direction:column; gap:.5rem}
+    .net .row{display:flex; gap:.5rem; flex-wrap:wrap}
+    .status{opacity:.85}
 
-        .navbar {
-            background-color: transparent; /* Transparent navbar background */
-            position: sticky;
-            top: 0;
-            z-index: 999;
-            border-top-left-radius: 40px;
-            border-top-right-radius: 40px;
-            backdrop-filter: blur(10px); /* Apply blur effect to navbar for glass look */
-            padding: 10px 0; /* Add padding to separate buttons vertically */
-        }
-
-        .navbar ul {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: space-around; /* Separating navigation buttons */
-        }
-
-        .navbar li {
-            margin: 0 10px; /* Adjust spacing between buttons */
-        }
-
-        .navbar a {
-            text-decoration: none;
-            color: #fff;
-            border-radius: 50%; /* Make the buttons spherical */
-            padding: 10px 15px; /* Add padding to the buttons */
-            background-color: rgba(255, 255, 255, 0.2); /* Glass-like button background */
-            transition: background-color 0.3s ease;
-        }
-
-        .navbar a:hover {
-            background-color: rgba(255, 255, 255, 0.3); /* Button background on hover */
-        }
-
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr); /* Create a 3x5 grid for larger screens */
-            grid-gap: 20px; /* Adjust spacing between divs */
-            padding: 20px; /* Adjust padding */
-            margin: 20px;
-        }
-
-        .item {
-            width: 80%; /* Full-width div within each grid cell */
-            padding: 20px; /* Adjust padding */
-            border-radius: 10px; /* Rounded edges for divs */
-            background-color: rgba(255, 255, 255, 0.3); /* Glass-like div background */
-            text-align: center;
-			transition: background-color 2s ease-out 100ms
-        } .item:hover{
-		background-color: rgba(255, 255, 255, .8)
-		}
-
-        .item img {
-    width: 200px;
-	height: 200px;
-    padding-top: 12px;
-    border-radius: 100%;
-			
-        }
-
-        .item a {
-            text-decoration: none;
-            color: #fff;
-			transition: color: 2s ease-out 100ms
-        }
-
-        .item a:hover {
-            font-weight:bold;
-			color: rgb(0,0,0);
-        }
-
-        footer {
-            background-color: rgba(255, 255, 255, 0.2); /* Glass-like footer background */
-            padding: 20px;
-            text-align: center;
-            border-top-left-radius: 40px;
-            border-top-right-radius: 40px;
-            margin-top: auto; /* Align footer to the bottom */
-        }
-		.info-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(255, 255, 255, 0.3); /* Glass-like background */
-  border-radius: 10px;
-  margin: 20px;
-  padding: 20px;
-  width: 37%;
-    margin-left: 30%;
-  text-align: center;
-}
-
-.info-text {
-  flex: 1;
-  padding: 20px;
-}
-
-.info-text p {
-  margin: 10px 0;
-}
-
-.info-photo {
-  flex: 1;
-  text-align: center;
-}
-
-.circular-photo {
-  border-radius: 50%;
-  width: 250px; /* Adjust the size of the circular photo as needed */
-  height: 250px;
-  object-fit: cover; /* Ensure the image fills the circular space */
-}
-
-        @media (max-width: 768px) {
-            /* Switch to 10 rows of 3 divs for mobile devices */
-            .grid-container {
-                grid-template-columns: repeat(3, 1fr); /* Create a 3x3 grid */
-                grid-template-rows: repeat(5, 1fr); /* 10 rows */
-                padding: 2px; /* Adjust padding for mobile */
-				
-            }
-			
-            .item {
-                width: 75%; /* Full-width div within each grid cell for mobile */
-                padding: 10px; /* Adjust padding for mobile */
-				height: fit-content;
-            }
-					.item img{
-			width:75px;
-			height:75px;			
-			}
-			header h1 {
-			font-size: 24px;
-			}
-			  .info-container {
-    flex-direction: column; /* Stack content vertically on mobile */
-    text-align: center;
-	  width: auto;
-    margin-left: 20px;
-  }
-
-  .info-text {
-    padding: 10px; /* Adjust padding for mobile */
-  }
-
-  .info-photo {
-    padding-top: 20px; /* Add space between text and photo on mobile */
-  }
-  
-  .circular-photo {
-    width: 200px; /* Adjust the circular photo size for mobile */
-    height: 200px;
-  }
-        }
-    </style>
-</head><!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-Y6PYPQDQJB"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-Y6PYPQDQJB');
-</script>
+    .legend{display:flex;gap:.5rem;align-items:center}
+    .legend .swatch{width:16px;height:16px;border-radius:999px;border:1px solid rgba(255,255,255,.6)}
+  </style>
+</head>
 <body>
-    <header>
-        <h1>MardiPartyFitness Top Fitness Picks</h1>
-
-    </header>
-	    <div class="info-container">
-		        <div class="info-photo">
-            <img src="https://media.licdn.com/dms/image/C4E03AQEfZY_vrT5gjQ/profile-displayphoto-shrink_800_800/0/1563394933241?e=2147483647&v=beta&t=v4VjdzKXcYkKk9EaFHHM_SD0ytbzlgRZaN0wI8CN7lc" alt="Your Circular Photo" class="circular-photo">
-        </div>
-        <div class="info-text">
-            <p><strong>Nicholas Scamardi</strong></p>
-            <p>I just really fuck with Great Gatsby.</p>
-            <!-- Add more text content as needed -->
-        </div>
-
+<div class="app">
+  <header>
+    <h1>🖍️ P2P Whiteboard (single-file, no servers)</h1>
+    <div class="legend"><span>Brush</span><span id="swatch" class="swatch" style="background:#ffffff"></span><span id="sizePill" class="pill">4 px</span></div>
+    <div class="toolbar">
+      <label class="btn light" title="Brush color">
+        <span>Color</span>
+        <input id="color" type="color" value="#ffffff" />
+      </label>
+      <label class="btn light" title="Brush size">
+        <span>Size</span>
+        <input id="size" type="range" min="1" max="32" value="4" />
+      </label>
+      <button id="eraser" class="btn" title="Eraser (hold E)">Eraser</button>
+      <button id="undo" class="btn" title="Undo (local)">Undo</button>
+      <button id="clear" class="btn danger" title="Clear board (broadcast)">Clear</button>
+      <button id="saveImg" class="btn primary" title="Download PNG">Save PNG</button>
+      <span class="pill">Room: <span id="roomLabel"></span></span>
+      <span class="pill status" id="netStatus">Peers: 0</span>
     </div>
+  </header>
 
- <div class="grid-container">
-        <!-- Row 1 -->
-        <div class="item">
-            <a href="https://amzn.to/3Rc8164" target="_blank">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg" alt="The Great Gatsby">
-                <p>The Great Gatsby</p>
-            </a>
-        </div>
-        <div class="item">
-            <a href="https://amzn.to/3Rc8164" target="_blank">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg" alt="The Great Gatsby">
-                <p>The Great Gatsby</p>
-            </a>
-        </div>
-        <div class="item">
-            <a href="https://amzn.to/3Rc8164" target="_blank">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg" alt="The Great Gatsby">
-                <p>The Great Gatsby</p>
-            </a>
-        </div>
-        <div class="item">
-            <a href="https://amzn.to/3Rc8164" target="_blank">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg" alt="The Great Gatsby">
-                <p>The Great Gatsby</p>
-            </a>
-        </div>
-        <div class="item">
-            <a href="https://amzn.to/3Rc8164" target="_blank">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg" alt="The Great Gatsby">
-                <p>The Great Gatsby</p>
-            </a>
-        </div>
+  <div class="stage">
+    <canvas id="board"></canvas>
+  </div>
 
-        <!-- Row 2 -->
-        <div class="item">
-            <a href="https://amzn.to/3Rc8164" target="_blank">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg" alt="The Great Gatsby">
-                <p>The Great Gatsby</p>
-            </a>
-        </div>
-        <div class="item">
-            <a href="https://amzn.to/3Rc8164" target="_blank">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg" alt="The Great Gatsby">
-                <p>The Great Gatsby</p>
-            </a>
-        </div>
-        <div class="item">
-            <a href="https://amzn.to/3Rc8164" target="_blank">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg" alt="The Great Gatsby">
-                <p>The Great Gatsby</p>
-            </a>
-        </div>
-        <div class="item">
-            <a href="https://amzn.to/3Rc8164" target="_blank">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg" alt="The Great Gatsby">
-                <p>The Great Gatsby</p>
-            </a>
-        </div>
-        <div class="item">
-            <a href="https://amzn.to/3Rc8164" target="_blank">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg" alt="The Great Gatsby">
-                <p>The Great Gatsby</p>
-            </a>
-        </div>
-
-        <!-- Row 3 -->
-        <div class="item">
-            <a href="https://amzn.to/3Rc8164" target="_blank">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg" alt="The Great Gatsby">
-                <p>The Great Gatsby</p>
-            </a>
-        </div>
-        <div class="item">
-            <a href="https://amzn.to/3Rc8164" target="_blank">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg" alt="The Great Gatsby">
-                <p>The Great Gatsby</p>
-            </a>
-        </div>
-        <div class="item">
-            <a href="https://amzn.to/3Rc8164" target="_blank">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg" alt="The Great Gatsby">
-                <p>The Great Gatsby</p>
-            </a>
-        </div>
-        <div class="item">
-            <a href="https://amzn.to/3Rc8164" target="_blank">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg" alt="The Great Gatsby">
-                <p>The Great Gatsby</p>
-            </a>
-        </div>
-        <div class="item">
-            <a href="https://amzn.to/3Rc8164" target="_blank">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg" alt="The Great Gatsby">
-                <p>The Great Gatsby</p>
-            </a>
-        </div>
+  <!-- Manual signaling (copy-paste) for WebRTC, no external servers used -->
+  <section class="net">
+    <div class="col">
+      <strong>1) Host a session</strong>
+      <div class="row">
+        <button class="btn primary" id="btnHost">Create Offer</button>
+        <button class="btn" id="btnCopyOffer">Copy Offer</button>
+      </div>
+      <textarea id="offerOut" placeholder="Click 'Create Offer', then copy this blob and send it to friends (chat/text/email)."></textarea>
+      <div class="row">
+        <button class="btn" id="btnPasteAnswer">Paste Answer & Connect</button>
+      </div>
+      <textarea id="answerIn" placeholder="Paste your friend's Answer here and press 'Paste Answer & Connect'"></textarea>
     </div>
-   <footer>
-        &copy; 2023 @mardipartyfitness | <a href="https://www.tiktok.com/@mardipartyfitness">TikTok</a> | <a href="#">Instagram</a>
-    </footer>
+    <div class="col">
+      <strong>2) Join a session</strong>
+      <div class="row">
+        <button class="btn" id="btnPasteOffer">Paste Offer</button>
+        <button class="btn primary" id="btnCreateAnswer">Create Answer</button>
+        <button class="btn" id="btnCopyAnswer">Copy Answer</button>
+      </div>
+      <textarea id="offerIn" placeholder="Paste host's Offer here"></textarea>
+      <textarea id="answerOut" placeholder="Click 'Create Answer', then copy this blob and send it back to the host"></textarea>
+      <div class="row">
+        <button class="btn" id="btnDisconnect">Disconnect All</button>
+        <span class="status" id="iceNote">Note: No STUN/TURN used. Works best on same network or permissive NATs.</span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function(){
+  // ---------- Room + persistence ----------
+  const params = new URLSearchParams(location.search);
+  const roomId = (params.get('room') || location.hash.replace('#','') || (Math.random().toString(36).slice(2,10))).slice(0,12);
+  if (!location.search && !location.hash) { const url = new URL(location.href); url.searchParams.set('room', roomId); history.replaceState({},'',url); }
+  document.getElementById('roomLabel').textContent = roomId;
+  const STORAGE_KEY = 'p2p_whiteboard_' + roomId;
+
+  // ---------- Canvas / drawing ----------
+  const canvas = document.getElementById('board');
+  const ctx = canvas.getContext('2d');
+  let brush = { color:'#ffffff', size:4, mode:'draw' };
+  const colorEl = document.getElementById('color');
+  const sizeEl = document.getElementById('size');
+  const eraserBtn = document.getElementById('eraser');
+  const undoBtn = document.getElementById('undo');
+  const clearBtn = document.getElementById('clear');
+  const saveImgBtn = document.getElementById('saveImg');
+  const swatchEl = document.getElementById('swatch');
+  const sizePill = document.getElementById('sizePill');
+
+  function dprScale(){
+    const dpr = Math.max(1, Math.min(2, window.devicePixelRatio||1));
+    const {clientWidth:w, clientHeight:h} = canvas;
+    const was = [canvas.width, canvas.height];
+    canvas.width = w * dpr; canvas.height = h * dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
+    if (was[0] && was[1]) redrawAll();
+  }
+  new ResizeObserver(dprScale).observe(canvas);
+  window.addEventListener('load', dprScale); window.addEventListener('resize', dprScale);
+
+  // Stroke log (CRDT-ish append-only). Each segment gets id = clientId:seq
+  const clientId = (document.cookie.match(/cid=([^;]+)/)||[])[1] || (()=>{ const v = crypto.randomUUID(); document.cookie = `cid=${v}; max-age=315360000; path=/`; return v; })();
+  let seq = 0;
+  const strokes = []; // {id, x1,y1,x2,y2,c,s,m,t,uid}
+  const strokeIds = new Set();
+
+  // Load from localStorage
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');
+    if (saved && Array.isArray(saved.strokes)) {
+      for (const seg of saved.strokes){ if(!strokeIds.has(seg.id)){ strokeIds.add(seg.id); strokes.push(seg);} }
+    }
+  } catch(e){}
+
+  function persist(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({strokes}));
+  }
+
+  function drawSeg(seg){
+    const {x1,y1,x2,y2,c,s,m} = seg;
+    ctx.lineCap='round'; ctx.lineJoin='round';
+    ctx.strokeStyle = m==='erase' ? '#000000' : c;
+    ctx.globalCompositeOperation = m==='erase' ? 'destination-out' : 'source-over';
+    ctx.lineWidth = s; ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    ctx.globalCompositeOperation = 'source-over';
+  }
+  function redrawAll(){ ctx.clearRect(0,0,canvas.width,canvas.height); for(const s of strokes){ drawSeg(s); } }
+
+  // Input
+  let drawing=false, prev=null;
+  function pt(e){ if(e.touches && e.touches[0]) e = e.touches[0]; const r=canvas.getBoundingClientRect(); return {x:e.clientX-r.left,y:e.clientY-r.top}; }
+  canvas.addEventListener('pointerdown', e=>{ drawing=true; prev=pt(e); canvas.setPointerCapture(e.pointerId); });
+  canvas.addEventListener('pointermove', e=>{
+    if(!drawing) return; const p=pt(e);
+    const seg = { id: clientId+":"+(seq++), x1:prev.x,y1:prev.y,x2:p.x,y2:p.y,c:brush.color,s:brush.size,m:brush.mode,t:Date.now(), uid: clientId };
+    strokes.push(seg); strokeIds.add(seg.id); drawSeg(seg); broadcast({type:'stroke', data:seg}); prev=p; if((seq%10)===0) persist();
+  });
+  function endStroke(){ if(!drawing) return; drawing=false; prev=null; persist(); }
+  canvas.addEventListener('pointerup', endStroke); canvas.addEventListener('pointercancel', endStroke);
+
+  colorEl.addEventListener('input', e=>{ brush.color = e.target.value; swatchEl.style.background = brush.color; });
+  sizeEl.addEventListener('input', e=>{ brush.size = +e.target.value; sizePill.textContent = `${brush.size} px`; });
+  eraserBtn.addEventListener('click', ()=>{ brush.mode = (brush.mode==='erase'?'draw':'erase'); eraserBtn.classList.toggle('primary', brush.mode==='erase'); });
+  window.addEventListener('keydown', e=>{ if(e.key.toLowerCase()==='e'){ brush.mode='erase'; eraserBtn.classList.add('primary'); }});
+  window.addEventListener('keyup', e=>{ if(e.key.toLowerCase()==='e'){ brush.mode='draw'; eraserBtn.classList.remove('primary'); }});
+  undoBtn.addEventListener('click', ()=>{
+    for(let i=strokes.length-1;i>=0;i--){ if(strokes[i].uid===clientId){ const removed = strokes.splice(i,1)[0]; strokeIds.delete(removed.id); redrawAll(); broadcast({type:'undo', data:removed.id}); persist(); break; } }
+  });
+  clearBtn.addEventListener('click', ()=>{ if(!confirm('Clear the board for everyone?')) return; strokes.length=0; strokeIds.clear(); redrawAll(); persist(); broadcast({type:'clear'}); });
+  saveImgBtn.addEventListener('click', ()=>{ const a=document.createElement('a'); a.download=`whiteboard-${roomId}.png`; a.href=canvas.toDataURL('image/png'); a.click(); });
+
+  // Initial draw
+  redrawAll();
+
+  // ---------- P2P WebRTC (manual signaling, no external servers) ----------
+  const netStatus = document.getElementById('netStatus');
+  const offerOut = document.getElementById('offerOut');
+  const answerIn = document.getElementById('answerIn');
+  const offerIn = document.getElementById('offerIn');
+  const answerOut = document.getElementById('answerOut');
+  const btnHost = document.getElementById('btnHost');
+  const btnCopyOffer = document.getElementById('btnCopyOffer');
+  const btnPasteAnswer = document.getElementById('btnPasteAnswer');
+  const btnPasteOffer = document.getElementById('btnPasteOffer');
+  const btnCreateAnswer = document.getElementById('btnCreateAnswer');
+  const btnCopyAnswer = document.getElementById('btnCopyAnswer');
+  const btnDisconnect = document.getElementById('btnDisconnect');
+
+  const peers = new Set();
+  function updatePeerCount(){ netStatus.textContent = 'Peers: ' + peers.size; }
+
+  function newPeer(){
+    // No ICE servers -> host candidates only (works best on LAN)
+    const pc = new RTCPeerConnection({iceServers:[]});
+    const dc = pc.createDataChannel('board', {ordered:true});
+
+    dc.onopen = ()=>{ peers.add({pc,dc}); updatePeerCount(); // send snapshot
+      dc.send(JSON.stringify({type:'hello', roomId, clientId}));
+      dc.send(JSON.stringify({type:'snapshot', strokes})); };
+    dc.onclose = ()=>{ peers.forEach(p=>{if(p.dc===dc){peers.delete(p);}}); updatePeerCount(); };
+    dc.onmessage = onMessage;
+
+    pc.onicecandidate = (e)=>{ if(e.candidate){ offerOut.value = btoa(JSON.stringify(pc.localDescription)); } };
+    return {pc, dc};
+  }
+
+  function onMessage(ev){
+    try{
+      const msg = JSON.parse(ev.data);
+      if(msg.type==='stroke'){
+        const seg = msg.data; if(!strokeIds.has(seg.id)){ strokeIds.add(seg.id); strokes.push(seg); drawSeg(seg); persist(); }
+      } else if(msg.type==='undo'){
+        const id = msg.data; const idx = strokes.findIndex(s=>s.id===id); if(idx>-1){ strokes.splice(idx,1); strokeIds.delete(id); redrawAll(); persist(); }
+      } else if(msg.type==='clear'){
+        strokes.length=0; strokeIds.clear(); redrawAll(); persist();
+      } else if(msg.type==='snapshot'){
+        // merge missing
+        const incoming = msg.strokes||[];
+        let added = 0;
+        for(const s of incoming){ if(!strokeIds.has(s.id)){ strokeIds.add(s.id); strokes.push(s); added++; } }
+        if(added) { redrawAll(); persist(); }
+      }
+    }catch(e){ console.warn('bad msg',e); }
+  }
+
+  function broadcast(obj){ const data = JSON.stringify(obj); peers.forEach(p=>{ if(p.dc.readyState==='open') p.dc.send(data); }); }
+
+  // Host flow
+  let hostPeer = null;
+  btnHost.onclick = async ()=>{
+    hostPeer = newPeer();
+    await hostPeer.pc.setLocalDescription(await hostPeer.pc.createOffer({offerToReceiveAudio:false, offerToReceiveVideo:false}));
+    // Wait a bit for ICE; still update field immediately
+    offerOut.value = btoa(JSON.stringify(hostPeer.pc.localDescription));
+  };
+  btnCopyOffer.onclick = async ()=>{ await navigator.clipboard.writeText(offerOut.value.trim()); };
+  btnPasteAnswer.onclick = async ()=>{
+    const blob = answerIn.value.trim(); if(!blob) return alert('Paste an Answer first.');
+    try{
+      const desc = JSON.parse(atob(blob));
+      await hostPeer.pc.setRemoteDescription(desc);
+    }catch(e){ alert('Invalid answer blob'); }
+  };
+
+  // Join flow
+  let joinPc = null;
+  btnPasteOffer.onclick = ()=>{ offerIn.value = (offerIn.value||'').trim() || prompt('Paste Offer here:') || ''; };
+  btnCreateAnswer.onclick = async ()=>{
+    const blob = offerIn.value.trim(); if(!blob) return alert('Paste the host\'s Offer first.');
+    joinPc = new RTCPeerConnection({iceServers:[]});
+    joinPc.ondatachannel = (ev)=>{ const dc = ev.channel; const peer={pc:joinPc,dc}; dc.onopen=()=>{ peers.add(peer); updatePeerCount(); dc.send(JSON.stringify({type:'hello', roomId, clientId})); dc.send(JSON.stringify({type:'snapshot', strokes})); }; dc.onclose=()=>{ peers.delete(peer); updatePeerCount(); }; dc.onmessage=onMessage; };
+    joinPc.onicecandidate = (e)=>{ if(e.candidate){ answerOut.value = btoa(JSON.stringify(joinPc.localDescription)); } };
+    try{
+      const remote = JSON.parse(atob(blob));
+      await joinPc.setRemoteDescription(remote);
+      await joinPc.setLocalDescription(await joinPc.createAnswer());
+      answerOut.value = btoa(JSON.stringify(joinPc.localDescription));
+    }catch(e){ alert('Invalid offer blob'); }
+  };
+  btnCopyAnswer.onclick = async ()=>{ await navigator.clipboard.writeText(answerOut.value.trim()); };
+
+  btnDisconnect.onclick = ()=>{ peers.forEach(p=>{ try{p.dc.close();}catch{} try{p.pc.close();}catch{} }); peers.clear(); updatePeerCount(); };
+
+})();
+</script>
 </body>
 </html>
