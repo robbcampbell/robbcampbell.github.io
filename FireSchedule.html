@@ -8,28 +8,26 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <style>
-  :root{
-    --bg:#0b1020; --muted:#99a2c2; --text:#e9edff; --ring:rgba(110,168,254,.35);
-  }
+  :root{ --bg:#0b1020; --muted:#99a2c2; --text:#e9edff; --ring:rgba(110,168,254,.35); }
   *{box-sizing:border-box}
   body{margin:0;background:radial-gradient(1200px 800px at 80% -10%, #1f2b55, transparent), var(--bg);
        color:var(--text);font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif}
   .wrap{max-width:980px;margin:0 auto;padding:20px}
   header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
   h1{font-size:clamp(1.25rem,2.4vw,1.8rem);margin:0;font-weight:700;letter-spacing:.2px}
-  .card{background:linear-gradient(180deg,#162044,#121a37);
-        border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:16px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+  .card{background:linear-gradient(180deg,#162044,#121a37);border:1px solid rgba(255,255,255,.06);
+        border-radius:16px;padding:16px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
   .grid{display:grid;gap:12px}
   .grid.cols-2{grid-template-columns:1fr 1fr}
   @media (max-width:720px){.grid.cols-2{grid-template-columns:1fr}}
   label{display:block;font-size:.9rem;color:var(--muted);margin:2px 0 6px}
-  input, select{width:100%;padding:12px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.08);
+  input, select{width:100%;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.08);
                 background:#0e1530;color:var(--text);outline:none}
   input:focus, select:focus{border-color:#6ea8fe;box-shadow:0 0 0 6px var(--ring)}
   .row{display:flex;gap:10px;align-items:end}
-  .row > *{flex:1}
+  .row>*{flex:1}
   .btn{appearance:none;border:0;border-radius:12px;padding:12px 16px;color:var(--text);
-       background:linear-gradient(180deg, #3a66ff, #274ce0);font-weight:600;cursor:pointer}
+       background:linear-gradient(180deg,#3a66ff,#274ce0);font-weight:600;cursor:pointer}
   .btn.secondary{background:linear-gradient(180deg,#22c1a7,#1aa68c)}
   .btn.ghost{background:#11193a;border:1px solid rgba(255,255,255,.12)}
   .btn.small{padding:8px 10px;border-radius:10px;font-size:.9rem}
@@ -41,7 +39,7 @@
   .pat-row td:first-child{border-top-left-radius:12px;border-bottom-left-radius:12px}
   .pat-row td:last-child{border-top-right-radius:12px;border-bottom-right-radius:12px}
   .hint{color:var(--muted);font-size:.85rem}
-  .divider{height:1px;background:linear-gradient(90deg, transparent, rgba(255,255,255,.15), transparent);margin:14px 0}
+  .divider{height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);margin:14px 0}
   .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:#0f1735;border:1px solid rgba(255,255,255,.1)}
   .legend{display:flex;gap:10px;flex-wrap:wrap}
   .swatch{width:14px;height:14px;border-radius:3px;border:1px solid rgba(255,255,255,.25)}
@@ -80,11 +78,7 @@
 
       <table id="patternTable">
         <thead>
-          <tr>
-            <th>Label</th>
-            <th>Hours</th>
-            <th></th>
-          </tr>
+          <tr><th>Label</th><th>Hours</th><th></th></tr>
         </thead>
         <tbody id="patternBody"></tbody>
       </table>
@@ -134,7 +128,7 @@
       </div>
 
       <div style="margin-top:10px" class="hint">
-        If colors don’t show, hard-refresh the page (or add <code>?v=2</code> to the URL), then open the PDF in the <b>Files</b> or <b>Books</b> app.
+        If colors don’t show, refresh (or add <code>?v=3</code> to the URL), then open the PDF in the <b>Files</b> or <b>Books</b> app.
       </div>
     </div>
   </div>
@@ -142,9 +136,9 @@
 <script>
 (() => {
   const { jsPDF } = window.jspdf;
-  const VERSION = "2.1"; // bump to bust caches if needed
+  const VERSION = "3.0";
 
-  // ---------- UI helpers ----------
+  // ---------- UI ----------
   const $ = (id) => document.getElementById(id);
   const patternBody = $("patternBody");
 
@@ -154,9 +148,7 @@
     tr.innerHTML = `
       <td><input type="text" value="${label}" placeholder="Work / Off / etc." /></td>
       <td><input type="number" min="1" step="1" value="${hours}" /></td>
-      <td style="width:1%">
-        <button class="btn small ghost remove">Delete</button>
-      </td>`;
+      <td style="width:1%"><button class="btn small ghost remove">Delete</button></td>`;
     patternBody.appendChild(tr);
     tr.querySelector(".remove").addEventListener("click", () => tr.remove());
   }
@@ -171,349 +163,232 @@
     if (!$("startDT").value) $("startDT").value = "2025-11-04T07:00";
     if (!$("endDT").value) $("endDT").value = "2026-12-31";
   });
-
   $("workColor").addEventListener("input", e => $("swWork").style.background = e.target.value);
   $("offColor").addEventListener("input", e => $("swOff").style.background = e.target.value);
-
-  // Initialize with one empty row
   if (!patternBody.children.length) addPatternRow("Work", 24);
 
-  // ---------- Date helpers (UTC-safe for math) ----------
-  const MS_PER_HOUR = 3600 * 1000;
-  const MS_PER_DAY  = 24 * MS_PER_HOUR;
-
-  function toUTCFromLocalDateTimeLocal(dtLocalStr){
-    const d = new Date(dtLocalStr);
-    if (isNaN(d)) return null;
-    return Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes(), 0);
-  }
-  function toUTCFromDateOnly(dateStr){
-    const d = new Date(dateStr+"T00:00:00");
-    if (isNaN(d)) return null;
-    return Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0);
-  }
-  const addHoursUTC = (utcMs, hours) => utcMs + hours * MS_PER_HOUR;
-  const addDaysUTC  = (utcMs, days)  => utcMs + days * MS_PER_DAY;
-
-  function ymd(utcMs){
-    const d = new Date(utcMs);
-    const y = d.getUTCFullYear();
-    const m = d.getUTCMonth() + 1;
-    const day = d.getUTCDate();
-    return `${y}-${String(m).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
-  }
-
+  // ---------- Date helpers ----------
+  const MS_PER_HOUR = 3600 * 1000, MS_PER_DAY = 24 * MS_PER_HOUR;
+  function toUTCFromLocalDateTimeLocal(s){ const d=new Date(s); if(isNaN(d)) return null;
+    return Date.UTC(d.getFullYear(),d.getMonth(),d.getDate(),d.getHours(),d.getMinutes(),0); }
+  function toUTCFromDateOnly(s){ const d=new Date(s+"T00:00:00"); if(isNaN(d)) return null;
+    return Date.UTC(d.getFullYear(),d.getMonth(),d.getDate(),0,0,0); }
+  const addHoursUTC = (ms,h)=>ms+h*MS_PER_HOUR, addDaysUTC=(ms,d)=>ms+d*MS_PER_DAY;
+  function ymd(ms){ const d=new Date(ms); const y=d.getUTCFullYear(), m=d.getUTCMonth()+1, day=d.getUTCDate();
+    return `${y}-${String(m).padStart(2,"0")}-${String(day).padStart(2,"0")}`; }
   function monthSpan(startUtc, endUtcInclusive){
-    const res = [];
-    let y = new Date(startUtc).getUTCFullYear();
-    let m0 = new Date(startUtc).getUTCMonth();
-    const endY  = new Date(endUtcInclusive).getUTCFullYear();
-    const endM0 = new Date(endUtcInclusive).getUTCMonth();
-    while (y < endY || (y === endY && m0 <= endM0)){
-      res.push({y, m0});
-      m0++;
-      if (m0 > 11) { m0 = 0; y++; }
-    }
-    return res;
+    const out=[]; let y=new Date(startUtc).getUTCFullYear(), m0=new Date(startUtc).getUTCMonth();
+    const ey=new Date(endUtcInclusive).getUTCFullYear(), em0=new Date(endUtcInclusive).getUTCMonth();
+    while (y<ey || (y===ey && m0<=em0)){ out.push({y,m0}); m0++; if(m0>11){m0=0;y++;} }
+    return out;
   }
 
   // ---------- Build schedule ----------
   function readPattern(){
-    const rows = [...patternBody.querySelectorAll("tr")].map(tr => {
-      const [labelEl, hoursEl] = tr.querySelectorAll("input");
-      const label = (labelEl.value || "Work").trim();
-      const hours = Math.max(1, parseInt(hoursEl.value || "1", 10));
-      return [label, hours];
+    const rows=[...patternBody.querySelectorAll("tr")].map(tr=>{
+      const [lEl,hEl]=tr.querySelectorAll("input");
+      const label=(lEl.value||"Work").trim();
+      const hours=Math.max(1, parseInt(hEl.value||"1",10));
+      return [label,hours];
     });
-    if (!rows.length) throw new Error("Please add at least one pattern row.");
+    if(!rows.length) throw new Error("Please add at least one pattern row.");
     return rows;
   }
 
   function buildSchedule({startUtc, endUtcExclusive, pattern}){
-    const scheduleByDay = new Map();
-    const periods = [];
-    let current = startUtc;
-    let pIndex = 0;
-
-    while (current < endUtcExclusive){
-      const [label, hours] = pattern[pIndex];
-      const periodEnd = addHoursUTC(current, hours);
-      periods.push({label, startUtc: current, endUtc: Math.min(periodEnd, endUtcExclusive)});
-
-      let iter = current;
-      while (iter < periodEnd && iter < endUtcExclusive){
+    const scheduleByDay=new Map(), periods=[];
+    let current=startUtc, pIndex=0;
+    while(current<endUtcExclusive){
+      const [label,hours]=pattern[pIndex];
+      const periodEnd=addHoursUTC(current,hours);
+      periods.push({label,startUtc:current,endUtc:Math.min(periodEnd,endUtcExclusive)});
+      let iter=current;
+      while(iter<periodEnd && iter<endUtcExclusive){
         scheduleByDay.set(ymd(iter), label);
-        iter = addDaysUTC(iter, 1);
+        iter=addDaysUTC(iter,1);
       }
-
-      current = periodEnd;
-      pIndex = (pIndex + 1) % pattern.length;
+      current=periodEnd; pIndex=(pIndex+1)%pattern.length;
     }
-    return { scheduleByDay, periods };
+    return {scheduleByDay, periods};
   }
 
-  // ---------- PDF (with iOS-safe fills) ----------
+  // ---------- PDF (single-rect-per-cell) ----------
   async function makePdf({scheduleByDay, startUtc, endUtcInclusive, workColor, offColor, weekStart}){
-    // Avoid transparency & keep a non-zero stroke width for iOS
-    const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "letter", compress: true, putOnlyUsedFonts: false });
+    const doc=new jsPDF({orientation:"landscape", unit:"pt", format:"letter", compress:true});
+    const pageW=doc.internal.pageSize.getWidth(), pageH=doc.internal.pageSize.getHeight();
+    const margin=36, headerH=40, dayHeaderH=22;
+    const cols=7, rows=6;
+    const cellW=(pageW-margin*2)/cols, cellH=(pageH-margin*2-headerH-dayHeaderH)/rows;
+    const dayNames = weekStart==="sun" ? ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"] : ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+    const toWeekIndex = (sun0)=> weekStart==="sun" ? sun0 : (sun0+6)%7;
+    const months=monthSpan(startUtc, endUtcInclusive);
 
-    const page = { width: doc.internal.pageSize.getWidth(), height: doc.internal.pageSize.getHeight() };
-    const margin = 36, headerH = 40, dayHeaderH = 22;
-    const grid = { cols: 7, rows: 6 };
-    const cellW = (page.width - margin * 2) / grid.cols;
-    const cellH = (page.height - margin * 2 - headerH - dayHeaderH) / grid.rows;
-
-    const dayNamesMon = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
-    const dayNamesSun = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-    const dayNames = weekStart === "sun" ? dayNamesSun : dayNamesMon;
-    const toWeekIndex = (sun0)=> weekStart==="sun" ? sun0 : (sun0 + 6) % 7;
-
-    const months = monthSpan(startUtc, endUtcInclusive);
-
-    months.forEach(({y,m0}, idx) => {
-      if (idx>0) doc.addPage("letter","landscape");
+    doc.setLineWidth(0.8); // non-zero for iOS
+    months.forEach(({y,m0}, idx)=>{
+      if(idx>0) doc.addPage("letter","landscape");
 
       // Title
       doc.setFont("helvetica","bold"); doc.setFontSize(24);
-      const title = `${new Date(Date.UTC(y, m0, 1)).toLocaleString("en-US",{month:"long", timeZone:"UTC"})} ${y}`;
-      doc.text(title, page.width/2, margin+10, {align:"center", baseline:"top"});
+      const title=`${new Date(Date.UTC(y,m0,1)).toLocaleString("en-US",{month:"long", timeZone:"UTC"})} ${y}`;
+      doc.text(title, pageW/2, margin+10, {align:"center", baseline:"top"});
 
       // Day headers
       doc.setFont("helvetica","normal"); doc.setFontSize(12);
-      for (let i=0;i<7;i++){
-        const x = margin + i*cellW + cellW/2;
-        const y = margin + headerH;
-        doc.text(dayNames[i], x, y, {align:"center", baseline:"bottom"});
+      for(let i=0;i<7;i++){
+        const x=margin+i*cellW+cellW/2, yText=margin+headerH;
+        doc.text(dayNames[i], x, yText, {align:"center", baseline:"bottom"});
       }
 
-      // Month geometry
-      const firstUTC = Date.UTC(y, m0, 1);
-      const firstDayJS = new Date(firstUTC).getUTCDay(); // Sun=0..6
-      const firstDow   = toWeekIndex(firstDayJS);
-      const daysInMonth = new Date(Date.UTC(y, m0+1, 0)).getUTCDate();
+      // Geometry
+      const firstUTC=Date.UTC(y,m0,1);
+      const firstDayJS=new Date(firstUTC).getUTCDay(); // Sun=0..6
+      const firstDow=toWeekIndex(firstDayJS);
+      const daysInMonth=new Date(Date.UTC(y,m0+1,0)).getUTCDate();
 
-      // Grid + content
-      for (let row=0, dayNum=1; row<grid.rows; row++){
-        for (let col=0; col<grid.cols; col++){
-          const x = margin + col*cellW;
-          const y = margin + headerH + dayHeaderH + row*cellH;
+      // Cells
+      let dayNum=1;
+      for(let r=0;r<rows;r++){
+        for(let c=0;c<cols;c++){
+          const x=margin+c*cellW, y=margin+headerH+dayHeaderH+r*cellH;
+          const index=r*7+c;
 
-          // Default empty cell border (stroke only)
-          doc.setDrawColor(80,80,80);
-          doc.setLineWidth(0.75);               // non-zero for iOS
-          doc.rect(x,y,cellW,cellH,"S");
-
-          const index = row*7 + col;
-          if (index >= firstDow && dayNum <= daysInMonth){
-            const dateUTC = Date.UTC(y, m0, dayNum);
-            const key = ymd(dateUTC);
-            const label = scheduleByDay.get(key) || "";
-
-            // Fill + stroke together (FD) — iOS-safe
-            if (label){
-              const fill = label.toLowerCase()==="work" ? hexToRgb(workColor) : hexToRgb(offColor);
-              doc.setDrawColor(80,80,80);
+          if(index>=firstDow && dayNum<=daysInMonth){
+            const dateUTC=Date.UTC(y,m0,dayNum);
+            const label=(scheduleByDay.get(ymd(dateUTC))||"").trim();
+            if(label){
+              const fill = (label.toLowerCase()==="work") ? hexToRgb(workColor) : hexToRgb(offColor);
               doc.setFillColor(fill.r, fill.g, fill.b);
-              doc.setLineWidth(0.75);
-              doc.rect(x, y, cellW, cellH, "FD"); // <-- key line
+              doc.setDrawColor(80,80,80);
+              doc.rect(x,y,cellW,cellH,"FD"); // ONE op: fill + stroke
+            } else {
+              doc.setDrawColor(80,80,80);
+              doc.rect(x,y,cellW,cellH,"S");  // ONE op: stroke only
             }
 
-            // Day number
+            // Day number + label
             doc.setFont("helvetica","bold"); doc.setFontSize(10);
             doc.text(String(dayNum), x+4, y+12, {baseline:"top"});
-
-            // Label
-            if (label){
+            if(label){
               doc.setFont("helvetica","normal"); doc.setFontSize(11);
               doc.text(label, x+cellW/2, y+cellH/2, {align:"center", baseline:"middle"});
             }
             dayNum++;
+          } else {
+            // out-of-month cells: border only
+            doc.setDrawColor(80,80,80);
+            doc.rect(x,y,cellW,cellH,"S");
           }
         }
       }
 
-      // Legend (use FD too)
-      const legendY = page.height - margin + 10;
-      const box = (lx, text, hex) => {
-        const c = hexToRgb(hex);
-        doc.setFillColor(c.r, c.g, c.b);
+      // Legend
+      const legendY=pageH - margin + 10;
+      const box=(lx,text,hex)=>{
+        const c=hexToRgb(hex);
+        doc.setFillColor(c.r,c.g,c.b);
         doc.setDrawColor(80,80,80);
-        doc.setLineWidth(0.75);
-        doc.rect(lx, legendY - 12, 14, 14, "FD");
+        doc.rect(lx,legendY-12,14,14,"FD");
         doc.setFont("helvetica","normal"); doc.setFontSize(12);
-        doc.text(text, lx + 20, legendY);
+        doc.text(text, lx+20, legendY);
       };
-      box(margin, "Work", workColor);
-      box(margin+100, "Off",  offColor);
+      box(margin,"Work",workColor);
+      box(margin+100,"Off",offColor);
     });
 
-    const fname = `Work_Schedule_${ymd(startUtc)}_to_${ymd(endUtcInclusive)}.pdf`;
+    const fname=`Work_Schedule_${ymd(startUtc)}_to_${ymd(endUtcInclusive)}.pdf`;
     doc.save(fname);
   }
 
   function hexToRgb(hex){
-    const h = hex.replace("#","");
-    const n = parseInt(h,16);
-    if (h.length===6) return { r:(n>>16)&255, g:(n>>8)&255, b:n&255 };
-    return { r:((n>>8)&15)*17, g:((n>>4)&15)*17, b:(n&15)*17 };
+    const h=hex.replace("#",""); const n=parseInt(h,16);
+    if(h.length===6) return {r:(n>>16)&255, g:(n>>8)&255, b:n&255};
+    return {r:((n>>8)&15)*17, g:((n>>4)&15)*17, b:(n&15)*17};
   }
 
   // ---------- ICS ----------
   function downloadIcs({scheduleByDay, periods, startUtc, endUtcInclusive, mode}){
-    const NL = "\r\n";
-    const now = new Date();
-    const dtstamp = toICSDateTimeUTC(now);
-
-    let ics = "BEGIN:VCALENDAR"+NL+
-              "VERSION:2.0"+NL+
-              "PRODID:-//Custom Work Schedule//EN"+NL+
-              "CALSCALE:GREGORIAN"+NL+
-              "METHOD:PUBLISH"+NL;
-
-    if (mode==="allday"){
-      const startDay = Date.UTC(new Date(startUtc).getUTCFullYear(), new Date(startUtc).getUTCMonth(), new Date(startUtc).getUTCDate());
-      const endDayIncl = Date.UTC(new Date(endUtcInclusive).getUTCFullYear(), new Date(endUtcInclusive).getUTCMonth(), new Date(endUtcInclusive).getUTCDate());
-
-      for (let d = startDay; d <= endDayIncl; d += 24*3600*1000){
-        const label = scheduleByDay.get(ymd(d));
-        if (!label) continue;
-        const dt = new Date(d);
-        const y = dt.getUTCFullYear(), m = dt.getUTCMonth(), day = dt.getUTCDate();
-        const dtStart = toICSDateOnly(y,m,day);
-        const next = new Date(Date.UTC(y,m,day+1));
-        const dtEnd = toICSDateOnly(next.getUTCFullYear(), next.getUTCMonth(), next.getUTCDate());
-
-        const uid = `allday-${y}${m+1}${day}-${Math.random().toString(36).slice(2)}@custom-schedule`;
-        ics += "BEGIN:VEVENT"+NL+
-               `UID:${uid}`+NL+
-               `DTSTAMP:${dtstamp}`+NL+
-               `SUMMARY:${escapeICSText(label)}`+NL+
-               `DTSTART;VALUE=DATE:${dtStart}`+NL+
-               `DTEND;VALUE=DATE:${dtEnd}`+NL+
-               "END:VEVENT"+NL;
+    const NL="\r\n", now=new Date(), dtstamp=toICSDateTimeUTC(now);
+    let ics="BEGIN:VCALENDAR"+NL+"VERSION:2.0"+NL+"PRODID:-//Custom Work Schedule//EN"+NL+"CALSCALE:GREGORIAN"+NL+"METHOD:PUBLISH"+NL;
+    if(mode==="allday"){
+      const startDay=Date.UTC(new Date(startUtc).getUTCFullYear(), new Date(startUtc).getUTCMonth(), new Date(startUtc).getUTCDate());
+      const endDay=Date.UTC(new Date(endUtcInclusive).getUTCFullYear(), new Date(endUtcInclusive).getUTCMonth(), new Date(endUtcInclusive).getUTCDate());
+      for(let d=startDay; d<=endDay; d+=MS_PER_DAY){
+        const label=scheduleByDay.get(ymd(d)); if(!label) continue;
+        const dt=new Date(d); const y=dt.getUTCFullYear(), m=dt.getUTCMonth(), day=dt.getUTCDate();
+        const dtStart=toICSDateOnly(y,m,day); const next=new Date(Date.UTC(y,m,day+1));
+        const dtEnd=toICSDateOnly(next.getUTCFullYear(), next.getUTCMonth(), next.getUTCDate());
+        const uid=`allday-${y}${m+1}${day}-${Math.random().toString(36).slice(2)}@custom-schedule`;
+        ics+="BEGIN:VEVENT"+NL+`UID:${uid}`+NL+`DTSTAMP:${dtstamp}`+NL+`SUMMARY:${escapeICSText(label)}`+NL+
+             `DTSTART;VALUE=DATE:${dtStart}`+NL+`DTEND;VALUE=DATE:${dtEnd}`+NL+"END:VEVENT"+NL;
       }
     } else {
-      for (const p of periods){
-        if (p.endUtc <= startUtc || p.startUtc > endUtcInclusive) continue;
-        const s = Math.max(p.startUtc, startUtc);
-        const e = Math.min(p.endUtc, endUtcInclusive + 24*3600*1000);
-        const uid = `timed-${s}-${Math.random().toString(36).slice(2)}@custom-schedule`;
-        ics += "BEGIN:VEVENT"+NL+
-               `UID:${uid}`+NL+
-               `DTSTAMP:${dtstamp}`+NL+
-               `SUMMARY:${escapeICSText(p.label)}`+NL+
-               `DTSTART:${toICSDateTimeUTC(new Date(s))}`+NL+
-               `DTEND:${toICSDateTimeUTC(new Date(e))}`+NL+
-               "END:VEVENT"+NL;
+      for(const p of periods){
+        if(p.endUtc<=startUtc || p.startUtc>endUtcInclusive) continue;
+        const s=Math.max(p.startUtc,startUtc), e=Math.min(p.endUtc,endUtcInclusive+MS_PER_DAY);
+        const uid=`timed-${s}-${Math.random().toString(36).slice(2)}@custom-schedule`;
+        ics+="BEGIN:VEVENT"+NL+`UID:${uid}`+NL+`DTSTAMP:${dtstamp}`+NL+`SUMMARY:${escapeICSText(p.label)}`+NL+
+             `DTSTART:${toICSDateTimeUTC(new Date(s))}`+NL+`DTEND:${toICSDateTimeUTC(new Date(e))}`+NL+"END:VEVENT"+NL;
       }
     }
-
-    ics += "END:VCALENDAR"+NL;
-
-    const blob = new Blob([ics], {type: "text/calendar;charset=utf-8"});
-    const a = document.createElement("a");
-    const startStr = ymd(startUtc).replaceAll("-","");
-    const endStr   = ymd(endUtcInclusive).replaceAll("-","");
-    a.download = `Work_Schedule_${startStr}_to_${endStr}.ics`;
-    a.href = URL.createObjectURL(blob);
-    document.body.appendChild(a);
-    a.click();
-    URL.revokeObjectURL(a.href);
-    a.remove();
+    ics+="END:VCALENDAR"+NL;
+    const blob=new Blob([ics],{type:"text/calendar;charset=utf-8"});
+    const a=document.createElement("a");
+    a.download=`Work_Schedule_${ymd(startUtc).replaceAll("-","")}_to_${ymd(endUtcInclusive).replaceAll("-","")}.ics`;
+    a.href=URL.createObjectURL(blob); document.body.appendChild(a); a.click();
+    URL.revokeObjectURL(a.href); a.remove();
   }
-
-  function toICSDateTimeUTC(dateObj){
-    const y = dateObj.getUTCFullYear();
-    const m = String(dateObj.getUTCMonth()+1).padStart(2,"0");
-    const d = String(dateObj.getUTCDate()).padStart(2,"0");
-    const hh = String(dateObj.getUTCHours()).padStart(2,"0");
-    const mm = String(dateObj.getUTCMinutes()).padStart(2,"0");
-    const ss = String(dateObj.getUTCSeconds()).padStart(2,"0");
-    return `${y}${m}${d}T${hh}${mm}${ss}Z`;
-  }
+  function toICSDateTimeUTC(d){ const y=d.getUTCFullYear(), m=String(d.getUTCMonth()+1).padStart(2,"0"),
+    day=String(d.getUTCDate()).padStart(2,"0"), hh=String(d.getUTCHours()).padStart(2,"0"),
+    mm=String(d.getUTCMinutes()).padStart(2,"0"), ss=String(d.getUTCSeconds()).padStart(2,"0");
+    return `${y}${m}${day}T${hh}${mm}${ss}Z`; }
   function toICSDateOnly(y,m0,d){ return `${y}${String(m0+1).padStart(2,"0")}${String(d).padStart(2,"0")}`; }
   function escapeICSText(s){ return String(s).replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\n/g,"\\n"); }
 
   // ---------- Actions ----------
   function gatherInputs(){
-    const startDT = $("startDT").value;
-    const endD    = $("endDT").value;
-    if (!startDT) throw new Error("Please choose a start date & time.");
-    if (!endD)    throw new Error("Please choose an end date.");
-    const startUtc = toUTCFromLocalDateTimeLocal(startDT);
-    const endUtcInclusive = toUTCFromDateOnly(endD);
-    if (startUtc == null || endUtcInclusive == null) throw new Error("Invalid dates.");
-    if (endUtcInclusive < startUtc) throw new Error("End date must be on or after start date.");
-
-    const pattern = readPattern();
-    const workColor = $("workColor").value;
-    const offColor  = $("offColor").value;
-    const weekStart = $("weekStart").value;
-    const icsMode   = $("icsMode").value;
-
-    return { startUtc, endUtcInclusive, pattern, workColor, offColor, weekStart, icsMode };
+    const startDT=$("startDT").value, endD=$("endDT").value;
+    if(!startDT) throw new Error("Please choose a start date & time.");
+    if(!endD) throw new Error("Please choose an end date.");
+    const startUtc=toUTCFromLocalDateTimeLocal(startDT);
+    const endUtcInclusive=toUTCFromDateOnly(endD);
+    if(startUtc==null || endUtcInclusive==null) throw new Error("Invalid dates.");
+    if(endUtcInclusive<startUtc) throw new Error("End date must be on or after start date.");
+    const pattern=readPattern();
+    return { startUtc, endUtcInclusive, pattern,
+             workColor:$("workColor").value, offColor:$("offColor").value,
+             weekStart:$("weekStart").value, icsMode:$("icsMode").value };
   }
 
-  $("genPdf").addEventListener("click", async () => {
+  $("genPdf").addEventListener("click", async ()=>{
     try{
-      const inputs = gatherInputs();
-      const { startUtc, endUtcInclusive, pattern } = inputs;
-      const endUtcExclusive = addDaysUTC(endUtcInclusive, 1);
-      const { scheduleByDay } = buildSchedule({ startUtc, endUtcExclusive, pattern });
-      await makePdf({
-        scheduleByDay,
-        startUtc,
-        endUtcInclusive,
-        workColor: inputs.workColor,
-        offColor: inputs.offColor,
-        weekStart: inputs.weekStart
-      });
-    } catch(err){
-      alert(err.message || String(err));
-    }
+      const { startUtc, endUtcInclusive, pattern, workColor, offColor, weekStart } = gatherInputs();
+      const { scheduleByDay } = buildSchedule({ startUtc, endUtcExclusive: addDaysUTC(endUtcInclusive,1), pattern });
+      await makePdf({ scheduleByDay, startUtc, endUtcInclusive, workColor, offColor, weekStart });
+    }catch(e){ alert(e.message||String(e)); }
   });
 
-  $("genIcs").addEventListener("click", () => {
+  $("genIcs").addEventListener("click", ()=>{
     try{
-      const inputs = gatherInputs();
-      const { startUtc, endUtcInclusive, pattern, icsMode } = inputs;
-      const endUtcExclusive = addDaysUTC(endUtcInclusive, 1);
-      const { scheduleByDay, periods } = buildSchedule({ startUtc, endUtcExclusive, pattern });
-      downloadIcs({ scheduleByDay, periods, startUtc, endUtcInclusive, mode: icsMode });
-    } catch(err){
-      alert(err.message || String(err));
-    }
+      const { startUtc, endUtcInclusive, pattern, icsMode } = gatherInputs();
+      const built = buildSchedule({ startUtc, endUtcExclusive: addDaysUTC(endUtcInclusive,1), pattern });
+      downloadIcs({ ...built, startUtc, endUtcInclusive, mode: icsMode });
+    }catch(e){ alert(e.message||String(e)); }
   });
 
-  // Tiny swatch test to verify fills render on your device
-  $("testPdf").addEventListener("click", () => {
-    const doc = new jsPDF({ orientation: "portrait", unit: "pt", format: "letter" });
+  $("testPdf").addEventListener("click", ()=>{
+    const doc=new jsPDF({orientation:"portrait", unit:"pt", format:"letter"});
     doc.setFont("helvetica","bold"); doc.setFontSize(18);
-    doc.text("Fill Test (FD + non-zero stroke width)", 306, 50, {align:"center"});
-
-    const boxes = [
-      {x:72, y:100, w:120, h:80, color:"#97d897", label:"Work"},
-      {x:220, y:100, w:120, h:80, color:"#d6d6d6", label:"Off"},
-      {x:368, y:100, w:120, h:80, color:"#ffd166", label:"Alt 1"},
-      {x:516, y:100, w:120, h:80, color:"#a0c4ff", label:"Alt 2"},
-    ];
-    boxes.forEach(b => {
-      const c = hexToRgb(b.color);
-      doc.setDrawColor(60,60,60);
-      doc.setFillColor(c.r, c.g, c.b);
-      doc.setLineWidth(0.75);
-      doc.rect(b.x, b.y, b.w, b.h, "FD");
-      doc.setFont("helvetica","normal"); doc.setFontSize(12);
-      doc.text(b.label, b.x + b.w/2, b.y + b.h/2, {align:"center", baseline:"middle"});
-    });
-
+    doc.text("Fill Test (single rect per box, FD)", 306, 50, {align:"center"});
+    const boxes=[{x:72,y:100,c:"#97d897",t:"Work"},{x:220,y:100,c:"#d6d6d6",t:"Off"},
+                 {x:368,y:100,c:"#ffd166",t:"Alt 1"},{x:516,y:100,c:"#a0c4ff",t:"Alt 2"}];
+    doc.setLineWidth(0.8);
+    boxes.forEach(b=>{ const rgb=hexToRgb(b.c); doc.setFillColor(rgb.r,rgb.g,rgb.b); doc.setDrawColor(60,60,60);
+      doc.rect(b.x,b.y,120,80,"FD"); doc.setFont("helvetica","normal"); doc.setFontSize(12);
+      doc.text(b.t,b.x+60,b.y+40,{align:"center",baseline:"middle"}); });
     doc.save(`Fill_Test_v${VERSION}.pdf`);
   });
 
-  // Prefill example on first load
-  if (!$("startDT").value && !$("endDT").value){
-    $("fillExample").click();
-  }
+  if(!$("startDT").value && !$("endDT").value){ $("fillExample").click(); }
 })();
 </script>
 </body>
