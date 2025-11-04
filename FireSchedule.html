@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Custom Work Schedule → PDF & iPhone Calendar</title>
+<title>Custom Work Schedule → PDF (Canvas) & iPhone Calendar</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
@@ -43,12 +43,13 @@
   .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:#0f1735;border:1px solid rgba(255,255,255,.1)}
   .legend{display:flex;gap:10px;flex-wrap:wrap}
   .swatch{width:14px;height:14px;border-radius:3px;border:1px solid rgba(255,255,255,.25)}
+  canvas{display:none}
 </style>
 </head>
 <body>
   <div class="wrap">
     <header>
-      <h1>Custom Work Schedule → PDF & iPhone Calendar</h1>
+      <h1>Custom Work Schedule → PDF (Canvas) & iPhone Calendar</h1>
       <span class="tag">Mobile-ready • Offline • Private</span>
     </header>
 
@@ -124,11 +125,10 @@
         <button class="btn" id="genPdf">Generate PDF</button>
         <button class="btn secondary" id="genIcs">Add to iPhone Calendar (.ics)</button>
         <button class="btn ghost" id="fillExample">Fill example (24W/72O/48W/72O)</button>
-        <button class="btn ghost" id="testPdf">Test Colors (1 page)</button>
       </div>
 
       <div style="margin-top:10px" class="hint">
-        If colors don’t show, refresh (or add <code>?v=3</code> to the URL), then open the PDF in the <b>Files</b> or <b>Books</b> app.
+        If you were seeing blank fills before, this version rasterizes months to PNG images first — colors will show in Safari/Files/Books.
       </div>
     </div>
   </div>
@@ -136,7 +136,6 @@
 <script>
 (() => {
   const { jsPDF } = window.jspdf;
-  const VERSION = "3.0";
 
   // ---------- UI ----------
   const $ = (id) => document.getElementById(id);
@@ -152,7 +151,6 @@
     patternBody.appendChild(tr);
     tr.querySelector(".remove").addEventListener("click", () => tr.remove());
   }
-
   $("addRow").addEventListener("click", () => addPatternRow("Work", 24));
   $("fillExample").addEventListener("click", () => {
     patternBody.innerHTML = "";
@@ -163,27 +161,25 @@
     if (!$("startDT").value) $("startDT").value = "2025-11-04T07:00";
     if (!$("endDT").value) $("endDT").value = "2026-12-31";
   });
+  if (!patternBody.children.length) addPatternRow("Work", 24);
   $("workColor").addEventListener("input", e => $("swWork").style.background = e.target.value);
   $("offColor").addEventListener("input", e => $("swOff").style.background = e.target.value);
-  if (!patternBody.children.length) addPatternRow("Work", 24);
 
-  // ---------- Date helpers ----------
+  // ---------- Dates & schedule ----------
   const MS_PER_HOUR = 3600 * 1000, MS_PER_DAY = 24 * MS_PER_HOUR;
   function toUTCFromLocalDateTimeLocal(s){ const d=new Date(s); if(isNaN(d)) return null;
     return Date.UTC(d.getFullYear(),d.getMonth(),d.getDate(),d.getHours(),d.getMinutes(),0); }
   function toUTCFromDateOnly(s){ const d=new Date(s+"T00:00:00"); if(isNaN(d)) return null;
     return Date.UTC(d.getFullYear(),d.getMonth(),d.getDate(),0,0,0); }
-  const addHoursUTC = (ms,h)=>ms+h*MS_PER_HOUR, addDaysUTC=(ms,d)=>ms+d*MS_PER_DAY;
+  const addHoursUTC=(ms,h)=>ms+h*MS_PER_HOUR, addDaysUTC=(ms,d)=>ms+d*MS_PER_DAY;
   function ymd(ms){ const d=new Date(ms); const y=d.getUTCFullYear(), m=d.getUTCMonth()+1, day=d.getUTCDate();
     return `${y}-${String(m).padStart(2,"0")}-${String(day).padStart(2,"0")}`; }
   function monthSpan(startUtc, endUtcInclusive){
     const out=[]; let y=new Date(startUtc).getUTCFullYear(), m0=new Date(startUtc).getUTCMonth();
     const ey=new Date(endUtcInclusive).getUTCFullYear(), em0=new Date(endUtcInclusive).getUTCMonth();
-    while (y<ey || (y===ey && m0<=em0)){ out.push({y,m0}); m0++; if(m0>11){m0=0;y++;} }
+    while(y<ey || (y===ey && m0<=em0)){ out.push({y,m0}); m0++; if(m0>11){m0=0;y++;} }
     return out;
   }
-
-  // ---------- Build schedule ----------
   function readPattern(){
     const rows=[...patternBody.querySelectorAll("tr")].map(tr=>{
       const [lEl,hEl]=tr.querySelectorAll("input");
@@ -194,7 +190,6 @@
     if(!rows.length) throw new Error("Please add at least one pattern row.");
     return rows;
   }
-
   function buildSchedule({startUtc, endUtcExclusive, pattern}){
     const scheduleByDay=new Map(), periods=[];
     let current=startUtc, pIndex=0;
@@ -212,97 +207,141 @@
     return {scheduleByDay, periods};
   }
 
-  // ---------- PDF (single-rect-per-cell) ----------
-  async function makePdf({scheduleByDay, startUtc, endUtcInclusive, workColor, offColor, weekStart}){
-    const doc=new jsPDF({orientation:"landscape", unit:"pt", format:"letter", compress:true});
-    const pageW=doc.internal.pageSize.getWidth(), pageH=doc.internal.pageSize.getHeight();
-    const margin=36, headerH=40, dayHeaderH=22;
-    const cols=7, rows=6;
-    const cellW=(pageW-margin*2)/cols, cellH=(pageH-margin*2-headerH-dayHeaderH)/rows;
-    const dayNames = weekStart==="sun" ? ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"] : ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+  // ---------- Canvas month renderer ----------
+  // Canvas will be 2200x1700 to keep things crisp; then downscale to PDF page.
+  function drawMonthToCanvas({y, m0, scheduleByDay, weekStart, workColor, offColor}){
+    const width = 2200, height = 1700;
+    const canvas = document.createElement("canvas");
+    canvas.width = width; canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    // Background
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0,0,width,height);
+
+    // Layout
+    const margin = 90, headerH = 120, dayHeaderH = 60;
+    const cols = 7, rows = 6;
+    const cellW = (width - margin*2) / cols;
+    const cellH = (height - margin*2 - headerH - dayHeaderH) / rows;
+
+    // Fonts
+    ctx.font = "bold 48px Inter, Arial, sans-serif";
+    ctx.fillStyle = "#1b1b1b";
+    ctx.textAlign = "center"; ctx.textBaseline = "top";
+    const monthName = new Date(Date.UTC(y, m0, 1)).toLocaleString("en-US", { month: "long", timeZone: "UTC" });
+    ctx.fillText(`${monthName} ${y}`, width/2, margin - 10);
+
+    // Day headers
+    const dayNamesMon = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+    const dayNamesSun = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    const dayNames = weekStart==="sun"? dayNamesSun : dayNamesMon;
+    ctx.font = "400 32px Inter, Arial, sans-serif";
+    ctx.textBaseline = "alphabetic";
+    for (let i=0; i<7; i++){
+      const x = margin + i*cellW + cellW/2;
+      const yText = margin + headerH;
+      ctx.fillStyle = "#2b2b2b";
+      ctx.fillText(dayNames[i], x, yText);
+    }
+
+    // Month geometry
+    const firstUTC = Date.UTC(y, m0, 1);
+    const firstDayJS = new Date(firstUTC).getUTCDay(); // Sun=0..6
     const toWeekIndex = (sun0)=> weekStart==="sun" ? sun0 : (sun0+6)%7;
-    const months=monthSpan(startUtc, endUtcInclusive);
+    const firstDow = toWeekIndex(firstDayJS);
+    const daysInMonth = new Date(Date.UTC(y, m0+1, 0)).getUTCDate();
 
-    doc.setLineWidth(0.8); // non-zero for iOS
-    months.forEach(({y,m0}, idx)=>{
-      if(idx>0) doc.addPage("letter","landscape");
+    // Colors
+    const gridStroke = "#4a4a4a";
+    const work = workColor; const off = offColor;
 
-      // Title
-      doc.setFont("helvetica","bold"); doc.setFontSize(24);
-      const title=`${new Date(Date.UTC(y,m0,1)).toLocaleString("en-US",{month:"long", timeZone:"UTC"})} ${y}`;
-      doc.text(title, pageW/2, margin+10, {align:"center", baseline:"top"});
+    // Cells
+    let dayNum = 1;
+    ctx.textAlign = "left";
+    for (let r=0; r<rows; r++){
+      for (let c=0; c<cols; c++){
+        const x = Math.round(margin + c*cellW);
+        const yCell = Math.round(margin + headerH + dayHeaderH + r*cellH);
+        const w = Math.floor(cellW), h = Math.floor(cellH);
 
-      // Day headers
-      doc.setFont("helvetica","normal"); doc.setFontSize(12);
-      for(let i=0;i<7;i++){
-        const x=margin+i*cellW+cellW/2, yText=margin+headerH;
-        doc.text(dayNames[i], x, yText, {align:"center", baseline:"bottom"});
-      }
+        // border
+        ctx.strokeStyle = gridStroke;
+        ctx.lineWidth = 2;
 
-      // Geometry
-      const firstUTC=Date.UTC(y,m0,1);
-      const firstDayJS=new Date(firstUTC).getUTCDay(); // Sun=0..6
-      const firstDow=toWeekIndex(firstDayJS);
-      const daysInMonth=new Date(Date.UTC(y,m0+1,0)).getUTCDate();
+        const index = r*7 + c;
+        if (index >= firstDow && dayNum <= daysInMonth){
+          const dateUTC = Date.UTC(y, m0, dayNum);
+          const key = ymd(dateUTC);
+          const label = (scheduleByDay.get(key) || "").trim();
 
-      // Cells
-      let dayNum=1;
-      for(let r=0;r<rows;r++){
-        for(let c=0;c<cols;c++){
-          const x=margin+c*cellW, y=margin+headerH+dayHeaderH+r*cellH;
-          const index=r*7+c;
-
-          if(index>=firstDow && dayNum<=daysInMonth){
-            const dateUTC=Date.UTC(y,m0,dayNum);
-            const label=(scheduleByDay.get(ymd(dateUTC))||"").trim();
-            if(label){
-              const fill = (label.toLowerCase()==="work") ? hexToRgb(workColor) : hexToRgb(offColor);
-              doc.setFillColor(fill.r, fill.g, fill.b);
-              doc.setDrawColor(80,80,80);
-              doc.rect(x,y,cellW,cellH,"FD"); // ONE op: fill + stroke
-            } else {
-              doc.setDrawColor(80,80,80);
-              doc.rect(x,y,cellW,cellH,"S");  // ONE op: stroke only
-            }
-
-            // Day number + label
-            doc.setFont("helvetica","bold"); doc.setFontSize(10);
-            doc.text(String(dayNum), x+4, y+12, {baseline:"top"});
-            if(label){
-              doc.setFont("helvetica","normal"); doc.setFontSize(11);
-              doc.text(label, x+cellW/2, y+cellH/2, {align:"center", baseline:"middle"});
-            }
-            dayNum++;
+          // fill
+          if (label){
+            ctx.fillStyle = (label.toLowerCase()==="work") ? work : off;
+            ctx.fillRect(x, yCell, w, h);
           } else {
-            // out-of-month cells: border only
-            doc.setDrawColor(80,80,80);
-            doc.rect(x,y,cellW,cellH,"S");
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(x, yCell, w, h);
           }
+
+          // border
+          ctx.strokeRect(x, yCell, w, h);
+
+          // day number
+          ctx.fillStyle = "#111";
+          ctx.font = "bold 28px Inter, Arial, sans-serif";
+          ctx.textBaseline = "top";
+          ctx.fillText(String(dayNum), x+10, yCell+8);
+
+          // label
+          if (label){
+            ctx.fillStyle = "#111";
+            ctx.font = "500 30px Inter, Arial, sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(label, x + w/2, yCell + h/2);
+            ctx.textAlign = "left";
+          }
+
+          dayNum++;
+        } else {
+          // out of month cell
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(x, yCell, w, h);
+          ctx.strokeRect(x, yCell, w, h);
         }
       }
+    }
 
-      // Legend
-      const legendY=pageH - margin + 10;
-      const box=(lx,text,hex)=>{
-        const c=hexToRgb(hex);
-        doc.setFillColor(c.r,c.g,c.b);
-        doc.setDrawColor(80,80,80);
-        doc.rect(lx,legendY-12,14,14,"FD");
-        doc.setFont("helvetica","normal"); doc.setFontSize(12);
-        doc.text(text, lx+20, legendY);
-      };
-      box(margin,"Work",workColor);
-      box(margin+100,"Off",offColor);
-    });
+    // Legend
+    const legendY = height - margin + 20;
+    function legendBox(lx, label, color){
+      ctx.fillStyle = color; ctx.strokeStyle = gridStroke; ctx.lineWidth = 2;
+      ctx.fillRect(lx, legendY-28, 24, 24); ctx.strokeRect(lx, legendY-28, 24, 24);
+      ctx.fillStyle = "#222"; ctx.font = "400 28px Inter, Arial, sans-serif"; ctx.textBaseline = "alphabetic";
+      ctx.textAlign = "left"; ctx.fillText(label, lx + 34, legendY - 6);
+    }
+    legendBox(margin, "Work", work);
+    legendBox(margin + 180, "Off", off);
 
-    const fname=`Work_Schedule_${ymd(startUtc)}_to_${ymd(endUtcInclusive)}.pdf`;
-    doc.save(fname);
+    return canvas;
   }
 
-  function hexToRgb(hex){
-    const h=hex.replace("#",""); const n=parseInt(h,16);
-    if(h.length===6) return {r:(n>>16)&255, g:(n>>8)&255, b:n&255};
-    return {r:((n>>8)&15)*17, g:((n>>4)&15)*17, b:(n&15)*17};
+  // ---------- PDF via canvas images ----------
+  async function makePdfViaCanvas({scheduleByDay, startUtc, endUtcInclusive, workColor, offColor, weekStart}){
+    const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "letter", compress: true });
+    const pageW = doc.internal.pageSize.getWidth();
+    const pageH = doc.internal.pageSize.getHeight();
+
+    const months = monthSpan(startUtc, endUtcInclusive);
+    months.forEach(({y,m0}, idx) => {
+      if (idx > 0) doc.addPage("letter", "landscape");
+      const canvas = drawMonthToCanvas({ y, m0, scheduleByDay, weekStart, workColor, offColor });
+      const dataUrl = canvas.toDataURL("image/png"); // opaque PNG; iOS-safe
+      doc.addImage(dataUrl, "PNG", 0, 0, pageW, pageH);
+    });
+
+    const fname = `Work_Schedule_${ymd(startUtc)}_to_${ymd(endUtcInclusive)}.pdf`;
+    doc.save(fname);
   }
 
   // ---------- ICS ----------
@@ -362,32 +401,20 @@
   $("genPdf").addEventListener("click", async ()=>{
     try{
       const { startUtc, endUtcInclusive, pattern, workColor, offColor, weekStart } = gatherInputs();
-      const { scheduleByDay } = buildSchedule({ startUtc, endUtcExclusive: addDaysUTC(endUtcInclusive,1), pattern });
-      await makePdf({ scheduleByDay, startUtc, endUtcInclusive, workColor, offColor, weekStart });
+      const { scheduleByDay } = buildSchedule({ startUtc, endUtcExclusive: (endUtcInclusive + MS_PER_DAY), pattern });
+      await makePdfViaCanvas({ scheduleByDay, startUtc, endUtcInclusive, workColor, offColor, weekStart });
     }catch(e){ alert(e.message||String(e)); }
   });
 
   $("genIcs").addEventListener("click", ()=>{
     try{
       const { startUtc, endUtcInclusive, pattern, icsMode } = gatherInputs();
-      const built = buildSchedule({ startUtc, endUtcExclusive: addDaysUTC(endUtcInclusive,1), pattern });
+      const built = buildSchedule({ startUtc, endUtcExclusive: (endUtcInclusive + MS_PER_DAY), pattern });
       downloadIcs({ ...built, startUtc, endUtcInclusive, mode: icsMode });
     }catch(e){ alert(e.message||String(e)); }
   });
 
-  $("testPdf").addEventListener("click", ()=>{
-    const doc=new jsPDF({orientation:"portrait", unit:"pt", format:"letter"});
-    doc.setFont("helvetica","bold"); doc.setFontSize(18);
-    doc.text("Fill Test (single rect per box, FD)", 306, 50, {align:"center"});
-    const boxes=[{x:72,y:100,c:"#97d897",t:"Work"},{x:220,y:100,c:"#d6d6d6",t:"Off"},
-                 {x:368,y:100,c:"#ffd166",t:"Alt 1"},{x:516,y:100,c:"#a0c4ff",t:"Alt 2"}];
-    doc.setLineWidth(0.8);
-    boxes.forEach(b=>{ const rgb=hexToRgb(b.c); doc.setFillColor(rgb.r,rgb.g,rgb.b); doc.setDrawColor(60,60,60);
-      doc.rect(b.x,b.y,120,80,"FD"); doc.setFont("helvetica","normal"); doc.setFontSize(12);
-      doc.text(b.t,b.x+60,b.y+40,{align:"center",baseline:"middle"}); });
-    doc.save(`Fill_Test_v${VERSION}.pdf`);
-  });
-
+  // Prefill example on first load
   if(!$("startDT").value && !$("endDT").value){ $("fillExample").click(); }
 })();
 </script>
