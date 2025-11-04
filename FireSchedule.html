@@ -14,34 +14,46 @@
     --muted:#99a2c2;
     --text:#e9edff;
     --accent:#6ea8fe;
-    --accent2:#79dfc1;
     --ring:rgba(110,168,254,.35);
   }
   *{box-sizing:border-box}
-  body{margin:0;background:radial-gradient(1200px 800px at 80% -10%, #1f2b55, transparent), var(--bg);
-       color:var(--text);font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif}
+  body{
+    margin:0;
+    background:radial-gradient(1200px 800px at 80% -10%, #1f2b55, transparent), var(--bg);
+    color:var(--text);
+    font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif
+  }
   .wrap{max-width:980px;margin:0 auto;padding:20px}
   header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
   h1{font-size:clamp(1.25rem,2.4vw,1.8rem);margin:0;font-weight:700;letter-spacing:.2px}
-  .card{background:linear-gradient(180deg,#162044,#121a37);
-        border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:16px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+  .card{
+    background:linear-gradient(180deg,#162044,#121a37);
+    border:1px solid rgba(255,255,255,.06);
+    border-radius:16px;
+    padding:16px;
+    box-shadow:0 20px 60px rgba(0,0,0,.35)
+  }
   .grid{display:grid;gap:12px}
   .grid.cols-2{grid-template-columns:1fr 1fr}
   @media (max-width:720px){.grid.cols-2{grid-template-columns:1fr}}
   label{display:block;font-size:.9rem;color:var(--muted);margin:2px 0 6px}
-  input, select{width:100%;padding:12px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.08);
-                background:#0e1530;color:var(--text);outline:none}
+  input, select{
+    width:100%;padding:12px 12px;border-radius:12px;
+    border:1px solid rgba(255,255,255,.08);
+    background:#0e1530;color:var(--text);outline:none
+  }
   input:focus, select:focus{border-color:var(--accent);box-shadow:0 0 0 6px var(--ring)}
   .row{display:flex;gap:10px;align-items:end}
   .row > *{flex:1}
-  .btn{appearance:none;border:0;border-radius:12px;padding:12px 16px;color:var(--text);
-       background:linear-gradient(180deg, #3a66ff, #274ce0);font-weight:600;cursor:pointer}
+  .btn{
+    appearance:none;border:0;border-radius:12px;padding:12px 16px;color:var(--text);
+    background:linear-gradient(180deg, #3a66ff, #274ce0);font-weight:600;cursor:pointer
+  }
   .btn.secondary{background:linear-gradient(180deg,#22c1a7,#1aa68c)}
   .btn.ghost{background:#11193a;border:1px solid rgba(255,255,255,.12)}
   .btn.small{padding:8px 10px;border-radius:10px;font-size:.9rem}
   .btn-row{display:flex;gap:10px;flex-wrap:wrap}
-  .tag{padding:6px 10px;border-radius:999px;background:#101633;border:1px solid rgba(255,255,255,.08);
-       color:var(--muted);font-size:.85rem}
+  .tag{padding:6px 10px;border-radius:999px;background:#101633;border:1px solid rgba(255,255,255,.08);color:var(--muted);font-size:.85rem}
   table{width:100%;border-collapse:separate;border-spacing:0 8px}
   td,th{padding:8px 10px;text-align:left}
   .pat-row{background:#0f1634;border:1px solid rgba(255,255,255,.06);border-radius:12px}
@@ -99,11 +111,11 @@
       <div class="grid cols-2" style="margin-top:6px">
         <div>
           <label for="workColor">Work color</label>
-          <input id="workColor" type="color" value="#b4e2b4" />
+          <input id="workColor" type="color" value="#97d897" />
         </div>
         <div>
           <label for="offColor">Off color</label>
-          <input id="offColor" type="color" value="#ebebeb" />
+          <input id="offColor" type="color" value="#d6d6d6" />
         </div>
       </div>
 
@@ -111,7 +123,7 @@
 
       <div class="grid cols-2">
         <div>
-          <label for="dayNames">Week starts on</label>
+          <label for="weekStart">Week starts on</label>
           <select id="weekStart">
             <option value="mon" selected>Monday</option>
             <option value="sun">Sunday</option>
@@ -127,8 +139,8 @@
       </div>
 
       <div style="margin-top:12px" class="legend">
-        <span class="pill"><span class="swatch" id="swWork" style="background:#b4e2b4"></span> Work</span>
-        <span class="pill"><span class="swatch" id="swOff"  style="background:#ebebeb"></span> Off</span>
+        <span class="pill"><span class="swatch" id="swWork" style="background:#97d897"></span> Work</span>
+        <span class="pill"><span class="swatch" id="swOff"  style="background:#d6d6d6"></span> Off</span>
       </div>
 
       <div class="divider"></div>
@@ -173,14 +185,8 @@
     addPatternRow("Off", 72);
     addPatternRow("Work", 48);
     addPatternRow("Off", 72);
-    if (!$("startDT").value) {
-      // Default example: 2025-11-04 07:00
-      $("startDT").value = "2025-11-04T07:00";
-    }
-    if (!$("endDT").value) {
-      // End of 2026-12-31
-      $("endDT").value = "2026-12-31";
-    }
+    if (!$("startDT").value) $("startDT").value = "2025-11-04T07:00";
+    if (!$("endDT").value) $("endDT").value = "2026-12-31";
   });
 
   $("workColor").addEventListener("input", e => $("swWork").style.background = e.target.value);
@@ -271,7 +277,7 @@
 
   // ---------- PDF ----------
   async function makePdf({scheduleByDay, startUtc, endUtcInclusive, workColor, offColor, weekStart}){
-    const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "letter" });
+    const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "letter", compress: true });
     const page = { width: doc.internal.pageSize.getWidth(), height: doc.internal.pageSize.getHeight() };
     const margin = 36, headerH = 40, dayHeaderH = 22;
     const grid = { cols: 7, rows: 6 };
@@ -308,16 +314,16 @@
       const firstDow = toWeekIndex(firstDayJS);          // 0..6 per chosen week start
       const daysInMonth = new Date(Date.UTC(y, m0+1, 0)).getUTCDate();
 
-      // Draw cells
-      let dayNum = 1;
-      for (let row=0; row<grid.rows; row++){
+      // Draw grid + content
+      for (let row=0, dayNum=1; row<grid.rows; row++){
         for (let col=0; col<grid.cols; col++){
           const x = margin + col*cellW;
           const y = margin + headerH + dayHeaderH + row*cellH;
 
-          // Border
+          // Default empty cell border (stroke only)
           doc.setDrawColor(80,80,80);
-          doc.rect(x,y,cellW,cellH);
+          doc.setLineWidth(0.5);
+          doc.rect(x,y,cellW,cellH,"S");
 
           const index = row*7 + col;
           if (index >= firstDow && dayNum <= daysInMonth){
@@ -325,13 +331,13 @@
             const key = ymd(dateUTC);
             const label = scheduleByDay.get(key) || "";
 
-            // Fill
+            // Fill + stroke together (iOS-friendly)
             if (label){
               const fill = label.toLowerCase()==="work" ? hexToRgb(workColor) : hexToRgb(offColor);
-              doc.setFillColor(fill.r, fill.g, fill.b);
-              doc.rect(x,y,cellW,cellH,"F");
               doc.setDrawColor(80,80,80);
-              doc.rect(x,y,cellW,cellH);
+              doc.setFillColor(fill.r, fill.g, fill.b);
+              doc.setLineWidth(0.5);
+              doc.rect(x, y, cellW, cellH, "FD");
             }
 
             // Day number
@@ -348,13 +354,14 @@
         }
       }
 
-      // Legend
+      // Legend (use FD too)
       const legendY = page.height - margin + 10;
       const box = (lx, text, hex) => {
         const c = hexToRgb(hex);
         doc.setFillColor(c.r, c.g, c.b);
-        doc.rect(lx, legendY - 12, 14, 14, "F");
-        doc.setDrawColor(80,80,80); doc.rect(lx, legendY - 12, 14, 14);
+        doc.setDrawColor(80,80,80);
+        doc.setLineWidth(0.5);
+        doc.rect(lx, legendY - 12, 14, 14, "FD");
         doc.setFont("helvetica","normal"); doc.setFontSize(12);
         doc.text(text, lx + 20, legendY);
       };
@@ -394,18 +401,16 @@
     ics += "METHOD:PUBLISH"+NL;
 
     if (mode==="allday"){
-      // Create all-day events per day
       const startDay = Date.UTC(new Date(startUtc).getUTCFullYear(), new Date(startUtc).getUTCMonth(), new Date(startUtc).getUTCDate());
       const endDayIncl = Date.UTC(new Date(endUtcInclusive).getUTCFullYear(), new Date(endUtcInclusive).getUTCMonth(), new Date(endUtcInclusive).getUTCDate());
 
-      for (let d = startDay; d <= endDayIncl; d += MS_PER_DAY){
+      for (let d = startDay; d <= endDayIncl; d += 24*3600*1000){
         const label = scheduleByDay.get(ymd(d));
         if (!label) continue;
         const dt = new Date(d);
         const y = dt.getUTCFullYear(), m = dt.getUTCMonth(), day = dt.getUTCDate();
 
         const dtStart = toICSDateOnly(y,m,day);
-        // DTEND is exclusive → next day
         const next = new Date(Date.UTC(y,m,day+1));
         const dtEnd = toICSDateOnly(next.getUTCFullYear(), next.getUTCMonth(), next.getUTCDate());
 
@@ -419,11 +424,10 @@
         ics += "END:VEVENT"+NL;
       }
     } else {
-      // Timed events per period
       for (const p of periods){
         if (p.endUtc <= startUtc || p.startUtc > endUtcInclusive) continue;
         const s = Math.max(p.startUtc, startUtc);
-        const e = Math.min(p.endUtc, endUtcInclusive + MS_PER_DAY); // include end day midnight
+        const e = Math.min(p.endUtc, endUtcInclusive + 24*3600*1000);
         const uid = `timed-${s}-${Math.random().toString(36).slice(2)}@custom-schedule`;
         ics += "BEGIN:VEVENT"+NL;
         ics += `UID:${uid}`+NL;
@@ -489,7 +493,7 @@
     try{
       const inputs = gatherInputs();
       const { startUtc, endUtcInclusive, pattern } = inputs;
-      const endUtcExclusive = addDaysUTC(inputs.endUtcInclusive, 1); // exclusive upper bound
+      const endUtcExclusive = addDaysUTC(inputs.endUtcInclusive, 1); // exclusive bound
       const { scheduleByDay } = buildSchedule({ startUtc, endUtcExclusive, pattern });
       await makePdf({
         scheduleByDay,
@@ -522,7 +526,7 @@
     }
   });
 
-  // Prefill example on first load (feel free to remove)
+  // Prefill example on first load
   if (!$("startDT").value && !$("endDT").value){
     $("fillExample").click();
   }
