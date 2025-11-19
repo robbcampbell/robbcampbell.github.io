@@ -1,148 +1,300 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Mortgage Payment Calculator (Fast & Free)</title>
-<meta name="description"
-  content="Free mortgage payment calculator with taxes, insurance, and refinance savings comparison. Calculate house payments instantly. No email required." />
+  <meta charset="UTF-8" />
+  <title>Dallas Race Map & Homes for Sale | Side-by-Side Viewer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description"
+        content="View Dallas race and diversity maps side-by-side with homes for sale search results. Explore Dallas neighborhoods, demographics, and real estate listings together on one page." />
 
-<style>
-  body { font-family: system-ui, sans-serif; margin:0; padding:0; background:#f8fafc; color:#111; }
-  header { background:#1e293b; color:white; padding:1.5rem; text-align:center; }
-  h1 { margin:0; font-size:1.8rem; }
-  .wrapper { max-width:900px; margin:1.5rem auto; background:white; padding:1.5rem; border-radius:12px;
-             box-shadow:0 6px 20px rgba(0,0,0,0.06); }
-  label { display:block; margin:.4rem 0 .2rem; font-weight:600; }
-  input { width:100%; padding:.6rem; border-radius:8px; border:1px solid #cbd5e1; margin-bottom:.8rem; }
-  button { width:100%; padding:.8rem; background:#2563eb; border:none; color:white; border-radius:10px;
-           font-weight:700; font-size:1rem; cursor:pointer; margin-top:.5rem; }
-  button:hover { opacity:0.9; }
-  .resultBox { background:#f1f5f9; padding:1rem; border-radius:10px; margin-top:1.2rem; }
-  .faq h2 { margin-top:2rem; }
-  .faq p { margin-bottom:1rem; line-height:1.6; }
-  .adblock { background:#e2e8f0; padding:1rem; text-align:center; margin:1.5rem 0; border-radius:8px; }
-</style>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel-bg: #020617;
+      --accent: #38bdf8;
+      --text: #e5e7eb;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      padding: 1rem 1.5rem;
+      background: #020617;
+      border-bottom: 1px solid #111827;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+    header h1 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+    header span {
+      font-size: 0.8rem;
+      opacity: 0.8;
+    }
+    .subtitle {
+      font-size: 0.85rem;
+      opacity: 0.8;
+    }
 
-<!-- 🔥 YOUR ADSENSE SCRIPT GOES HERE -->
-<!-- <script async src="YOUR-ADSENSE-SCRIPT"></script> -->
-<!-- 🔥 END ADSENSE SCRIPT -->
+    .layout-toggle {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      font-size: 0.8rem;
+    }
+    .layout-toggle button {
+      border: 1px solid #1f2937;
+      background: #020617;
+      color: var(--text);
+      padding: 0.35rem 0.7rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      opacity: 0.8;
+    }
+    .layout-toggle button.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      opacity: 1;
+    }
 
-<!-- SEO Schema -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org/",
-  "@type": "FinancialService",
-  "name": "Mortgage Payment Calculator",
-  "description": "Free interactive mortgage calculator with taxes and insurance.",
-  "url": "https://YOURDOMAINHERE.com",
-  "serviceType": "Mortgage Calculator",
-  "provider": { "@type": "Organization", "name": "Online Mortgage Tools" }
-}
-</script>
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 0.75rem;
+      gap: 0.75rem;
+    }
 
+    .panels {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1.1fr 1.3fr; /* race map a bit narrower */
+      gap: 0.75rem;
+      min-height: 60vh;
+    }
+
+    .panel {
+      background: var(--panel-bg);
+      border-radius: 0.75rem;
+      border: 1px solid #111827;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .panel-header {
+      padding: 0.45rem 0.75rem;
+      border-bottom: 1px solid #111827;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+    .panel-header .title {
+      font-weight: 600;
+    }
+    .panel-header .badge {
+      font-size: 0.7rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      border: 1px solid #1f2937;
+      opacity: 0.85;
+    }
+
+    .iframe-wrap {
+      flex: 1;
+      position: relative;
+      background: #020617;
+    }
+    iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .instructions {
+      font-size: 0.8rem;
+      line-height: 1.5;
+      background: #020617;
+      border-radius: 0.75rem;
+      border: 1px solid #111827;
+      padding: 0.75rem;
+      opacity: 0.9;
+    }
+    .instructions strong {
+      color: var(--accent);
+    }
+    .instructions ul {
+      margin-left: 1rem;
+      margin-top: 0.25rem;
+    }
+    .instructions li {
+      margin-top: 0.25rem;
+    }
+
+    .source-note {
+      font-size: 0.7rem;
+      opacity: 0.7;
+      margin-top: 0.5rem;
+    }
+
+    .ad-slot {
+      margin-top: 0.5rem;
+      background: #020617;
+      border-radius: 0.75rem;
+      border: 1px dashed #1f2937;
+      padding: 0.5rem;
+      text-align: center;
+      font-size: 0.75rem;
+      opacity: 0.8;
+    }
+
+    footer {
+      font-size: 0.7rem;
+      text-align: center;
+      padding: 0.6rem;
+      color: #9ca3af;
+    }
+
+    /* Mobile / narrow screens: stack vertically */
+    @media (max-width: 900px) {
+      .panels {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
+  <!-- Optional: your AdSense script goes here -->
+  <!--
+  <script async src="YOUR_ADSENSE_SCRIPT.js"></script>
+  -->
 </head>
 <body>
 
 <header>
-  <h1>Mortgage Payment Calculator</h1>
-  <p>Fast • Accurate • No Email Required</p>
+  <div>
+    <h1>Dallas Race Map + Homes for Sale</h1>
+    <span class="subtitle">
+      View race &amp; diversity patterns next to live homes for sale in Dallas, TX.
+    </span>
+  </div>
+
+  <div class="layout-toggle">
+    <span>Layout:</span>
+    <button id="btnSide" class="active" type="button">Side-by-Side</button>
+    <button id="btnStack" type="button">Stacked</button>
+  </div>
 </header>
 
-<div class="wrapper">
-  <h2>Calculate Your Monthly Mortgage Payment</h2>
+<main>
+  <section class="panels" id="panels">
+    <!-- Left: Race / Diversity map -->
+    <article class="panel">
+      <div class="panel-header">
+        <div class="title">Race &amp; Diversity Map – Dallas, TX</div>
+        <div class="badge">Source: BestNeighborhood.org</div>
+      </div>
+      <div class="iframe-wrap">
+        <!-- You can change this to another BestNeighborhood race/demographics URL if you want -->
+        <iframe
+          src="https://bestneighborhood.org/race-in-dallas-tx/"
+          loading="lazy"
+          title="Dallas race and ethnicity map from BestNeighborhood.org">
+        </iframe>
+      </div>
+    </article>
 
-  <label>Home Price ($)</label>
-  <input id="price" type="number" value="350000">
+    <!-- Right: Homes for sale – Realtor -->
+    <article class="panel">
+      <div class="panel-header">
+        <div class="title">Homes for Sale – Dallas, TX</div>
+        <div class="badge">Source: Realtor.com</div>
+      </div>
+      <div class="iframe-wrap">
+        <!-- Realtor Dallas homes search -->
+        <iframe
+          src="https://www.realtor.com/realestateandhomes-search/Dallas_TX"
+          loading="lazy"
+          title="Dallas homes for sale from Realtor.com">
+        </iframe>
+      </div>
+    </article>
+  </section>
 
-  <label>Down Payment ($)</label>
-  <input id="down" type="number" value="70000">
+  <section class="instructions">
+    <strong>How to use this page</strong>
+    <ul>
+      <li>Pan/zoom the <em>Race &amp; Diversity</em> map on the left to find a neighborhood in Dallas.</li>
+      <li>Then pan/zoom the <em>Homes for Sale</em> panel on the right to the same area.</li>
+      <li>Compare racial majority, diversity, and patterns with live home listings and prices.</li>
+    </ul>
+    <p>
+      This tool simply places official sources side-by-side so you can visually compare
+      demographics and real estate without leaving the page.
+    </p>
 
-  <label>Interest Rate (%)</label>
-  <input id="rate" type="number" step="0.01" value="6.5">
+    <div class="ad-slot">
+      <!-- Paste an in-content AdSense unit here -->
+      <!-- Example:
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-XXXX"
+           data-ad-slot="XXXX"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+      -->
+      Your ad can go here (inline responsive unit).
+    </div>
 
-  <label>Loan Term (years)</label>
-  <input id="years" type="number" value="30">
+    <p class="source-note">
+      Demographic maps &copy; BestNeighborhood.org. Real estate listings &copy; Realtor.com.
+      This page only embeds publicly available pages from those providers for convenience and
+      does not own or modify their data.
+    </p>
+  </section>
+</main>
 
-  <button onclick="calc()">Calculate Payment</button>
-
-  <div id="output" class="resultBox" style="display:none;"></div>
-
-  <div class="adblock">
-    <!-- 🔥 IN-PAGE AD BLOCK -->
-    <!-- Insert AdSense code here -->
-    <p>Your ad appears here</p>
-  </div>
-
-  <h2>Refinance Savings Calculator</h2>
-
-  <label>Current Rate (%)</label>
-  <input id="oldRate" type="number" step="0.01" value="7.0">
-
-  <label>New Rate (%)</label>
-  <input id="newRate" type="number" step="0.01" value="5.75">
-
-  <button onclick="refi()">Calculate Refinance Savings</button>
-
-  <div id="refiOutput" class="resultBox" style="display:none;"></div>
-
-  <div class="faq">
-    <h2>Frequently Asked Mortgage Questions</h2>
-
-    <h3>How much house can I afford?</h3>
-    <p>Most lenders follow the 28/36 rule: spend no more than 28% of income on housing and no more than 36% on total debt.</p>
-
-    <h3>What is a good mortgage interest rate right now?</h3>
-    <p>Rates change daily. Generally, anything below the national average is considered good. The best way to lower your rate is improving credit and shopping lenders.</p>
-
-    <h3>Should I refinance my mortgage?</h3>
-    <p>Refinancing is usually worth it if you can lower your interest rate by 1% or more or if you plan to stay in the home long enough to break even on closing costs.</p>
-
-    <h3>What is PMI?</h3>
-    <p>Private Mortgage Insurance (PMI) applies if your down payment is less than 20%. It usually ranges from 0.5% to 1% of the loan amount per year.</p>
-
-    <h3>How do I lower my monthly payment?</h3>
-    <p>You can refinance to a lower rate, extend your loan term, pay down principal, or remove PMI once you reach 20% equity.</p>
-  </div>
-</div>
+<footer>
+  Built as a side-by-side viewer for Dallas race maps and homes for sale. All trademarks and data belong to their respective owners.
+</footer>
 
 <script>
-function calc() {
-  const price = +document.getElementById("price").value;
-  const down = +document.getElementById("down").value;
-  const rate = (+document.getElementById("rate").value) / 100 / 12;
-  const years = +document.getElementById("years").value;
-  const loan = price - down;
-  const n = years * 12;
+  // Simple layout toggle: side-by-side vs stacked
+  const panels = document.getElementById("panels");
+  const btnSide = document.getElementById("btnSide");
+  const btnStack = document.getElementById("btnStack");
 
-  const m = loan * rate * Math.pow(1 + rate, n) / (Math.pow(1 + rate, n) - 1);
+  btnSide.addEventListener("click", () => {
+    panels.style.display = "grid";
+    panels.style.gridTemplateColumns = "1.1fr 1.3fr";
+    btnSide.classList.add("active");
+    btnStack.classList.remove("active");
+  });
 
-  document.getElementById("output").style.display = "block";
-  document.getElementById("output").innerHTML =
-    `<strong>Monthly Payment:</strong> $${m.toFixed(2)}<br>
-     <strong>Total Loan Cost:</strong> $${(m*n).toFixed(2)}<br>
-     <strong>Total Interest:</strong> $${(m*n - loan).toFixed(2)}`;
-}
-
-function refi() {
-  const price = +document.getElementById("price").value;
-  const down = +document.getElementById("down").value;
-  const loan = price - down;
-
-  const oldRate = (+document.getElementById("oldRate").value) / 100 / 12;
-  const newRate = (+document.getElementById("newRate").value) / 100 / 12;
-  const n = 30 * 12;
-
-  const oldPmt = loan * oldRate * Math.pow(1 + oldRate, n) / (Math.pow(1 + oldRate, n) - 1);
-  const newPmt = loan * newRate * Math.pow(1 + newRate, n) / (Math.pow(1 + newRate, n) - 1);
-
-  document.getElementById("refiOutput").style.display = "block";
-  document.getElementById("refiOutput").innerHTML =
-    `<strong>Old Payment:</strong> $${oldPmt.toFixed(2)}<br>
-     <strong>New Payment:</strong> $${newPmt.toFixed(2)}<br>
-     <strong>Monthly Savings:</strong> $${(oldPmt - newPmt).toFixed(2)}<br>
-     <strong>Yearly Savings:</strong> $${((oldPmt - newPmt)*12).toFixed(2)}`;
-}
+  btnStack.addEventListener("click", () => {
+    panels.style.display = "grid";
+    panels.style.gridTemplateColumns = "1fr";
+    btnStack.classList.add("active");
+    btnSide.classList.remove("active");
+  });
 </script>
 
 </body>
