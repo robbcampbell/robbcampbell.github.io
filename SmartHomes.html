@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mortgage Payment Calculator (Fast & Free)</title>
+<meta name="description"
+  content="Free mortgage payment calculator with taxes, insurance, and refinance savings comparison. Calculate house payments instantly. No email required." />
+
+<style>
+  body { font-family: system-ui, sans-serif; margin:0; padding:0; background:#f8fafc; color:#111; }
+  header { background:#1e293b; color:white; padding:1.5rem; text-align:center; }
+  h1 { margin:0; font-size:1.8rem; }
+  .wrapper { max-width:900px; margin:1.5rem auto; background:white; padding:1.5rem; border-radius:12px;
+             box-shadow:0 6px 20px rgba(0,0,0,0.06); }
+  label { display:block; margin:.4rem 0 .2rem; font-weight:600; }
+  input { width:100%; padding:.6rem; border-radius:8px; border:1px solid #cbd5e1; margin-bottom:.8rem; }
+  button { width:100%; padding:.8rem; background:#2563eb; border:none; color:white; border-radius:10px;
+           font-weight:700; font-size:1rem; cursor:pointer; margin-top:.5rem; }
+  button:hover { opacity:0.9; }
+  .resultBox { background:#f1f5f9; padding:1rem; border-radius:10px; margin-top:1.2rem; }
+  .faq h2 { margin-top:2rem; }
+  .faq p { margin-bottom:1rem; line-height:1.6; }
+  .adblock { background:#e2e8f0; padding:1rem; text-align:center; margin:1.5rem 0; border-radius:8px; }
+</style>
+
+<!-- 🔥 YOUR ADSENSE SCRIPT GOES HERE -->
+<!-- <script async src="YOUR-ADSENSE-SCRIPT"></script> -->
+<!-- 🔥 END ADSENSE SCRIPT -->
+
+<!-- SEO Schema -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "FinancialService",
+  "name": "Mortgage Payment Calculator",
+  "description": "Free interactive mortgage calculator with taxes and insurance.",
+  "url": "https://YOURDOMAINHERE.com",
+  "serviceType": "Mortgage Calculator",
+  "provider": { "@type": "Organization", "name": "Online Mortgage Tools" }
+}
+</script>
+
+</head>
+<body>
+
+<header>
+  <h1>Mortgage Payment Calculator</h1>
+  <p>Fast • Accurate • No Email Required</p>
+</header>
+
+<div class="wrapper">
+  <h2>Calculate Your Monthly Mortgage Payment</h2>
+
+  <label>Home Price ($)</label>
+  <input id="price" type="number" value="350000">
+
+  <label>Down Payment ($)</label>
+  <input id="down" type="number" value="70000">
+
+  <label>Interest Rate (%)</label>
+  <input id="rate" type="number" step="0.01" value="6.5">
+
+  <label>Loan Term (years)</label>
+  <input id="years" type="number" value="30">
+
+  <button onclick="calc()">Calculate Payment</button>
+
+  <div id="output" class="resultBox" style="display:none;"></div>
+
+  <div class="adblock">
+    <!-- 🔥 IN-PAGE AD BLOCK -->
+    <!-- Insert AdSense code here -->
+    <p>Your ad appears here</p>
+  </div>
+
+  <h2>Refinance Savings Calculator</h2>
+
+  <label>Current Rate (%)</label>
+  <input id="oldRate" type="number" step="0.01" value="7.0">
+
+  <label>New Rate (%)</label>
+  <input id="newRate" type="number" step="0.01" value="5.75">
+
+  <button onclick="refi()">Calculate Refinance Savings</button>
+
+  <div id="refiOutput" class="resultBox" style="display:none;"></div>
+
+  <div class="faq">
+    <h2>Frequently Asked Mortgage Questions</h2>
+
+    <h3>How much house can I afford?</h3>
+    <p>Most lenders follow the 28/36 rule: spend no more than 28% of income on housing and no more than 36% on total debt.</p>
+
+    <h3>What is a good mortgage interest rate right now?</h3>
+    <p>Rates change daily. Generally, anything below the national average is considered good. The best way to lower your rate is improving credit and shopping lenders.</p>
+
+    <h3>Should I refinance my mortgage?</h3>
+    <p>Refinancing is usually worth it if you can lower your interest rate by 1% or more or if you plan to stay in the home long enough to break even on closing costs.</p>
+
+    <h3>What is PMI?</h3>
+    <p>Private Mortgage Insurance (PMI) applies if your down payment is less than 20%. It usually ranges from 0.5% to 1% of the loan amount per year.</p>
+
+    <h3>How do I lower my monthly payment?</h3>
+    <p>You can refinance to a lower rate, extend your loan term, pay down principal, or remove PMI once you reach 20% equity.</p>
+  </div>
+</div>
+
+<script>
+function calc() {
+  const price = +document.getElementById("price").value;
+  const down = +document.getElementById("down").value;
+  const rate = (+document.getElementById("rate").value) / 100 / 12;
+  const years = +document.getElementById("years").value;
+  const loan = price - down;
+  const n = years * 12;
+
+  const m = loan * rate * Math.pow(1 + rate, n) / (Math.pow(1 + rate, n) - 1);
+
+  document.getElementById("output").style.display = "block";
+  document.getElementById("output").innerHTML =
+    `<strong>Monthly Payment:</strong> $${m.toFixed(2)}<br>
+     <strong>Total Loan Cost:</strong> $${(m*n).toFixed(2)}<br>
+     <strong>Total Interest:</strong> $${(m*n - loan).toFixed(2)}`;
+}
+
+function refi() {
+  const price = +document.getElementById("price").value;
+  const down = +document.getElementById("down").value;
+  const loan = price - down;
+
+  const oldRate = (+document.getElementById("oldRate").value) / 100 / 12;
+  const newRate = (+document.getElementById("newRate").value) / 100 / 12;
+  const n = 30 * 12;
+
+  const oldPmt = loan * oldRate * Math.pow(1 + oldRate, n) / (Math.pow(1 + oldRate, n) - 1);
+  const newPmt = loan * newRate * Math.pow(1 + newRate, n) / (Math.pow(1 + newRate, n) - 1);
+
+  document.getElementById("refiOutput").style.display = "block";
+  document.getElementById("refiOutput").innerHTML =
+    `<strong>Old Payment:</strong> $${oldPmt.toFixed(2)}<br>
+     <strong>New Payment:</strong> $${newPmt.toFixed(2)}<br>
+     <strong>Monthly Savings:</strong> $${(oldPmt - newPmt).toFixed(2)}<br>
+     <strong>Yearly Savings:</strong> $${((oldPmt - newPmt)*12).toFixed(2)}`;
+}
+</script>
+
+</body>
+</html>
