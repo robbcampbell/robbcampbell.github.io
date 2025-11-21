@@ -279,12 +279,15 @@
     /* Right column / chart & venmo */
 
     .chart-wrapper {
-      position: relative;
       margin-top: 6px;
     }
 
-    canvas {
-      max-width: 100%;
+    .chart-frame {
+      background: radial-gradient(circle at top, rgba(34, 197, 94, 0.25), transparent),
+                  rgba(15, 23, 42, 0.9);
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      padding: 10px;
     }
 
     .chart-footer {
@@ -373,9 +376,6 @@
       color: var(--accent);
     }
   </style>
-
-  <!-- Chart.js CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <div class="page">
@@ -400,7 +400,7 @@
           <div>
             <div id="calc-title" class="card-title">Robb Tax Calculator</div>
             <div class="card-subtitle">
-              See how much your friends should contribute to keep Robb in perpetual attendance.
+              See how much your friends should chip in to keep Robb in perpetual attendance.
             </div>
           </div>
           <span class="badge">Live Beta · v1.0</span>
@@ -410,7 +410,7 @@
           <label for="payerCount">Number of paying friends (excluding Robb)</label>
           <input id="payerCount" type="number" min="1" step="1" value="5" />
           <div class="hint">
-            For example: 5 friends &rarr; each pays a 20% Robb Tax.
+            Example: 5 friends → each pays a 20% Robb Tax.
           </div>
         </div>
 
@@ -418,12 +418,12 @@
           <label for="baseCost">Base cost <strong>per person</strong> without Robb ($)</label>
           <input id="baseCost" type="number" min="0" step="0.01" value="40" />
           <div class="hint">
-            This is what each friend would normally pay if Robb stayed home (sad).
+            This is what each friend would normally pay if Robb stayed home (tragic).
           </div>
         </div>
 
         <div class="btn-row">
-          <button class="btn-primary" id="calculateBtn">
+          <button class="btn-primary" id="calculateBtn" type="button">
             ⚙️ Calculate Robb Tax
           </button>
           <button class="btn-ghost" id="presetBtn" type="button">
@@ -454,7 +454,7 @@
         </div>
       </section>
 
-      <!-- Right: Chart & Venmo -->
+      <!-- Right: “Stock always up” graph & Venmo -->
       <section class="card" aria-labelledby="chart-title">
         <div class="card-header">
           <div>
@@ -467,10 +467,63 @@
         </div>
 
         <div class="chart-wrapper">
-          <canvas id="robbChart" height="220"></canvas>
+          <div class="chart-frame">
+            <!-- Simple SVG line chart that always goes up -->
+            <svg viewBox="0 0 300 160" width="100%" height="160" aria-hidden="true">
+              <!-- Grid lines -->
+              <g stroke="rgba(148,163,184,0.4)" stroke-width="0.5">
+                <line x1="30" y1="20" x2="30" y2="140" />
+                <line x1="30" y1="140" x2="280" y2="140" />
+                <line x1="30" y1="110" x2="280" y2="110" />
+                <line x1="30" y1="80" x2="280" y2="80" />
+                <line x1="30" y1="50" x2="280" y2="50" />
+              </g>
+
+              <!-- Up-and-to-the-right line -->
+              <polyline
+                fill="rgba(34,197,94,0.18)"
+                stroke="#22c55e"
+                stroke-width="2"
+                points="
+                  30,130
+                  60,120
+                  100,105
+                  140,85
+                  180,65
+                  220,45
+                  260,30
+                  260,140
+                  30,140
+                "
+              ></polyline>
+
+              <!-- Invisible points just for vibes -->
+              <g fill="#22c55e">
+                <circle cx="30" cy="130" r="2.5" />
+                <circle cx="60" cy="120" r="2.5" />
+                <circle cx="100" cy="105" r="2.5" />
+                <circle cx="140" cy="85" r="2.5" />
+                <circle cx="180" cy="65" r="2.5" />
+                <circle cx="220" cy="45" r="2.5" />
+                <circle cx="260" cy="30" r="2.5" />
+              </g>
+
+              <!-- Labels -->
+              <text x="32" y="152" fill="#9ca3af" font-size="9">F1</text>
+              <text x="72" y="152" fill="#9ca3af" font-size="9">F2</text>
+              <text x="112" y="152" fill="#9ca3af" font-size="9">F3</text>
+              <text x="152" y="152" fill="#9ca3af" font-size="9">F4</text>
+              <text x="192" y="152" fill="#9ca3af" font-size="9">F5</text>
+              <text x="232" y="152" fill="#9ca3af" font-size="9">F6</text>
+              <text x="266" y="152" fill="#9ca3af" font-size="9">F7</text>
+
+              <text x="38" y="32" fill="#9ca3af" font-size="9">Vibes ↑</text>
+            </svg>
+          </div>
+
           <div class="chart-footer">
             <div class="chip">
-              📈 Hypothetical &nbsp;•&nbsp; Jokes, not financial advice
+              📈 Hypothetical • Jokes, not financial advice
             </div>
             <span>Every function you attend pushes the line higher.</span>
           </div>
@@ -498,7 +551,6 @@
   </div>
 
   <script>
-    // --- Calculator Logic ---
     const payerInput = document.getElementById("payerCount");
     const baseCostInput = document.getElementById("baseCost");
     const calculateBtn = document.getElementById("calculateBtn");
@@ -523,4 +575,55 @@
       resultsBox.style.display = "none";
 
       if (isNaN(n) || n < 1) {
-        errorMsg.textContent = "Please enter at least 1 paying
+        errorMsg.textContent = "Please enter at least 1 paying friend (excluding Robb).";
+        errorMsg.style.display = "block";
+        return;
+      }
+
+      if (isNaN(baseCost) || baseCost <= 0) {
+        errorMsg.textContent = "Please enter a positive base cost per person.";
+        errorMsg.style.display = "block";
+        return;
+      }
+
+      // Robb Tax percentage is 1/N per friend, as a percentage
+      const taxPercent = 100 / n;
+
+      // Extra amount each friend pays just for Robb
+      const extraPerFriend = (baseCost * taxPercent) / 100;
+
+      // New total per friend including Robb Tax
+      const newPerFriend = baseCost + extraPerFriend;
+
+      // Robb’s total = sum of everyone’s extra
+      const robbHaul = extraPerFriend * n;
+
+      taxPercentLabel.textContent = taxPercent.toFixed(2) + "%";
+      extraPerFriendLabel.textContent = formatMoney(extraPerFriend);
+      newPerFriendLabel.textContent = formatMoney(newPerFriend);
+      robbHaulLabel.textContent = formatMoney(robbHaul);
+
+      explanationText.textContent =
+        "With " + n + " friend" + (n > 1 ? "s" : "") +
+        ", each person pays a " + taxPercent.toFixed(2) +
+        "% Robb Tax on their base " + formatMoney(baseCost) +
+        " share. The extra " + formatMoney(extraPerFriend) +
+        " per person combines to fund Robb’s full " +
+        formatMoney(robbHaul) + " spot at the event.";
+
+      resultsBox.style.display = "block";
+    }
+
+    calculateBtn.addEventListener("click", calculateRobbTax);
+
+    presetBtn.addEventListener("click", function () {
+      payerInput.value = 5;
+      baseCostInput.value = 40;
+      calculateRobbTax();
+    });
+
+    // Auto-calc on load with defaults
+    window.addEventListener("load", calculateRobbTax);
+  </script>
+</body>
+</html>
