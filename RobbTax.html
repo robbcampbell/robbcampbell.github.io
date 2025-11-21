@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Robb Tax Holdings LLC</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #050816;
+      --card-bg: #0b1020;
+      --accent: #00f2a9;
+      --accent-soft: rgba(0, 242, 169, 0.15);
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+      --danger: #fb7185;
+      --border-subtle: rgba(148, 163, 184, 0.2);
+      --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.9);
+      --radius-xl: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Inter", "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #111827, var(--bg) 55%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 960px;
+      margin: auto;
+    }
+
+    header {
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .logo-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid var(--border-subtle);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .logo-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, #ffffff, var(--accent));
+      box-shadow: 0 0 12px rgba(34, 197, 94, 0.8);
+    }
+
+    h1 {
+      font-size: clamp(2.2rem, 4vw, 2.8rem);
+      margin-bottom: 8px;
+    }
+
+    h1 span {
+      background: linear-gradient(90deg, #22c55e, #22d3ee, #a855f7);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .tagline {
+      color: var(--text-muted);
+      font-size: 0.98rem;
+      max-width: 540px;
+      margin: 0.25rem auto 0;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 24px;
+      margin-top: 24px;
+    }
+
+    @media (max-width: 800px) {
+      body {
+        padding: 14px;
+      }
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: linear-gradient(135deg, var(--card-bg), #020617);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--border-subtle);
+      box-shadow: var(--shadow-soft);
+      padding: 20px 18px 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      opacity: 0.12;
+      background: radial-gradient(circle at 0 0, #22c55e, transparent 55%),
+                  radial-gradient(circle at 100% 100%, #0ea5e9, transparent 55%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      gap: 12px;
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
+
+    .card-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .badge {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid rgba(34, 197, 94, 0.4);
+      white-space: nowrap;
+    }
+
+    .field-group {
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 9px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.8);
+      color: var(--text-main);
+      font-size: 0.9rem;
+      outline: none;
+      transition: border 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    input[type="number"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.45);
+      background: rgba(15, 23, 42, 0.95);
+    }
+
+    .hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .btn-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin: 12px 0 4px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      padding: 8px 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+      transition: transform 0.08s ease, box-shadow 0.12s ease,
+                  background 0.15s ease, opacity 0.15s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #22c55e, #0ea5e9);
+      color: #0b1120;
+      box-shadow: 0 12px 30px rgba(34, 197, 94, 0.35);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 18px 40px rgba(34, 197, 94, 0.5);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+      box-shadow: 0 10px 24px rgba(34, 197, 94, 0.3);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-muted);
+      padding-inline: 10px;
+    }
+
+    .btn-ghost:hover {
+      opacity: 0.8;
+    }
+
+    .results {
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px dashed rgba(148, 163, 184, 0.6);
+      margin-top: 6px;
+      font-size: 0.9rem;
+    }
+
+    .results-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 3px;
+      gap: 8px;
+    }
+
+    .results-label {
+      color: var(--text-muted);
+    }
+
+    .results-value {
+      font-weight: 600;
+    }
+
+    .results-highlight {
+      color: var(--accent);
+    }
+
+    .results-note {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .error {
+      color: var(--danger);
+      font-size: 0.8rem;
+      margin-top: 4px;
+    }
+
+    /* Right column / chart & venmo */
+
+    .chart-wrapper {
+      position: relative;
+      margin-top: 6px;
+    }
+
+    canvas {
+      max-width: 100%;
+    }
+
+    .chart-footer {
+      margin-top: 8px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      font-size: 0.75rem;
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .venmo-card {
+      margin-top: 14px;
+      padding: 12px 12px 11px;
+      border-radius: 14px;
+      border: 1px solid rgba(56, 189, 248, 0.5);
+      background: radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.18), transparent),
+                  rgba(15, 23, 42, 0.96);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 0.88rem;
+    }
+
+    .venmo-main {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .venmo-label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+    }
+
+    .venmo-handle {
+      font-weight: 600;
+      color: #e0f2fe;
+    }
+
+    .venmo-link {
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: #0ea5e9;
+      color: #0b1120;
+      font-size: 0.85rem;
+      font-weight: 600;
+      box-shadow: 0 10px 26px rgba(14, 165, 233, 0.45);
+    }
+
+    .venmo-link:hover {
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+    }
+
+    .venmo-link:active {
+      transform: translateY(0);
+      box-shadow: 0 6px 16px rgba(14, 165, 233, 0.4);
+    }
+
+    footer {
+      margin-top: 18px;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    footer span {
+      color: var(--accent);
+    }
+  </style>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="logo-pill">
+        <span class="logo-dot"></span>
+        Robb Tax Holdings LLC
+      </div>
+      <h1>
+        <span>Robb Tax</span> — because friendship isn’t free*
+      </h1>
+      <p class="tagline">
+        A cutting-edge cost-sharing solution where your crew pays a small Robb Tax so
+        Robb can attend every function for “free”. Efficient. Elegant. Questionably legal.
+      </p>
+    </header>
+
+    <main class="layout">
+      <!-- Left: Calculator -->
+      <section class="card" aria-labelledby="calc-title">
+        <div class="card-header">
+          <div>
+            <div id="calc-title" class="card-title">Robb Tax Calculator</div>
+            <div class="card-subtitle">
+              See how much your friends should contribute to keep Robb in perpetual attendance.
+            </div>
+          </div>
+          <span class="badge">Live Beta · v1.0</span>
+        </div>
+
+        <div class="field-group">
+          <label for="payerCount">Number of paying friends (excluding Robb)</label>
+          <input id="payerCount" type="number" min="1" step="1" value="5" />
+          <div class="hint">
+            For example: 5 friends &rarr; each pays a 20% Robb Tax.
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="baseCost">Base cost <strong>per person</strong> without Robb ($)</label>
+          <input id="baseCost" type="number" min="0" step="0.01" value="40" />
+          <div class="hint">
+            This is what each friend would normally pay if Robb stayed home (sad).
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-primary" id="calculateBtn">
+            ⚙️ Calculate Robb Tax
+          </button>
+          <button class="btn-ghost" id="presetBtn" type="button">
+            Use classic “5 friends @ $40”
+          </button>
+        </div>
+
+        <div id="errorMsg" class="error" style="display:none;"></div>
+
+        <div class="results" id="resultsBox" style="display:none;">
+          <div class="results-row">
+            <span class="results-label">Robb Tax percentage per friend:</span>
+            <span class="results-value results-highlight" id="taxPercentLabel"></span>
+          </div>
+          <div class="results-row">
+            <span class="results-label">Extra Robb Tax per friend:</span>
+            <span class="results-value" id="extraPerFriendLabel"></span>
+          </div>
+          <div class="results-row">
+            <span class="results-label">New total per friend:</span>
+            <span class="results-value" id="newPerFriendLabel"></span>
+          </div>
+          <div class="results-row">
+            <span class="results-label">Robb’s total haul:</span>
+            <span class="results-value" id="robbHaulLabel"></span>
+          </div>
+          <p class="results-note" id="explanationText"></p>
+        </div>
+      </section>
+
+      <!-- Right: Chart & Venmo -->
+      <section class="card" aria-labelledby="chart-title">
+        <div class="card-header">
+          <div>
+            <div id="chart-title" class="card-title">Robb Tax Growth Index</div>
+            <div class="card-subtitle">
+              Past performance is not indicative of anything, but this line only goes up.
+            </div>
+          </div>
+          <span class="badge">Ticker: ROBB</span>
+        </div>
+
+        <div class="chart-wrapper">
+          <canvas id="robbChart" height="220"></canvas>
+          <div class="chart-footer">
+            <div class="chip">
+              📈 Hypothetical &nbsp;•&nbsp; Jokes, not financial advice
+            </div>
+            <span>Every function you attend pushes the line higher.</span>
+          </div>
+        </div>
+
+        <div class="venmo-card">
+          <div class="venmo-main">
+            <span class="venmo-label">Official payment portal</span>
+            <span class="venmo-handle">@robb-campbell</span>
+            <span class="hint">
+              Securely fund the Robb Tax initiative. Your generosity is “fully appreciated”.
+            </span>
+          </div>
+          <a class="venmo-link" href="https://venmo.com/u/robb-campbell" target="_blank" rel="noopener noreferrer">
+            💸 Pay Robb Tax
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      *Disclaimer: Robb Tax is a joke between friends and not a real financial product,
+      service, or anything a lawyer would approve of. © <span>Robb & Friends</span>
+    </footer>
+  </div>
+
+  <script>
+    // --- Calculator Logic ---
+    const payerInput = document.getElementById("payerCount");
+    const baseCostInput = document.getElementById("baseCost");
+    const calculateBtn = document.getElementById("calculateBtn");
+    const presetBtn = document.getElementById("presetBtn");
+    const errorMsg = document.getElementById("errorMsg");
+    const resultsBox = document.getElementById("resultsBox");
+    const taxPercentLabel = document.getElementById("taxPercentLabel");
+    const extraPerFriendLabel = document.getElementById("extraPerFriendLabel");
+    const newPerFriendLabel = document.getElementById("newPerFriendLabel");
+    const robbHaulLabel = document.getElementById("robbHaulLabel");
+    const explanationText = document.getElementById("explanationText");
+
+    function formatMoney(value) {
+      return "$" + value.toFixed(2);
+    }
+
+    function calculateRobbTax() {
+      const n = parseInt(payerInput.value, 10);
+      const baseCost = parseFloat(baseCostInput.value);
+
+      errorMsg.style.display = "none";
+      resultsBox.style.display = "none";
+
+      if (isNaN(n) || n < 1) {
+        errorMsg.textContent = "Please enter at least 1 paying
