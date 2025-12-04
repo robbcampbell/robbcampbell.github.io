@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Old School RuneScape Experience Calculator | OSRS Skill Calculator</title>
+  <meta name="description" content="Fast Old School RuneScape experience calculator for every OSRS skill. Calculate XP to level, hours to 99, and get training methods, monsters, and guides for each skill." />
+  <meta name="keywords" content="old school runescape experience calculator, osrs xp calculator, osrs skill calculator, runescape skill calculator, xp to 99, osrs training guide" />
+  <link rel="canonical" href="https://robbcampbell.github.io/" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="OSRS Experience Calculator for Every Skill" />
+  <meta property="og:description" content="One-page Old School RuneScape XP calculator + training ideas, monsters, and guides for every skill." />
+  <meta property="og:type" content="website" />
+
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- JSON-LD FAQ for SEO -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How do I use this Old School RuneScape experience calculator?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Choose your OSRS skill, enter your current level and target level, and the calculator will show how much experience you need, an estimate of hours based on common training methods, and how many kills or actions that might take."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does this XP calculator work for every OSRS skill?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. This Old School RuneScape experience calculator supports all core OSRS skills including Combat, Gathering, Artisan, Support, and Slayer & Hunter. Each skill has suggested training methods and guide links."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What are good training methods to go from level 1 to 99 in Old School RuneScape?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "There is no single best method for every player. This page lists popular OSRS training methods and monsters for each skill, plus rough XP per hour and time-to-99 estimates so you can pick a method that fits your budget and playstyle."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <!-- Google AdSense placeholder (insert your real script here)
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=YOUR-CLIENT-ID"
+          crossorigin="anonymous"></script>
+  -->
+</head>
+<body>
+  <div class="page">
+    <header class="page-header">
+      <div class="logo-title">
+        <div class="pixel-logo" aria-hidden="true"></div>
+        <div>
+          <h1>Old School RuneScape Experience Calculator</h1>
+          <p class="subtitle">
+            One-page <strong>OSRS skill calculator</strong> for every skill – XP to level, hours to 99,
+            monsters, training methods, and guide links.
+          </p>
+        </div>
+      </div>
+      <div class="tagline-badge">
+        <span>XP to 99 in seconds ⚔️</span>
+      </div>
+    </header>
+
+    <!-- Top ad slot (below fold, with real content around it) -->
+    <section class="ad-section" aria-label="Advertisement">
+      <!-- Replace the ins below with your real AdSense ad unit -->
+      <!--
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="YOUR-CLIENT-ID"
+           data-ad-slot="YOUR-SLOT-ID"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
+      -->
+      <p class="ad-note">
+        Tip: Paste your Google AdSense code into this box once your site is live. This page already has
+        substantial RuneScape content to avoid the “screens without content” policy issue.
+      </p>
+    </section>
+
+    <main class="layout">
+      <section class="calculator-card" aria-labelledby="calc-heading">
+        <h2 id="calc-heading">OSRS XP Calculator</h2>
+        <p class="section-intro">
+          Select your skill, enter your current and target levels, and see how much experience you need,
+          how many <strong>kills/actions</strong> that might take, and a rough time estimate based on
+          popular training methods.
+        </p>
+
+        <form id="xpForm" class="xp-form" onsubmit="event.preventDefault(); calculateXp();">
+          <div class="form-row">
+            <label for="skillSelect">Skill</label>
+            <select id="skillSelect" name="skill">
+              <!-- Populated by script.js -->
+            </select>
+          </div>
+
+          <div class="form-row">
+            <label for="currentLevel">Current level</label>
+            <input id="currentLevel" name="currentLevel" type="number" min="1" max="98" value="1" required />
+          </div>
+
+          <div class="form-row">
+            <label for="targetLevel">Target level</label>
+            <input id="targetLevel" name="targetLevel" type="number" min="2" max="99" value="99" required />
+          </div>
+
+          <button type="submit" class="primary-btn">Calculate XP &amp; Hours</button>
+        </form>
+
+        <div id="results" class="results" aria-live="polite">
+          <h3>Results</h3>
+          <p>Select a skill and run the calculator to see your XP plan.</p>
+        </div>
+      </section>
+
+      <aside class="skills-card" aria-labelledby="skills-heading">
+        <h2 id="skills-heading">Skill Training Ideas &amp; Guides</h2>
+        <p class="section-intro">
+          Each skill below includes a quick description, a couple of go-to training methods or monsters,
+          and a direct link to a community guide for deeper min-maxing.
+        </p>
+        <div id="skillDetails" class="skill-details">
+          <!-- Populated by script.js -->
+        </div>
+      </aside>
+    </main>
+
+    <section class="content-section">
+      <h2>How this Old School RuneScape experience calculator works</h2>
+      <p>
+        Old School RuneScape uses a fixed XP curve from level 1 to level 99. This calculator reproduces
+        that curve and instantly computes the <strong>total XP</strong> required for any level range.
+        For each skill, the page stores a rough <strong>XP per hour</strong> and an average
+        <strong>XP per action/kill</strong> based on popular mid-game training methods (things like
+        <em>Sand Crabs</em>, <em>Ammonite Crabs</em>, rooftop Agility courses, high-level Fletching,
+        and so on).
+      </p>
+      <p>
+        When you hit “Calculate”, the tool:
+      </p>
+      <ul>
+        <li>Computes XP needed from your current level to your target level.</li>
+        <li>Divides that by a typical XP/hr rate for your chosen skill to estimate hours.</li>
+        <li>Uses an average XP per action to estimate how many kills, laps, logs, or items you'll do.</li>
+      </ul>
+      <p>
+        These are <strong>rough estimates</strong> meant to help you plan your grind, not exact
+        values. Efficient setups, tick manipulation, alt accounts, or slower AFK methods will all change
+        your real numbers in game.
+      </p>
+    </section>
+
+    <section class="content-section">
+      <h2>Maximizing XP / hour in Old School RuneScape</h2>
+      <p>
+        If you're trying to squeeze the most experience per hour out of your account, focus on three
+        things:
+      </p>
+      <ol>
+        <li>
+          <strong>Gear &amp; unlocks</strong> – Better weapons, prayers, and quest unlocks (like
+          <em>Neitiznot</em>, <em>Fighter torso</em>, <em>Barrows gloves</em>) dramatically speed up
+          combat XP.
+        </li>
+        <li>
+          <strong>Location</strong> – Places like <em>Sand Crabs</em>, <em>Ammonite Crabs</em>,
+          <em>Nightmare Zone</em>, rooftop Agility courses, or high-tier skilling spots give much more
+          XP/hr than low level training areas.
+        </li>
+        <li>
+          <strong>AFK vs. sweaty</strong> – Semi-AFK methods are chill but slower. High-intensity
+          click-heavy methods can double or triple XP/hr in some skills, especially <em>Agility</em>,
+          <em>Thieving</em>, <em>Construction</em>, and <em>Herblore</em>.
+        </li>
+      </ol>
+      <p>
+        Use the numbers on this calculator to get a baseline, then dive into the linked guides for
+        skill-specific meta strategies.
+      </p>
+    </section>
+
+    <section class="content-section faq-section">
+      <h2>OSRS XP Calculator FAQ</h2>
+
+      <h3>Is this better than the in-game XP tracker?</h3>
+      <p>
+        The in-game XP tracker shows what you already did; this calculator shows what it will <em>take</em>
+        to reach your goal. Plug in your target level and you'll see a realistic estimate of the grind
+        in hours and actions.
+      </p>
+
+      <h3>Does this work for free-to-play players?</h3>
+      <p>
+        Yes, but the XP/hr assumptions are usually based on popular members methods. If you're F2P,
+        expect fewer XP/hr; you can mentally adjust the result or use slower XP rates from F2P training
+        guides.
+      </p>
+
+      <h3>What if my XP / hour is much higher or lower?</h3>
+      <p>
+        That's totally normal. XP rates in Old School RuneScape vary a lot based on level, gear,
+        quests, and how sweaty you play. Treat these numbers as a conservative estimate, then track your
+        real XP/hr in game and compare.
+      </p>
+
+      <h3>Can I use this as a general RuneScape skill calculator?</h3>
+      <p>
+        This tool is designed around the Old School RuneScape XP curve and skill list. The XP curve in
+        RS3 is different, but for classic OSRS this page is a simple all-in-one skill calculator and
+        experience planner.
+      </p>
+    </section>
+
+    <footer class="page-footer">
+      <p>
+        Made for fellow XP grinders. Not affiliated with Jagex or Old School RuneScape. All RuneScape
+        content and trademarks are the property of Jagex Ltd.
+      </p>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
