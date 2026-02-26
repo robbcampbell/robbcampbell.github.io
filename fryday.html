@@ -878,7 +878,7 @@ function update(){
       if(h.spawnTimer<=0){spawnAntFromHole(h);h.spawnTimer=h.spawnRate+Math.floor(Math.random()*15);waveAntsLeft--;}
     });
     if(waveAntsLeft<=0&&ants.length===0){
-      betweenWaves=true;betweenTimer=220;wavesSurvived++;
+      betweenWaves=true;betweenTimer=45;wavesSurvived++;
       document.getElementById('h-wave').textContent=wavesSurvived;
       if(wavesSurvived>hiScore){hiScore=wavesSurvived;localStorage.setItem('fryday_hi',hiScore);document.getElementById('h-hi').textContent=hiScore;}
       showWaveText(`WAVE ${wave} CLEARED! 🎉`);
