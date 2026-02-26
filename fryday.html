@@ -13,81 +13,114 @@ html,body{
   width:100%;height:100%;overflow:hidden;
   background:#1a0e00;
   font-family:'Nunito',sans-serif;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
   touch-action:none;
 }
+
+/* ── Shell stacks canvas + control bar vertically, full screen ── */
+#shell{
+  display:flex;
+  flex-direction:column;
+  width:100%;
+  height:100%;
+  align-items:center;
+  justify-content:center;
+  gap:0;
+}
+
+/* ── Canvas wrapper — sized to leave room for ctrl-bar on mobile ── */
 #wrapper{
   position:relative;
-  /* Fills screen on mobile, capped on desktop */
-  width:min(100vw, calc(100vh * 860/600));
-  height:min(100vh, calc(100vw * 600/860));
-  max-width:860px;max-height:600px;
-  border-radius:8px;overflow:hidden;
-  box-shadow:0 0 60px rgba(255,140,0,0.3),0 0 0 2px #5a3000;
+  /* On desktop: fixed nice size. On mobile: fills width, height = remaining space */
+  width:min(100vw, 900px);
+  height:min(calc(100vh - 56px), calc(min(100vw,900px) * 640/900));
+  flex-shrink:0;
+  border-radius:8px 8px 0 0;
+  overflow:hidden;
+  box-shadow:0 0 55px rgba(255,140,0,0.3),0 0 0 2px #5a3000;
 }
 canvas{display:block;width:100%;height:100%;}
+
+/* ── Control bar — physically below the canvas in the DOM/layout ── */
+#ctrl-bar{
+  width:min(100vw, 900px);
+  background:#0e0600;
+  border:2px solid #3a1a00;
+  border-top:none;
+  border-radius:0 0 8px 8px;
+  display:none;
+  flex-direction:row;
+  align-items:center;
+  justify-content:space-between;
+  padding:8px 16px;
+  gap:10px;
+  box-shadow:0 4px 18px rgba(0,0,0,0.6);
+  flex-shrink:0;
+}
+#ctrl-bar.visible{ display:flex; }
+
+/* Health in ctrl-bar */
+#fhwrap-bar{
+  display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;min-width:0;
+}
+#fhlabel{font-family:'Boogaloo',sans-serif;font-size:10px;color:rgba(255,180,80,0.65);letter-spacing:2px;}
+#fhbg{width:100%;height:10px;background:rgba(0,0,0,0.5);border-radius:5px;border:1px solid rgba(255,110,30,0.28);overflow:hidden;}
+#fhbar{height:100%;width:100%;background:linear-gradient(90deg,#44ff66,#aaff44);border-radius:5px;transition:width .2s,background .3s;}
+
+/* Health bar overlay — desktop only, inside canvas */
+#fhwrap{
+  position:absolute;bottom:8px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  pointer-events:none;z-index:5;
+}
+#fhlabel2{font-family:'Boogaloo',sans-serif;font-size:10px;color:rgba(255,180,80,0.6);letter-spacing:2px;}
+#fhbg2{width:200px;height:10px;background:rgba(0,0,0,0.5);border-radius:5px;border:1px solid rgba(255,110,30,0.25);overflow:hidden;}
+#fhbar2{height:100%;width:100%;background:linear-gradient(90deg,#44ff66,#aaff44);border-radius:5px;transition:width .2s,background .3s;}
+
+.mob-btn{
+  font-family:'Fredoka One',sans-serif;font-size:15px;letter-spacing:1px;
+  padding:10px 20px;border-radius:22px;border:none;
+  box-shadow:0 3px 0 rgba(0,0,0,0.5);
+  -webkit-user-select:none;user-select:none;
+  touch-action:manipulation;flex-shrink:0;
+}
+.mob-btn.decoy-btn{background:#e8a800;color:#2a0e00;}
+.mob-btn.focus-btn{background:#cc3300;color:#fff;}
 
 /* HUD */
 #hud{
   position:absolute;top:0;left:0;right:0;
   display:flex;justify-content:space-between;align-items:center;
-  padding:6px 10px;
-  background:linear-gradient(to bottom,rgba(10,4,0,0.88),transparent);
+  padding:5px 8px;
+  background:linear-gradient(to bottom,rgba(10,4,0,0.9),transparent);
   pointer-events:none;z-index:5;
 }
 .hpill{
-  background:rgba(10,4,0,0.7);border:1px solid rgba(255,160,30,0.3);
-  border-radius:18px;padding:4px 12px;
+  background:rgba(10,4,0,0.72);border:1px solid rgba(255,160,30,0.28);
+  border-radius:18px;padding:3px 10px;
 }
-.hlabel{font-family:'Boogaloo',sans-serif;font-size:10px;color:rgba(255,200,100,0.5);letter-spacing:1px;text-transform:uppercase;}
-.hval{font-family:'Fredoka One',sans-serif;font-size:20px;color:#ffcc44;line-height:1.1;}
-
-/* Food health bar */
-#fhwrap{
-  position:absolute;bottom:6px;left:50%;transform:translateX(-50%);
-  display:flex;flex-direction:column;align-items:center;gap:2px;
-  pointer-events:none;z-index:5;
-}
-#fhlabel{font-family:'Boogaloo',sans-serif;font-size:10px;color:rgba(255,180,80,0.6);letter-spacing:2px;}
-#fhbg{width:200px;height:10px;background:rgba(0,0,0,0.5);border-radius:5px;border:1px solid rgba(255,110,30,0.25);overflow:hidden;}
-#fhbar{height:100%;width:100%;background:linear-gradient(90deg,#44ff66,#aaff44);border-radius:5px;transition:width .2s,background .3s;}
+.hlabel{font-family:'Boogaloo',sans-serif;font-size:9px;color:rgba(255,200,100,0.5);letter-spacing:1px;text-transform:uppercase;}
+.hval{font-family:'Fredoka One',sans-serif;font-size:19px;color:#ffcc44;line-height:1.1;}
 
 /* Active powerup banner */
 #pwrup-banner{
-  position:absolute;top:54px;left:50%;transform:translateX(-50%);
-  font-family:'Fredoka One',sans-serif;font-size:16px;letter-spacing:2px;
-  background:rgba(0,0,0,0.6);border-radius:20px;padding:4px 16px;
+  position:absolute;top:50px;left:50%;transform:translateX(-50%);
+  font-family:'Fredoka One',sans-serif;font-size:15px;letter-spacing:2px;
+  background:rgba(0,0,0,0.65);border-radius:20px;padding:4px 14px;
   pointer-events:none;z-index:6;opacity:0;transition:opacity .3s;white-space:nowrap;
 }
 #pwrup-banner.show{opacity:1;}
 
-/* Decoy mode indicator */
+/* Decoy indicator — inside canvas top-right */
 #decoy-ui{
-  position:absolute;bottom:36px;right:10px;
+  position:absolute;top:46px;right:8px;
   pointer-events:none;z-index:6;
-  display:flex;flex-direction:column;align-items:center;gap:3px;
+  display:flex;flex-direction:column;align-items:flex-end;gap:2px;
 }
 #decoy-count{
   font-family:'Fredoka One',sans-serif;font-size:13px;color:#ffcc44;
   background:rgba(0,0,0,0.6);border-radius:12px;padding:2px 10px;
 }
-#decoy-hint{font-family:'Boogaloo',sans-serif;font-size:10px;color:rgba(255,200,100,0.55);letter-spacing:1px;text-align:center;}
-
-/* Mobile controls overlay */
-#mobile-controls{
-  position:absolute;bottom:30px;left:0;right:0;
-  display:flex;justify-content:center;gap:16px;
-  z-index:7;pointer-events:auto;
-}
-.mob-btn{
-  font-family:'Fredoka One',sans-serif;font-size:13px;letter-spacing:1px;
-  padding:8px 18px;border-radius:20px;border:none;
-  box-shadow:0 3px 0 rgba(0,0,0,0.4);
-  active:opacity:.8;
-  -webkit-user-select:none;user-select:none;
-}
-.mob-btn.decoy-btn{background:rgba(255,180,0,0.85);color:#3a1a00;}
-.mob-btn.focus-btn{background:rgba(255,80,0,0.85);color:#fff;}
+#decoy-hint{font-family:'Boogaloo',sans-serif;font-size:9px;color:rgba(255,200,100,0.5);letter-spacing:1px;text-align:right;}
 
 /* SCREENS */
 .screen{
@@ -156,19 +189,23 @@ body.decoy-mode{cursor:crosshair;}
 </style>
 </head>
 <body>
+<div id="shell">
+
+<!-- ── PLAY AREA ── -->
 <div id="wrapper">
-  <canvas id="gc" width="860" height="600"></canvas>
+  <canvas id="gc" width="900" height="640"></canvas>
 
   <div id="hud">
     <div class="hpill"><div class="hlabel">Waves</div><div class="hval" id="h-wave">0</div></div>
     <div class="hpill"><div class="hlabel">🐜 Fried</div><div class="hval" id="h-ants">0</div></div>
     <div class="hpill"><div class="hlabel">Decoys</div><div class="hval" id="h-decoys">0</div></div>
-    <div class="hpill"><div class="hlabel">Hi-Score</div><div class="hval" id="h-hi">0</div></div>
+    <div class="hpill"><div class="hlabel">Best</div><div class="hval" id="h-hi">0</div></div>
   </div>
 
+  <!-- Desktop health bar (inside canvas) -->
   <div id="fhwrap">
-    <div id="fhlabel">🧺 PICNIC HEALTH</div>
-    <div id="fhbg"><div id="fhbar"></div></div>
+    <div id="fhlabel2">🧺 PICNIC HEALTH</div>
+    <div id="fhbg2"><div id="fhbar2"></div></div>
   </div>
 
   <div id="pwrup-banner"></div>
@@ -176,12 +213,6 @@ body.decoy-mode{cursor:crosshair;}
   <div id="decoy-ui">
     <div id="decoy-count"></div>
     <div id="decoy-hint"></div>
-  </div>
-
-  <!-- Mobile buttons — shown only on touch devices -->
-  <div id="mobile-controls" style="display:none;">
-    <button class="mob-btn decoy-btn" id="mob-decoy-btn" ontouchstart="mobilePlaceDecoy(event)">🍕 DROP DECOY</button>
-    <button class="mob-btn focus-btn" id="mob-focus-btn" ontouchstart="mobileFocusToggle(event)">🔥 FOCUS</button>
   </div>
 
   <div id="wave-text">WAVE!</div>
@@ -222,7 +253,20 @@ body.decoy-mode{cursor:crosshair;}
     </div>
     <button class="btn" onclick="startGame()">TRY AGAIN</button>
   </div>
+
+</div><!-- end #wrapper -->
+
+<!-- ── CONTROL BAR — completely outside canvas, zero overlap ── -->
+<div id="ctrl-bar">
+  <button class="mob-btn decoy-btn" ontouchstart="mobilePlaceDecoy(event)">🍕 DECOY</button>
+  <div id="fhwrap-bar">
+    <div id="fhlabel">🧺 PICNIC</div>
+    <div id="fhbg"><div id="fhbar"></div></div>
+  </div>
+  <button class="mob-btn focus-btn" ontouchstart="mobileFocusToggle(event)">🔥 FOCUS</button>
 </div>
+
+</div><!-- end #shell -->
 
 <script>
 /* ═══════════════════════════════════════════════════
@@ -230,12 +274,14 @@ body.decoy-mode{cursor:crosshair;}
 ═══════════════════════════════════════════════════ */
 const canvas = document.getElementById('gc');
 const ctx = canvas.getContext('2d');
-const CW = 860, CH = 600;
+const CW = 900, CH = 640;
 
 // Detect touch device
 const isTouchDevice = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
 if (isTouchDevice) {
-  document.getElementById('mobile-controls').style.display = 'flex';
+  document.getElementById('ctrl-bar').classList.add('visible');
+  // Hide the desktop-only health bar overlay on touch
+  document.getElementById('fhwrap').style.display = 'none';
   document.body.style.cursor = 'none';
 }
 
@@ -252,12 +298,11 @@ const GLASS_MIN = 50, GLASS_MAX = 320, GLASS_R = 42;
 let beamX = CW/2, beamY = CH/2, burnRadius = 12, burnIntensity = 0;
 
 /* ── Picnic ── */
-const PICNIC = { x: CW/2, y: CH/2 + 15, rx: 115, ry: 68 };
+const PICNIC = { x: CW/2, y: CH/2 + 20, rx: 120, ry: 72 };
 
 /* ── Powerups ── */
-let activePowerup = null; // { type, timer, maxTimer }
-// Types: 'instakill' | 'doublepoints' | 'superbeam'
-let powerupDrops = []; // { x, y, type, pulse, life }
+let activePowerup = null;
+let powerupDrops = [];
 const PWRUP_TYPES = ['instakill','doublepoints','superbeam'];
 const PWRUP_COLORS = { instakill:'#ff3344', doublepoints:'#ffcc00', superbeam:'#ff6600' };
 const PWRUP_LABELS = { instakill:'☠️ INSTANT KILL!', doublepoints:'✖️2 DOUBLE POINTS!', superbeam:'🔥 SUPER BEAM!' };
@@ -455,8 +500,8 @@ function addHole() {
   // Place hole away from picnic and other holes
   let hx, hy, tries = 0;
   do {
-    hx = rand(50, CW - 50);
-    hy = rand(50, CH - 50);
+    hx = rand(55, CW - 55);
+    hy = rand(55, CH - 55);
     tries++;
   } while (tries < 30 && (
     dist(hx, hy, PICNIC.x, PICNIC.y) < PICNIC.rx + 60 ||
@@ -740,10 +785,13 @@ function update() {
   for(let i=smokeParticles.length-1;i>=0;i--){const s=smokeParticles[i];s.x+=s.vx;s.y+=s.vy;s.vy-=0.04;s.alpha-=0.007;s.r+=0.26;if(s.alpha<=0)smokeParticles.splice(i,1);}
   for(let i=biteAnims.length-1;i>=0;i--){biteAnims[i].t--;biteAnims[i].r+=1.4;biteAnims[i].alpha-=0.055;if(biteAnims[i].t<=0)biteAnims.splice(i,1);}
 
-  /* ── Health bar ── */
-  const hb = document.getElementById('fhbar');
-  hb.style.width = foodHealth+'%';
-  hb.style.background = foodHealth>60?'linear-gradient(90deg,#44ff66,#aaff44)':foodHealth>30?'linear-gradient(90deg,#ffcc00,#ff8800)':'linear-gradient(90deg,#ff4400,#ff2200)';
+  /* ── Health bars (both desktop overlay + mobile ctrl-bar) ── */
+  const pct = foodHealth + '%';
+  const hcolor = foodHealth>60?'linear-gradient(90deg,#44ff66,#aaff44)':foodHealth>30?'linear-gradient(90deg,#ffcc00,#ff8800)':'linear-gradient(90deg,#ff4400,#ff2200)';
+  const hb1 = document.getElementById('fhbar');
+  const hb2 = document.getElementById('fhbar2');
+  if(hb1){hb1.style.width=pct;hb1.style.background=hcolor;}
+  if(hb2){hb2.style.width=pct;hb2.style.background=hcolor;}
   if (foodHealth <= 0) gameOver();
 }
 
