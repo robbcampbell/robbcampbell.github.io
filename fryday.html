@@ -204,8 +204,8 @@ body.decoy-mode{cursor:crosshair;}
       <div>🍕 Decoy food drops randomly</div>
     </div>
     <div class="howgrid" style="margin-top:4px;font-size:13px;">
-      <div>📱 <strong>iPhone:</strong> Drag finger to aim</div>
-      <div>Pinch up/down = glass height</div>
+      <div>📱 <strong>iPhone:</strong> Drag — glass floats above finger</div>
+      <div>Pinch two fingers = adjust focus height</div>
     </div>
     <button class="btn" onclick="startGame()">BURN 'EM</button>
   </div>
@@ -320,17 +320,41 @@ let touches = {}; // track active touches
 let lastPinchDist = null;
 let mobileGlassHeightBase = 160;
 
+// How far above & to the left the glass hovers from the finger on touch devices
+// so it's never hidden under the user's finger/thumb
+const TOUCH_OFFSET_X = -18;  // slightly left
+const TOUCH_OFFSET_Y = -110; // well above the finger
+
+function applyTouchOffset(canvasPos) {
+  // Scale the pixel offset by the canvas-to-screen ratio
+  const r = canvas.getBoundingClientRect();
+  const scaleX = CW / r.width;
+  const scaleY = CH / r.height;
+  return {
+    x: canvasPos.x + TOUCH_OFFSET_X * scaleX,
+    y: canvasPos.y + TOUCH_OFFSET_Y * scaleY
+  };
+}
+
 canvas.addEventListener('touchstart', e => {
   e.preventDefault();
   if (state !== 'play') return;
   Array.from(e.changedTouches).forEach(t => { touches[t.identifier] = { x: t.clientX, y: t.clientY }; });
 
-  // Single tap = place decoy if in decoy mode
+  // Single tap = place decoy at the FINGER position (not offset), so placement feels accurate
   if (e.touches.length === 1 && (decoyMode || mobileDecoyReady) && decoyCount > 0) {
     const p = getCanvasPos(e.touches[0].clientX, e.touches[0].clientY);
     placeDecoy(p.x, p.y);
     mobileDecoyReady = false;
     return;
+  }
+
+  // On first touch, snap glass to offset position immediately
+  if (e.touches.length === 1) {
+    const raw = getCanvasPos(e.touches[0].clientX, e.touches[0].clientY);
+    const off = applyTouchOffset(raw);
+    glass.x = clamp(off.x, GLASS_R + 5, CW - GLASS_R - 5);
+    glass.y = clamp(off.y, GLASS_R + 5, CH - GLASS_R - 5);
   }
 }, { passive: false });
 
@@ -339,25 +363,29 @@ canvas.addEventListener('touchmove', e => {
   if (state !== 'play') return;
 
   if (e.touches.length === 1) {
-    // Single finger = move glass
+    // Single finger drag = move glass, offset above finger so it stays visible
     const t = e.touches[0];
-    const p = getCanvasPos(t.clientX, t.clientY);
-    glass.x = p.x; glass.y = p.y;
+    const raw = getCanvasPos(t.clientX, t.clientY);
+    const off = applyTouchOffset(raw);
+    glass.x = clamp(off.x, GLASS_R + 5, CW - GLASS_R - 5);
+    glass.y = clamp(off.y, GLASS_R + 5, CH - GLASS_R - 5);
     lastPinchDist = null;
   } else if (e.touches.length === 2) {
     // Two fingers = pinch to control glass height
     const t1 = e.touches[0], t2 = e.touches[1];
     const d = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
     if (lastPinchDist !== null) {
-      const delta = (lastPinchDist - d) * 1.2; // pinch in = lower (tighter), spread = higher
+      const delta = (lastPinchDist - d) * 1.2; // pinch in = tighter focus, spread = wider
       glass.height = clamp(glass.height + delta, GLASS_MIN, GLASS_MAX);
     }
     lastPinchDist = d;
-    // Move glass to midpoint
+    // Move glass to midpoint between fingers, offset upward
     const mx = (t1.clientX + t2.clientX) / 2;
     const my = (t1.clientY + t2.clientY) / 2;
-    const p = getCanvasPos(mx, my);
-    glass.x = p.x; glass.y = p.y;
+    const raw = getCanvasPos(mx, my);
+    const off = applyTouchOffset(raw);
+    glass.x = clamp(off.x, GLASS_R + 5, CW - GLASS_R - 5);
+    glass.y = clamp(off.y, GLASS_R + 5, CH - GLASS_R - 5);
   }
 }, { passive: false });
 
