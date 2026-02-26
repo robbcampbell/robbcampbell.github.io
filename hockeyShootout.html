@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Olympic Hockey Shootout</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --ice: #d6eeff;
+    --ice2: #b8d8f0;
+    --red: #c8102e;
+    --gold: #ffcf00;
+    --navy: #002868;
+    --dark: #0a0e1a;
+    --white: #f0f6ff;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--dark);
+    font-family: 'Barlow Condensed', sans-serif;
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+  }
+
+  #game-container {
+    position: relative;
+    width: 900px;
+    height: 620px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 0 80px rgba(0,100,255,0.3), 0 0 0 2px rgba(255,255,255,0.08);
+  }
+
+  canvas {
+    display: block;
+    cursor: none;
+  }
+
+  /* ── OVERLAY SCREENS ── */
+  .screen {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 16px;
+    background: rgba(0,10,30,0.92);
+    backdrop-filter: blur(6px);
+    z-index: 10;
+    transition: opacity .4s;
+  }
+  .screen.hidden { display: none; }
+
+  .screen-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 72px;
+    color: var(--white);
+    letter-spacing: 6px;
+    line-height: 1;
+    text-shadow: 0 0 30px rgba(200,16,46,.7), 0 4px 0 rgba(0,0,0,.6);
+  }
+  .screen-title span { color: var(--gold); }
+
+  .screen-sub {
+    font-size: 18px; color: rgba(200,220,255,0.7);
+    letter-spacing: 3px; text-transform: uppercase;
+  }
+
+  .divider {
+    width: 200px; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  .instruction-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px 28px; margin: 4px 0;
+    font-size: 15px; color: rgba(200,220,255,0.8);
+    letter-spacing: 1px;
+  }
+  .instruction-grid strong { color: var(--gold); }
+
+  .btn-play {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px; letter-spacing: 4px;
+    padding: 14px 52px;
+    background: var(--red);
+    color: white;
+    border: none; border-radius: 4px;
+    cursor: pointer;
+    transition: transform .15s, background .15s, box-shadow .15s;
+    box-shadow: 0 4px 20px rgba(200,16,46,.5);
+    margin-top: 8px;
+  }
+  .btn-play:hover {
+    background: #e8152f;
+    transform: scale(1.05);
+    box-shadow: 0 6px 30px rgba(200,16,46,.8);
+  }
+  .btn-play.secondary {
+    background: var(--navy);
+    box-shadow: 0 4px 20px rgba(0,40,104,.5);
+  }
+  .btn-play.secondary:hover {
+    background: #0033a0;
+    box-shadow: 0 6px 30px rgba(0,40,104,.8);
+  }
+
+  .btn-row { display: flex; gap: 16px; }
+
+  /* Score cards in end screen */
+  .score-cards {
+    display: flex; gap: 28px; margin: 4px 0;
+  }
+  .score-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    padding: 16px 28px;
+    text-align: center;
+    min-width: 110px;
+  }
+  .score-card-label { font-size: 11px; color: rgba(200,220,255,0.5); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+  .score-card-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px; color: var(--gold);
+    line-height: 1;
+  }
+  .score-card-val.red { color: var(--red); }
+
+  /* HUD */
+  #hud {
+    position: absolute; top: 0; left: 0; right: 0;
+    padding: 10px 20px;
+    display: flex; justify-content: space-between; align-items: center;
+    pointer-events: none; z-index: 5;
+  }
+  .hud-block {
+    background: rgba(0,10,30,0.75);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    padding: 6px 16px;
+    text-align: center;
+    min-width: 80px;
+  }
+  .hud-label { font-size: 10px; color: rgba(200,220,255,0.5); letter-spacing: 2px; text-transform: uppercase; }
+  .hud-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px; color: var(--white);
+    line-height: 1.1;
+  }
+  .hud-shots { display: flex; gap: 5px; align-items: center; }
+  .shot-dot {
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.3);
+    transition: background .3s;
+  }
+  .shot-dot.goal { background: var(--gold); border-color: var(--gold); }
+  .shot-dot.miss { background: var(--red); border-color: var(--red); opacity: .6; }
+  .shot-dot.active { background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.6); }
+  .shot-dot.empty { background: transparent; }
+
+  /* Round indicator */
+  .hud-round { font-size: 11px; color: rgba(200,220,255,0.6); letter-spacing: 2px; text-transform: uppercase; text-align: center; }
+
+  /* Power meter */
+  #power-wrap {
+    position: absolute; right: 16px; bottom: 80px;
+    width: 18px; height: 140px;
+    background: rgba(0,10,30,0.7);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 9px;
+    overflow: hidden;
+    pointer-events: none; z-index: 5;
+  }
+  #power-bar {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    border-radius: 9px;
+    transition: height .05s, background .1s;
+  }
+  #power-label {
+    position: absolute; right: 28px; bottom: 80px;
+    font-size: 10px; color: rgba(200,220,255,0.5); letter-spacing: 1px;
+    text-transform: uppercase; writing-mode: vertical-rl;
+    pointer-events: none; z-index: 5;
+  }
+
+  /* Announcement */
+  #announce {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 80px; letter-spacing: 6px;
+    pointer-events: none; z-index: 8;
+    text-shadow: 0 4px 20px rgba(0,0,0,.8);
+    opacity: 0;
+    transition: opacity .2s;
+  }
+  #announce.show { opacity: 1; }
+  #announce.goal { color: var(--gold); }
+  #announce.save { color: var(--red); }
+  #announce.miss { color: rgba(200,220,255,.8); }
+
+  /* Flag pills */
+  .flag-pill {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: rgba(200,220,255,0.7); letter-spacing: 1px;
+  }
+  .flag { font-size: 20px; }
+</style>
+</head>
+<body>
+
+<div id="game-container">
+  <canvas id="gc" width="900" height="620"></canvas>
+
+  <!-- HUD -->
+  <div id="hud">
+    <div class="hud-block">
+      <div class="hud-label">Goals</div>
+      <div class="hud-val" id="hud-goals">0</div>
+    </div>
+    <div style="text-align:center">
+      <div class="hud-round" id="hud-round">SHOT 1 OF 5</div>
+      <div class="hud-shots" id="hud-shots"></div>
+    </div>
+    <div class="hud-block">
+      <div class="hud-label">Time</div>
+      <div class="hud-val" id="hud-time">8</div>
+    </div>
+  </div>
+
+  <div id="power-label">PWR</div>
+  <div id="power-wrap"><div id="power-bar"></div></div>
+  <div id="announce">GOAL!</div>
+
+  <!-- START SCREEN -->
+  <div class="screen" id="screen-start">
+    <div class="screen-title"><span>OLYMPIC</span><br/>SHOOTOUT</div>
+    <div class="screen-sub">Hockey · Gold Medal Finale</div>
+    <div class="divider"></div>
+    <div class="instruction-grid">
+      <div><strong>MOVE MOUSE</strong> — Control player & stick</div>
+      <div><strong>HOLD & RELEASE</strong> — Wind up shot</div>
+      <div><strong>FAST FLICK</strong> — Wrist shot / deke</div>
+      <div><strong>SIDE TO SIDE</strong> — Fake out goalie</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-play" onclick="startGame()">DROP THE PUCK</button>
+    </div>
+    <div style="font-size:13px;color:rgba(200,220,255,0.4);letter-spacing:1px">5 SHOTS · MOST GOALS WINS</div>
+  </div>
+
+  <!-- END SCREEN -->
+  <div class="screen hidden" id="screen-end">
+    <div class="screen-title" id="end-title">GOLD MEDAL!</div>
+    <div class="screen-sub" id="end-sub">FINAL SHOOTOUT</div>
+    <div class="divider"></div>
+    <div class="score-cards">
+      <div class="score-card">
+        <div class="score-card-label">Your Goals</div>
+        <div class="score-card-val" id="end-goals">0</div>
+      </div>
+      <div class="score-card">
+        <div class="score-card-label">Shot Power</div>
+        <div class="score-card-val" id="end-power">0</div>
+      </div>
+      <div class="score-card">
+        <div class="score-card-label">Saves Beat</div>
+        <div class="score-card-val" id="end-saves">0</div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-play" onclick="startGame()">PLAY AGAIN</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('gc');
+const ctx = canvas.getContext('2d');
+const W = 900, H = 620;
+
+/* ══════════════════════════════════════════
+   GAME STATE
+══════════════════════════════════════════ */
+let state = 'start'; // start | approach | shooting | result | end
+let goals = 0, totalShots = 5, shotNum = 0;
+let shotResults = []; // 'goal'|'miss'|'save'|null
+let frameId;
+
+// Player / puck
+let player = { x: W/2, y: H - 120, vx: 0, vy: 0 };
+let puck = { x: W/2, y: H - 110, vx: 0, vy: 0, shot: false, trail: [] };
+let stickAngle = 0; // radians
+let stickReach = 0; // 0..1 extension
+
+// Mouse
+let mouse = { x: W/2, y: H - 120, px: W/2, py: H - 120, vx: 0, vy: 0 };
+let mouseHistory = []; // last N positions for flick detection
+
+// Goalie
+let goalie = {
+  x: W/2, y: 148,
+  tx: W/2, // target x
+  w: 54, h: 76,
+  reaction: 0, // delay before reacting
+  speed: 3.5,
+  dived: false,
+  diveX: 0,
+  commitTimer: 0, // after committing, can't change
+  saved: false,
+};
+
+// Net
+const NET = { x: W/2 - 110, y: 90, w: 220, h: 90, postW: 8 };
+const CREASE_RX = 95, CREASE_RY = 42;
+
+// Approach
+let approachTimer = 0;
+const APPROACH_FRAMES = 100; // skate toward goal
+let resultTimer = 0;
+let shotPower = 0; // 0-100
+let mouseDown = false;
+let mouseDownTime = 0;
+let bestPower = 0;
+let dekes = 0; // fake direction changes
+
+// Visual effects
+let effects = []; // sparks, text popups
+let iceScrapes = []; // skate marks
+
+// Shot outcome
+let shotOutcome = null; // 'goal'|'miss'|'save'
+let puckHolePos = null; // where puck went in net
+
+/* ══════════════════════════════════════════
+   UTILITY
+══════════════════════════════════════════ */
+function lerp(a, b, t) { return a + (b - a) * t; }
+function dist(ax, ay, bx, by) { return Math.hypot(bx-ax, by-ay); }
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+function rand(a, b) { return a + Math.random() * (b - a); }
+
+/* ══════════════════════════════════════════
+   INIT
+══════════════════════════════════════════ */
+function startGame() {
+  goals = 0; shotNum = 0; shotResults = [];
+  bestPower = 0; dekes = 0;
+  document.getElementById('screen-start').classList.add('hidden');
+  document.getElementById('screen-end').classList.add('hidden');
+  document.getElementById('hud-goals').textContent = '0';
+  effects = []; iceScrapes = [];
+  hideAnnounce();
+  beginShot();
+  if (!frameId) gameLoop();
+}
+
+function beginShot() {
+  shotNum++;
+  state = 'approach';
+  approachTimer = 0;
+  player.x = W/2 + rand(-60, 60);
+  player.y = H - 80;
+  player.vx = 0; player.vy = 0;
+  puck.x = player.x;
+  puck.y = player.y - 18;
+  puck.vx = 0; puck.vy = 0;
+  puck.shot = false; puck.trail = [];
+  stickAngle = -Math.PI / 2;
+  stickReach = 0;
+  mouseDown = false; shotPower = 0;
+  mouseHistory = [];
+
+  // Goalie reset
+  goalie.x = W/2; goalie.tx = W/2;
+  goalie.dived = false; goalie.saved = false;
+  goalie.reaction = 60 + Math.random() * 40;
+  goalie.commitTimer = 0;
+  goalie.speed = 3.2 + (shotNum - 1) * 0.25; // gets harder
+
+  updateHUD();
+}
+
+/* ══════════════════════════════════════════
+   MOUSE
+══════════════════════════════════════════ */
+canvas.addEventListener('mousemove', e => {
+  const r = canvas.getBoundingClientRect();
+  const scale = W / r.width;
+  mouse.px = mouse.x; mouse.py = mouse.y;
+  mouse.x = (e.clientX - r.left) * scale;
+  mouse.y = (e.clientY - r.top) * scale;
+  mouse.vx = mouse.x - mouse.px;
+  mouse.vy = mouse.y - mouse.py;
+  mouseHistory.push({ x: mouse.x, y: mouse.y, t: performance.now() });
+  if (mouseHistory.length > 20) mouseHistory.shift();
+});
+
+canvas.addEventListener('mousedown', e => {
+  if (state !== 'approach' && state !== 'approach_ready') return;
+  mouseDown = true;
+  mouseDownTime = performance.now();
+});
+
+canvas.addEventListener('mouseup', e => {
+  if (!mouseDown) return;
+  mouseDown = false;
+  if (state === 'approach' || state === 'shooting_windup') {
+    releaseShot();
+  }
+});
+
+/* ══════════════════════════════════════════
+   SHOT MECHANICS
+══════════════════════════════════════════ */
+function getFlickSpeed() {
+  if (mouseHistory.length < 4) return 0;
+  const now = performance.now();
+  const recent = mouseHistory.filter(m => now - m.t < 120);
+  if (recent.length < 2) return 0;
+  const first = recent[0], last = recent[recent.length - 1];
+  const d = dist(first.x, first.y, last.x, last.y);
+  const dt = (last.t - first.t) / 1000 + 0.001;
+  return d / dt; // px/sec
+}
+
+function getDekeDirection() {
+  // Detect left/right mouse movement pattern for deke
+  if (mouseHistory.length < 6) return 0;
+  const slice = mouseHistory.slice(-8);
+  let dx = slice[slice.length-1].x - slice[0].x;
+  return dx > 15 ? 1 : dx < -15 ? -1 : 0;
+}
+
+function releaseShot() {
+  if (puck.shot) return;
+  state = 'shooting';
+
+  // Calculate shot direction from player to goal, biased by mouse position
+  const mouseRelX = (mouse.x - W/2) / (W/2); // -1..1
+  const mouseRelY = clamp((mouse.y - (H * 0.4)) / (H * 0.3), -0.5, 0.5);
+
+  // Flick speed determines shot type
+  const flick = getFlickSpeed();
+  let basePower = clamp(flick / 18, 10, 100);
+
+  // Hold time also adds power (for slap shot windup)
+  const holdTime = (performance.now() - mouseDownTime) / 1000;
+  if (holdTime > 0.3) basePower = Math.min(100, basePower + holdTime * 25);
+
+  shotPower = Math.round(basePower);
+  if (shotPower > bestPower) bestPower = shotPower;
+
+  // Shot velocity
+  const speed = 6 + basePower * 0.18;
+  // Aim: mostly up toward net, with horizontal control
+  let vx = mouseRelX * 4.5 + (Math.random() - 0.5) * 0.4;
+  let vy = -(speed + Math.random() * 1.5);
+
+  // Slight inaccuracy at low power
+  if (basePower < 20) {
+    vx += (Math.random() - 0.5) * 2;
+    vy += (Math.random() - 0.5) * 1;
+  }
+
+  puck.vx = vx;
+  puck.vy = vy;
+  puck.shot = true;
+
+  // Stick swing effect
+  stickReach = 1.0;
+
+  // Ice scrape
+  iceScrapes.push({ x: player.x, y: player.y, a: stickAngle, alpha: 1 });
+
+  // Goalie reads direction
+  goalie.tx = W/2 + vx * 22;
+}
+
+/* ══════════════════════════════════════════
+   UPDATE
+══════════════════════════════════════════ */
+function update() {
+  // Mouse-driven stick angle
+  if (state === 'approach' || state === 'approach_ready') {
+    const dx = mouse.x - player.x;
+    const dy = mouse.y - player.y;
+    stickAngle = Math.atan2(dy, dx);
+
+    // Windup: if mouse held, build power charge visual
+    if (mouseDown) {
+      state = 'shooting_windup';
+      const holdTime = (performance.now() - mouseDownTime) / 1000;
+      shotPower = clamp(holdTime * 60, 0, 100);
+    } else if (state === 'shooting_windup') {
+      // Released — already handled by mouseup
+    }
+
+    // Player skates toward upper portion of canvas during approach
+    const targetY = lerp(H - 80, H - 220, approachTimer / APPROACH_FRAMES);
+    const targetX = W/2 + Math.sin(approachTimer * 0.04) * 40; // slight weave
+    player.x = lerp(player.x, targetX, 0.04);
+    player.y = lerp(player.y, targetY, 0.04);
+
+    // Puck follows player (on stick) until shot
+    if (!puck.shot) {
+      const sx = player.x + Math.cos(stickAngle) * 32;
+      const sy = player.y + Math.sin(stickAngle) * 32;
+      puck.x = lerp(puck.x, sx, 0.3);
+      puck.y = lerp(puck.y, sy, 0.3);
+    }
+
+    approachTimer++;
+    if (approachTimer > APPROACH_FRAMES && state === 'approach') state = 'approach_ready';
+  }
+
+  if (state === 'shooting_windup') {
+    // Keep player moving
+    const targetY = H - 220;
+    player.y = lerp(player.y, targetY, 0.04);
+    if (!puck.shot) {
+      const sx = player.x + Math.cos(stickAngle) * 32;
+      const sy = player.y + Math.sin(stickAngle) * 32;
+      puck.x = lerp(puck.x, sx, 0.3);
+      puck.y = lerp(puck.y, sy, 0.3);
+    }
+  }
+
+  // Puck physics after shot
+  if (puck.shot) {
+    puck.trail.push({ x: puck.x, y: puck.y });
+    if (puck.trail.length > 18) puck.trail.shift();
+
+    puck.x += puck.vx;
+    puck.y += puck.vy;
+    puck.vy += 0.04; // slight gravity
+    puck.vx *= 0.995;
+
+    // Stick follow-through animation
+    stickReach = Math.max(0, stickReach - 0.06);
+  }
+
+  // Goalie AI
+  if (state === 'shooting' || state === 'approach_ready' || state === 'approach' || state === 'shooting_windup') {
+    goalie.reaction--;
+
+    // Goalie reads player movement for deke reaction
+    const deke = getDekeDirection();
+    if (deke !== 0 && !goalie.dived && goalie.commitTimer <= 0) {
+      goalie.tx = W/2 + deke * 60;
+      if (Math.random() < 0.35 + (shotNum - 1) * 0.08) {
+        // Goalie bites on deke
+        goalie.commitTimer = 45;
+      }
+    }
+
+    if (goalie.reaction <= 0 && !goalie.dived) {
+      // React to puck shot direction
+      if (puck.shot) {
+        goalie.tx = clamp(puck.x, NET.x + 20, NET.x + NET.w - 20);
+        goalie.commitTimer = 999; // committed after shot
+      }
+      const spd = goalie.speed + (puck.shot ? 4 : 0);
+      goalie.x = lerp(goalie.x, goalie.tx, spd / 100);
+    }
+
+    goalie.commitTimer = Math.max(0, goalie.commitTimer - 1);
+  }
+
+  // Check puck outcome
+  if (puck.shot && state === 'shooting') {
+    // Puck enters net zone
+    if (puck.y < NET.y + NET.h && puck.y > NET.y - 10) {
+      if (puck.x > NET.x + NET.postW && puck.x < NET.x + NET.w - NET.postW) {
+        // Check if goalie blocks it
+        const gx = goalie.x - goalie.w/2;
+        const gy = goalie.y;
+        const blocked = puck.x > gx - 16 && puck.x < gx + goalie.w + 16
+                      && puck.y > gy - 16 && puck.y < gy + goalie.h + 16;
+
+        if (blocked) {
+          triggerResult('save');
+        } else {
+          puckHolePos = { x: puck.x, y: puck.y };
+          triggerResult('goal');
+        }
+      } else if (puck.x >= NET.x - 20 && puck.x <= NET.x + NET.w + 20) {
+        // Hit post
+        triggerResult('miss');
+        effects.push({ type: 'post_clank', x: puck.x, y: puck.y, t: 40 });
+      }
+    }
+
+    // Puck went past/above net
+    if (puck.y < NET.y - 20) {
+      triggerResult('miss');
+    }
+
+    // Puck hits back boards
+    if (puck.y < 20) triggerResult('miss');
+  }
+
+  // Update effects
+  for (let i = effects.length - 1; i >= 0; i--) {
+    effects[i].t--;
+    if (effects[i].alpha !== undefined) effects[i].alpha -= 0.02;
+    if (effects[i].t <= 0) effects.splice(i, 1);
+  }
+  iceScrapes.forEach(s => s.alpha = Math.max(0, s.alpha - 0.008));
+
+  // Result timer
+  if (state === 'result') {
+    resultTimer--;
+    if (resultTimer <= 0) {
+      if (shotNum >= totalShots) {
+        endGame();
+      } else {
+        beginShot();
+      }
+    }
+  }
+}
+
+/* ══════════════════════════════════════════
+   RESULT
+══════════════════════════════════════════ */
+function triggerResult(outcome) {
+  if (state === 'result') return;
+  state = 'result';
+  shotOutcome = outcome;
+  resultTimer = 140;
+  shotResults.push(outcome);
+
+  const ann = document.getElementById('announce');
+  ann.className = 'show ' + (outcome === 'goal' ? 'goal' : outcome === 'save' ? 'save' : 'miss');
+  ann.textContent = outcome === 'goal' ? 'GOAL!' : outcome === 'save' ? 'SAVED!' : 'MISS!';
+
+  if (outcome === 'goal') {
+    goals++;
+    document.getElementById('hud-goals').textContent = goals;
+    // Celebration sparks
+    for (let i = 0; i < 40; i++) {
+      effects.push({
+        type: 'spark', x: puckHolePos?.x || W/2, y: puckHolePos?.y || NET.y,
+        vx: rand(-6, 6), vy: rand(-8, 0),
+        color: Math.random() < 0.5 ? '#ffcf00' : '#ffffff',
+        t: rand(30, 70), alpha: 1, r: rand(2, 5)
+      });
+    }
+    setTimeout(hideAnnounce, 1800);
+  } else {
+    // Goalie dive
+    goalie.dived = true;
+    goalie.diveX = goalie.x + (puck.vx > 0 ? 20 : -20);
+    setTimeout(hideAnnounce, 1500);
+  }
+
+  updateHUD();
+}
+
+function hideAnnounce() {
+  const ann = document.getElementById('announce');
+  ann.className = '';
+}
+
+/* ══════════════════════════════════════════
+   END
+══════════════════════════════════════════ */
+function endGame() {
+  state = 'end';
+  const ended = document.getElementById('screen-end');
+  const title = document.getElementById('end-title');
+  const sub = document.getElementById('end-sub');
+  document.getElementById('end-goals').textContent = goals;
+  document.getElementById('end-power').textContent = bestPower + '%';
+  document.getElementById('end-saves').textContent = shotResults.filter(r=>r==='goal').length;
+
+  if (goals >= 4) { title.textContent = 'GOLD MEDAL!'; title.style.color = 'var(--gold)'; sub.textContent = '5 Goals? Legendary Performance!'; }
+  else if (goals >= 3) { title.textContent = 'SILVER MEDAL'; title.style.color = '#C0C0C0'; sub.textContent = 'So close to Gold…'; }
+  else if (goals >= 2) { title.textContent = 'BRONZE MEDAL'; title.style.color = '#CD7F32'; sub.textContent = 'Not bad — try again!'; }
+  else { title.textContent = 'ELIMINATED'; title.style.color = 'var(--red)'; sub.textContent = 'The goalie dominated you.'; }
+
+  ended.classList.remove('hidden');
+}
+
+/* ══════════════════════════════════════════
+   HUD
+══════════════════════════════════════════ */
+function updateHUD() {
+  document.getElementById('hud-round').textContent = `SHOT ${shotNum} OF ${totalShots}`;
+  const container = document.getElementById('hud-shots');
+  container.innerHTML = '';
+  for (let i = 0; i < totalShots; i++) {
+    const d = document.createElement('div');
+    const r = shotResults[i];
+    d.className = 'shot-dot ' + (r === 'goal' ? 'goal' : r ? 'miss' : i === shotNum - 1 ? 'active' : 'empty');
+    container.appendChild(d);
+  }
+}
+
+/* ══════════════════════════════════════════
+   DRAW
+══════════════════════════════════════════ */
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  drawIce();
+  drawNet();
+  drawCrease();
+  drawGoalie();
+  drawIceScrapes();
+  drawPuck();
+  drawPlayer();
+  drawCursor();
+  drawEffects();
+  drawPowerMeter();
+  if (state === 'shooting_windup') drawWindupIndicator();
+}
+
+function drawIce() {
+  // Ice surface gradient
+  const ig = ctx.createLinearGradient(0, 0, 0, H);
+  ig.addColorStop(0, '#c2dff5');
+  ig.addColorStop(0.4, '#d8eeff');
+  ig.addColorStop(1, '#e8f4ff');
+  ctx.fillStyle = ig;
+  ctx.fillRect(0, 0, W, H);
+
+  // Ice texture / lines
+  ctx.strokeStyle = 'rgba(150,180,220,0.4)';
+  ctx.lineWidth = 1;
+  // Center line
+  ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke();
+  // Face-off circle remnant
+  ctx.beginPath();
+  ctx.arc(W/2, H - 60, 60, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(200,16,46,0.25)'; ctx.lineWidth = 2;
+  ctx.stroke();
+  // Blue line
+  ctx.beginPath(); ctx.moveTo(0, H * 0.38); ctx.lineTo(W, H * 0.38);
+  ctx.strokeStyle = 'rgba(0,40,150,0.3)'; ctx.lineWidth = 3; ctx.stroke();
+  // Faint horizontal ice sheen lines
+  ctx.lineWidth = 0.5; ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+  for (let y = 20; y < H; y += 14) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+  // Ice sheen spots
+  const sh = ctx.createRadialGradient(W*0.3, H*0.6, 0, W*0.3, H*0.6, 200);
+  sh.addColorStop(0, 'rgba(255,255,255,0.18)'); sh.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = sh; ctx.fillRect(0,0,W,H);
+}
+
+function drawNet() {
+  const { x, y, w, h, postW } = NET;
+
+  // Net mesh background
+  ctx.fillStyle = 'rgba(255,50,50,0.08)';
+  ctx.fillRect(x + postW, y, w - postW*2, h);
+
+  // Net mesh lines
+  ctx.strokeStyle = 'rgba(150,50,50,0.3)';
+  ctx.lineWidth = 0.5;
+  for (let nx = x + postW; nx <= x + w - postW; nx += 12) {
+    ctx.beginPath(); ctx.moveTo(nx, y); ctx.lineTo(nx, y + h); ctx.stroke();
+  }
+  for (let ny = y; ny <= y + h; ny += 10) {
+    ctx.beginPath(); ctx.moveTo(x + postW, ny); ctx.lineTo(x + w - postW, ny); ctx.stroke();
+  }
+
+  // Shadow behind net
+  const sg = ctx.createLinearGradient(0, y, 0, y + h);
+  sg.addColorStop(0, 'rgba(0,0,0,0.08)'); sg.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = sg; ctx.fillRect(x, y, w, h);
+
+  // Goal posts - red
+  ctx.strokeStyle = '#c8102e';
+  ctx.lineWidth = postW + 2;
+  ctx.lineCap = 'round';
+  ctx.shadowColor = 'rgba(200,16,46,0.4)'; ctx.shadowBlur = 6;
+  // Left post
+  ctx.beginPath(); ctx.moveTo(x + postW/2, y); ctx.lineTo(x + postW/2, y + h); ctx.stroke();
+  // Right post
+  ctx.beginPath(); ctx.moveTo(x + w - postW/2, y); ctx.lineTo(x + w - postW/2, y + h); ctx.stroke();
+  // Crossbar
+  ctx.beginPath(); ctx.moveTo(x, y + postW/2); ctx.lineTo(x + w, y + postW/2); ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // Goal line
+  ctx.strokeStyle = 'rgba(200,16,46,0.5)'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(x, y + h); ctx.lineTo(x + w, y + h); ctx.stroke();
+
+  // Puck hole visual
+  if (puckHolePos && state === 'result' && shotOutcome === 'goal') {
+    ctx.fillStyle = 'rgba(0,0,0,0.7)';
+    ctx.beginPath(); ctx.arc(puckHolePos.x, puckHolePos.y, 8, 0, Math.PI*2); ctx.fill();
+    const sg2 = ctx.createRadialGradient(puckHolePos.x, puckHolePos.y, 0, puckHolePos.x, puckHolePos.y, 20);
+    sg2.addColorStop(0, 'rgba(255,150,0,0.4)'); sg2.addColorStop(1, 'rgba(255,150,0,0)');
+    ctx.fillStyle = sg2; ctx.beginPath(); ctx.arc(puckHolePos.x, puckHolePos.y, 20, 0, Math.PI*2); ctx.fill();
+  }
+}
+
+function drawCrease() {
+  const cx = W/2, cy = NET.y + NET.h;
+  ctx.save();
+  ctx.strokeStyle = 'rgba(200,16,46,0.5)'; ctx.lineWidth = 2;
+  ctx.fillStyle = 'rgba(150,190,240,0.25)';
+  ctx.beginPath();
+  ctx.arc(cx, cy, CREASE_RX, Math.PI, 0);
+  ctx.lineTo(cx + CREASE_RX, cy);
+  ctx.lineTo(cx - CREASE_RX, cy);
+  ctx.closePath();
+  ctx.fill(); ctx.stroke();
+  ctx.restore();
+}
+
+function drawGoalie() {
+  const gx = goalie.x;
+  const gy = goalie.y;
+  const diving = goalie.dived;
+
+  ctx.save();
+  if (diving) {
+    ctx.translate(goalie.diveX || gx, gy + 20);
+    ctx.rotate(0.4 * (goalie.diveX > gx ? 1 : -1));
+  } else {
+    ctx.translate(gx, gy);
+  }
+
+  // Pads (leg pads)
+  ctx.fillStyle = '#002868';
+  ctx.beginPath();
+  ctx.roundRect(-goalie.w/2 - 10, goalie.h*0.45, 18, goalie.h*0.55, 6);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.roundRect(goalie.w/2 - 8, goalie.h*0.45, 18, goalie.h*0.55, 6);
+  ctx.fill();
+
+  // Jersey body
+  const jg = ctx.createLinearGradient(0, 0, 0, goalie.h * 0.7);
+  jg.addColorStop(0, '#c8102e');
+  jg.addColorStop(1, '#8b0000');
+  ctx.fillStyle = jg;
+  ctx.beginPath();
+  ctx.roundRect(-goalie.w/2 + 2, 0, goalie.w - 4, goalie.h * 0.72, 8);
+  ctx.fill();
+
+  // Number on jersey
+  ctx.fillStyle = 'rgba(255,255,255,0.8)';
+  ctx.font = 'bold 13px "Barlow Condensed"';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('31', 0, goalie.h * 0.35);
+
+  // Chest protector
+  ctx.fillStyle = '#fff3';
+  ctx.beginPath();
+  ctx.roundRect(-goalie.w/2 + 4, goalie.h*0.05, goalie.w-8, goalie.h*0.38, 5);
+  ctx.fill();
+
+  // Helmet
+  const hg = ctx.createRadialGradient(-4, -6, 2, 0, -5, 24);
+  hg.addColorStop(0, '#444'); hg.addColorStop(1, '#111');
+  ctx.fillStyle = hg;
+  ctx.beginPath();
+  ctx.arc(0, -5, 22, Math.PI*0.15, Math.PI*0.85, true);
+  ctx.closePath();
+  ctx.fill();
+
+  // Cage / visor
+  ctx.strokeStyle = 'rgba(200,200,180,0.6)'; ctx.lineWidth = 1.5;
+  for (let bar = -14; bar <= 14; bar += 5) {
+    ctx.beginPath(); ctx.moveTo(bar, -18); ctx.lineTo(bar - 2, 3); ctx.stroke();
+  }
+  ctx.beginPath(); ctx.moveTo(-16, -10); ctx.lineTo(16, -10); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-16, -4); ctx.lineTo(16, -4); ctx.stroke();
+
+  // Blocker / glove
+  ctx.fillStyle = '#ffcf00';
+  ctx.beginPath();
+  ctx.roundRect(goalie.w/2, goalie.h*0.2, 20, 24, 4);
+  ctx.fill();
+  ctx.fillStyle = '#001855';
+  ctx.beginPath();
+  ctx.roundRect(-goalie.w/2 - 18, goalie.h*0.2, 20, 28, 4);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawPlayer() {
+  if (state === 'end') return;
+  const px = player.x, py = player.y;
+
+  ctx.save();
+  ctx.translate(px, py);
+
+  // Skate blade shadows
+  ctx.fillStyle = 'rgba(0,50,120,0.15)';
+  ctx.beginPath(); ctx.ellipse(-8, 28, 14, 4, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(8, 28, 14, 4, 0, 0, Math.PI*2); ctx.fill();
+
+  // Legs
+  ctx.fillStyle = '#002868';
+  ctx.fillRect(-10, 12, 9, 18);
+  ctx.fillRect(1, 12, 9, 18);
+
+  // Skates
+  ctx.fillStyle = '#111';
+  ctx.fillRect(-12, 26, 12, 5);
+  ctx.fillRect(0, 26, 12, 5);
+  ctx.strokeStyle = '#aaa'; ctx.lineWidth = 0.8;
+  ctx.beginPath(); ctx.moveTo(-12, 31); ctx.lineTo(0, 31); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0, 31); ctx.lineTo(12, 31); ctx.stroke();
+
+  // Jersey
+  const jg2 = ctx.createLinearGradient(0, -10, 0, 14);
+  jg2.addColorStop(0, '#004c97'); jg2.addColorStop(1, '#002868');
+  ctx.fillStyle = jg2;
+  ctx.beginPath(); ctx.roundRect(-13, -8, 26, 22, 4); ctx.fill();
+
+  // Number
+  ctx.fillStyle = 'rgba(255,255,255,0.9)';
+  ctx.font = 'bold 9px "Barlow Condensed"';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('99', 0, 3);
+
+  // Helmet
+  const hg2 = ctx.createRadialGradient(-3, -18, 2, 0, -16, 16);
+  hg2.addColorStop(0, '#1a1a1a'); hg2.addColorStop(1, '#000');
+  ctx.fillStyle = hg2;
+  ctx.beginPath(); ctx.arc(0, -16, 14, Math.PI*0.1, Math.PI*0.9, true); ctx.closePath(); ctx.fill();
+  // Visor
+  ctx.strokeStyle = 'rgba(150,200,255,0.4)'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(-10, -10); ctx.lineTo(10, -10); ctx.stroke();
+
+  // Hockey Stick — this is THE key feature
+  const angle = stickAngle;
+  const reach = 28 + stickReach * 14;
+  const stickStartX = 10, stickStartY = 6;
+  const stickEndX = stickStartX + Math.cos(angle) * reach;
+  const stickEndY = stickStartY + Math.sin(angle) * reach;
+
+  // Shaft
+  ctx.save();
+  const stickGrad = ctx.createLinearGradient(stickStartX, stickStartY, stickEndX, stickEndY);
+  stickGrad.addColorStop(0, '#8B4513');
+  stickGrad.addColorStop(0.6, '#A0522D');
+  stickGrad.addColorStop(1, '#2c2c2c');
+  ctx.strokeStyle = stickGrad; ctx.lineWidth = 4; ctx.lineCap = 'round';
+  ctx.shadowColor = 'rgba(0,0,0,0.4)'; ctx.shadowBlur = 3;
+  ctx.beginPath(); ctx.moveTo(stickStartX, stickStartY); ctx.lineTo(stickEndX, stickEndY); ctx.stroke();
+
+  // Blade at end — perpendicular to shaft
+  const bladeLen = 18;
+  const bladeAngle = angle + Math.PI / 2;
+  const b1x = stickEndX + Math.cos(bladeAngle) * bladeLen * 0.3;
+  const b1y = stickEndY + Math.sin(bladeAngle) * bladeLen * 0.3;
+  const b2x = stickEndX - Math.cos(bladeAngle) * bladeLen * 0.7;
+  const b2y = stickEndY - Math.sin(bladeAngle) * bladeLen * 0.7;
+  ctx.strokeStyle = '#1a1a1a'; ctx.lineWidth = 5;
+  ctx.beginPath(); ctx.moveTo(b1x, b1y); ctx.lineTo(b2x, b2y); ctx.stroke();
+  ctx.strokeStyle = '#444'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(b1x, b1y); ctx.lineTo(b2x, b2y); ctx.stroke();
+
+  // Tape on blade
+  ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 1.5;
+  for (let t = 0; t <= 1; t += 0.25) {
+    const tx = lerp(b1x, b2x, t);
+    const ty = lerp(b1y, b2y, t);
+    ctx.beginPath();
+    ctx.moveTo(tx - Math.cos(angle)*2, ty - Math.sin(angle)*2);
+    ctx.lineTo(tx + Math.cos(angle)*2, ty + Math.sin(angle)*2);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  ctx.restore();
+}
+
+function drawPuck() {
+  if (state === 'end') return;
+
+  // Trail
+  for (let i = 0; i < puck.trail.length; i++) {
+    const t = i / puck.trail.length;
+    ctx.fillStyle = `rgba(0,0,0,${t * 0.35})`;
+    ctx.beginPath();
+    ctx.ellipse(puck.trail[i].x, puck.trail[i].y, 7 * t + 1, 4 * t + 1, 0, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  // Puck body
+  ctx.fillStyle = '#111';
+  ctx.shadowColor = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = 6;
+  ctx.beginPath(); ctx.ellipse(puck.x, puck.y, 8, 5, 0, 0, Math.PI*2); ctx.fill();
+  // Puck shine
+  ctx.fillStyle = 'rgba(255,255,255,0.2)';
+  ctx.beginPath(); ctx.ellipse(puck.x - 2, puck.y - 1, 4, 2, -0.3, 0, Math.PI*2); ctx.fill();
+  ctx.shadowBlur = 0;
+}
+
+function drawCursor() {
+  if (state === 'end' || state === 'start') return;
+
+  // Custom hockey glove cursor
+  const mx = mouse.x, my = mouse.y;
+  const spd = Math.hypot(mouse.vx, mouse.vy);
+  const glow = Math.min(spd * 2, 30);
+
+  ctx.save();
+  if (glow > 5) {
+    ctx.shadowColor = 'rgba(255,200,0,0.8)';
+    ctx.shadowBlur = glow;
+  }
+
+  // Directional arrow hint
+  if (state === 'approach_ready' || state === 'shooting_windup') {
+    // Draw aim line from player to cursor
+    ctx.strokeStyle = 'rgba(255,220,50,0.3)';
+    ctx.lineWidth = 1.5; ctx.setLineDash([6, 6]);
+    ctx.beginPath();
+    ctx.moveTo(player.x, player.y);
+    const dx = mx - player.x, dy = my - player.y;
+    const maxLen = 120;
+    const len = Math.min(Math.hypot(dx, dy), maxLen);
+    const nx = player.x + (dx / Math.hypot(dx, dy) || 0) * len;
+    const ny = player.y + (dy / Math.hypot(dx, dy) || 0) * len;
+    ctx.lineTo(nx, ny);
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+
+  // Cursor puck icon
+  ctx.fillStyle = '#1a1a1a';
+  ctx.beginPath(); ctx.arc(mx, my, 10, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(mx, my, 10, 0, Math.PI*2); ctx.stroke();
+  // Crosshair
+  ctx.strokeStyle = 'rgba(255,220,50,0.8)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(mx-14, my); ctx.lineTo(mx+14, my); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(mx, my-14); ctx.lineTo(mx, my+14); ctx.stroke();
+  ctx.restore();
+}
+
+function drawIceScrapes() {
+  iceScrapes.forEach(s => {
+    if (s.alpha <= 0) return;
+    ctx.save();
+    ctx.translate(s.x, s.y);
+    ctx.rotate(s.a);
+    ctx.strokeStyle = `rgba(100,150,200,${s.alpha * 0.4})`;
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(-20, -3); ctx.lineTo(20, -3); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-20, 3); ctx.lineTo(20, 3); ctx.stroke();
+    ctx.restore();
+  });
+}
+
+function drawEffects() {
+  effects.forEach(e => {
+    if (e.type === 'spark') {
+      ctx.save();
+      ctx.globalAlpha = e.alpha || 1;
+      ctx.fillStyle = e.color;
+      ctx.shadowColor = e.color; ctx.shadowBlur = 8;
+      ctx.beginPath(); ctx.arc(e.x, e.y, e.r, 0, Math.PI*2); ctx.fill();
+      e.x += e.vx; e.y += e.vy; e.vy += 0.3;
+      e.alpha -= 0.022;
+      ctx.restore();
+    }
+    if (e.type === 'post_clank') {
+      ctx.save();
+      ctx.globalAlpha = e.t / 40;
+      ctx.strokeStyle = '#ffcf00'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(e.x, e.y, (40 - e.t) * 1.2, 0, Math.PI*2); ctx.stroke();
+      ctx.restore();
+    }
+  });
+}
+
+function drawPowerMeter() {
+  const pw = document.getElementById('power-bar');
+  const pct = mouseDown ? shotPower : 0;
+  pw.style.height = pct + '%';
+  const color = pct < 40 ? '#00f5d4' : pct < 70 ? '#ffcf00' : '#c8102e';
+  pw.style.background = `linear-gradient(to top, ${color}, rgba(255,255,255,0.6))`;
+}
+
+function drawWindupIndicator() {
+  const pct = shotPower / 100;
+  const cx = player.x, cy = player.y - 40;
+  // Charge arc around player
+  ctx.save();
+  ctx.strokeStyle = pct < 0.5 ? '#00f5d4' : pct < 0.8 ? '#ffcf00' : '#c8102e';
+  ctx.lineWidth = 3;
+  ctx.shadowColor = ctx.strokeStyle; ctx.shadowBlur = 10;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 22, -Math.PI/2, -Math.PI/2 + pct * Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
+}
+
+/* ══════════════════════════════════════════
+   GAME LOOP
+══════════════════════════════════════════ */
+function gameLoop() {
+  update();
+  draw();
+  frameId = requestAnimationFrame(gameLoop);
+}
+
+// Initial render
+draw();
+updateHUD();
+</script>
+</body>
+</html>
