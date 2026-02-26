@@ -205,7 +205,7 @@ body.decoy-mode{cursor:crosshair;}
 
   <div id="hud">
     <div class="hpill"><div class="hlabel">Waves</div><div class="hval" id="h-wave">0</div></div>
-    <div class="hpill"><div class="hlabel">🐜 Total</div><div class="hval" id="h-ants">0</div></div>
+    <div class="hpill"><div class="hlabel">🐜 Kill</div><div class="hval" id="h-kills">0/0</div></div>
     <div class="hpill"><div class="hlabel">🐜 Pts</div><div class="hval purple" id="h-pts">0</div></div>
     <div class="hpill"><div class="hlabel">Best</div><div class="hval" id="h-hi">0</div></div>
   </div>
@@ -505,7 +505,16 @@ let holes=[],ants=[],queenAnt=null;
 let embers=[],smokeParticles=[],biteAnims=[],floatTexts=[],explosions=[];
 
 // Wave
-let waveAntsLeft=0,betweenWaves=false,betweenTimer=0;
+let waveAntQuota=0, waveAntsSpawned=0, betweenWaves=false, betweenTimer=0;
+
+function updateWaveProgress(){
+  const killed = antsFried; // running total — we track per-wave kills via waveAntsSpawned
+  const el = document.getElementById('h-wave');
+  if(el) el.textContent = wavesSurvived;
+  // Update a kill-progress display in the HUD pill
+  const kEl = document.getElementById('h-kills');
+  if(kEl) kEl.textContent = `${Math.min(waveAntsSpawned, waveAntQuota)}/${waveAntQuota}`;
+}
 
 /* ═══════════════════════════════════
    TALENT TREE UI
@@ -738,6 +747,7 @@ function startGame(){
   powerupDrops=[];activePowerup=null;pwrupSpawnTimer=180;
   decoys=[];decoyCount=0;decoyMode=false;mobileDecoyReady=false;
   betweenWaves=false;paused=false;solarFlareTimer=0;apocalypseUsed=false;deathRayMode=false;
+  waveAntQuota=0;waveAntsSpawned=0;
   state='play';
   document.getElementById('h-hi').textContent=hiScore;
   document.getElementById('pause-btn').textContent='⏸ TALENTS';
@@ -747,15 +757,16 @@ function startGame(){
 
 function beginWave(){
   wave++;betweenWaves=false;
-  const waveDuration=600+wave*180;
-  waveAntsLeft=waveDuration;
+  // Ant quota: how many must be SPAWNED before holes close. Kill them all to clear.
+  waveAntQuota = 8 + wave * 6;   // wave 1=14, wave 2=20, wave 3=26...
+  waveAntsSpawned = 0;
   const maxHoles=Math.min(wave,6);
   while(holes.length<maxHoles)addHole();
   holes.forEach(h=>{h.spawnRate=Math.max(18,85-wave*7);h.spawnTimer=0;});
-  // Queen finder: every 4th wave
   if(T.queenFinder && wave%4===0) spawnQueen();
-  showWaveText(`WAVE ${wave}!`);
+  showWaveText(`WAVE ${wave}! — Kill ${waveAntQuota} ants`);
   document.getElementById('h-wave').textContent=wavesSurvived;
+  updateWaveProgress();
   apocalypseUsed=false;
   solarFlareTimer=0;
 }
@@ -872,13 +883,25 @@ function update(){
 
   // Wave / hole spawning
   if(!betweenWaves){
-    holes.forEach(h=>{
-      if(!h.active)return;
-      h.pulse+=0.07;h.spawnTimer--;
-      if(h.spawnTimer<=0){spawnAntFromHole(h);h.spawnTimer=h.spawnRate+Math.floor(Math.random()*15);waveAntsLeft--;}
-    });
-    if(waveAntsLeft<=0&&ants.length===0){
-      betweenWaves=true;betweenTimer=45;wavesSurvived++;
+    // Only spawn from holes until the quota is filled
+    if(waveAntsSpawned < waveAntQuota){
+      holes.forEach(h=>{
+        if(!h.active)return;
+        h.pulse+=0.07;h.spawnTimer--;
+        if(h.spawnTimer<=0){
+          spawnAntFromHole(h);
+          h.spawnTimer=h.spawnRate+Math.floor(Math.random()*15);
+          waveAntsSpawned++;
+          updateWaveProgress();
+        }
+      });
+    } else {
+      // All ants spawned — just pulse holes visually
+      holes.forEach(h=>{h.pulse+=0.07;});
+    }
+    // Wave ends when quota is filled AND all spawned ants are dead
+    if(waveAntsSpawned >= waveAntQuota && ants.length===0){
+      betweenWaves=true;betweenTimer=220;wavesSurvived++;
       document.getElementById('h-wave').textContent=wavesSurvived;
       if(wavesSurvived>hiScore){hiScore=wavesSurvived;localStorage.setItem('fryday_hi',hiScore);document.getElementById('h-hi').textContent=hiScore;}
       showWaveText(`WAVE ${wave} CLEARED! 🎉`);
@@ -1124,9 +1147,9 @@ function showWaveText(txt){
   el.textContent=txt;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2100);
 }
 function updateHUD(){
-  document.getElementById('h-ants').textContent=antsFried;
   document.getElementById('h-pts').textContent=talentPoints;
   document.getElementById('h-wave').textContent=wavesSurvived;
+  updateWaveProgress();
 }
 function updateDecoyUI(){
   const dc=document.getElementById('decoy-count'),dh=document.getElementById('decoy-hint');
