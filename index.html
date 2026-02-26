@@ -3,234 +3,953 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Old School RuneScape Experience Calculator | OSRS Skill Calculator</title>
-  <meta name="description" content="Fast Old School RuneScape experience calculator for every OSRS skill. Calculate XP to level, hours to 99, and get training methods, monsters, and guides for each skill." />
-  <meta name="keywords" content="old school runescape experience calculator, osrs xp calculator, osrs skill calculator, runescape skill calculator, xp to 99, osrs training guide" />
-  <link rel="canonical" href="https://robbcampbell.github.io/" />
+  <title>GRAVSHIFT — Free Online Gravity Flip Game | Addictive Browser Game</title>
+  <meta name="description" content="Play GRAVSHIFT free online! Flip gravity to dodge obstacles in this addictive neon arcade game. No download needed. Beat your high score and challenge friends. New levels added weekly." />
+  <meta name="keywords" content="free online game, gravity game, browser game, arcade game, gravshift, endless runner, free game, HTML5 game, addictive game, no download game" />
+  <meta name="author" content="GravShift Games" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://yourusername.github.io/gravshift/" />
 
-  <!-- Open Graph -->
-  <meta property="og:title" content="OSRS Experience Calculator for Every Skill" />
-  <meta property="og:description" content="One-page Old School RuneScape XP calculator + training ideas, monsters, and guides for every skill." />
+  <!-- Open Graph / Social -->
   <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://yourusername.github.io/gravshift/" />
+  <meta property="og:title" content="GRAVSHIFT — Free Gravity Flip Arcade Game" />
+  <meta property="og:description" content="Flip gravity, dodge obstacles, survive as long as possible. Free browser game, no download. Can you beat 10,000 points?" />
+  <meta property="og:image" content="https://yourusername.github.io/gravshift/preview.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="GRAVSHIFT — Free Gravity Flip Arcade Game" />
+  <meta name="twitter:description" content="Flip gravity. Dodge everything. Survive. Free browser game." />
 
-  <link rel="stylesheet" href="styles.css" />
-
-  <!-- JSON-LD FAQ for SEO -->
+  <!-- Structured Data -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "How do I use this Old School RuneScape experience calculator?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Choose your OSRS skill, enter your current level and target level, and the calculator will show how much experience you need, an estimate of hours based on common training methods, and how many kills or actions that might take."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Does this XP calculator work for every OSRS skill?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Yes. This Old School RuneScape experience calculator supports all core OSRS skills including Combat, Gathering, Artisan, Support, and Slayer & Hunter. Each skill has suggested training methods and guide links."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "What are good training methods to go from level 1 to 99 in Old School RuneScape?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "There is no single best method for every player. This page lists popular OSRS training methods and monsters for each skill, plus rough XP per hour and time-to-99 estimates so you can pick a method that fits your budget and playstyle."
-        }
-      }
-    ]
+    "@type": "VideoGame",
+    "name": "GRAVSHIFT",
+    "description": "A free browser-based gravity-flip arcade game where players flip gravity to dodge obstacles and survive as long as possible.",
+    "genre": ["Arcade", "Action", "Endless Runner"],
+    "playMode": "SinglePlayer",
+    "applicationCategory": "Game",
+    "operatingSystem": "Any (Browser)",
+    "url": "https://yourusername.github.io/gravshift/",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
   }
   </script>
 
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3503638702287231"
-     crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+
+  <!-- Google AdSense — replace ca-pub-XXXXXXXXXXXXXXXX with your publisher ID -->
+  <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
+
+  <style>
+    :root {
+      --bg: #050810;
+      --panel: #0b1020;
+      --accent: #00f5d4;
+      --accent2: #f72585;
+      --accent3: #ffd60a;
+      --text: #e0e8ff;
+      --muted: #4a5580;
+      --glow: 0 0 20px var(--accent);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── STARFIELD BACKGROUND ── */
+    #stars {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background: radial-gradient(ellipse at 50% 30%, #0d1b3e 0%, #050810 70%);
+    }
+    .star {
+      position: absolute; border-radius: 50%;
+      background: white; animation: twinkle var(--d, 3s) infinite alternate ease-in-out;
+    }
+    @keyframes twinkle { from { opacity: .1; } to { opacity: .9; } }
+
+    /* ── LAYOUT ── */
+    #app {
+      position: relative; z-index: 1;
+      display: flex; flex-direction: column; align-items: center;
+      min-height: 100vh; padding: 0 16px 40px;
+    }
+
+    /* ── HEADER ── */
+    header {
+      width: 100%; max-width: 860px;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 18px 0 10px;
+    }
+    .logo {
+      font-family: 'Black Ops One', sans-serif;
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      letter-spacing: 4px;
+      text-shadow: none;
+      filter: drop-shadow(0 0 12px var(--accent));
+    }
+    .tagline {
+      font-size: .72rem; color: var(--muted); letter-spacing: 2px; text-transform: uppercase;
+    }
+
+    /* ── AD BANNER (top) ── */
+    .ad-banner {
+      width: 100%; max-width: 860px;
+      min-height: 90px;
+      background: #0b1020;
+      border: 1px solid #1a2040;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted); font-size: .75rem; letter-spacing: 1px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .ad-label { font-size: .6rem; color: var(--muted); margin-bottom: 2px; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* ── GAME CONTAINER ── */
+    #game-wrap {
+      width: 100%; max-width: 860px;
+      display: flex; gap: 16px; align-items: flex-start;
+    }
+
+    #canvas-wrap {
+      position: relative; flex: 1;
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      box-shadow: 0 0 30px rgba(0,245,212,.15), inset 0 0 60px rgba(0,0,0,.6);
+      overflow: hidden;
+      aspect-ratio: 16/9;
+      min-width: 0;
+    }
+
+    canvas {
+      display: block; width: 100%; height: 100%;
+      image-rendering: crisp-edges;
+    }
+
+    /* overlays */
+    .overlay {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: rgba(5,8,16,.88);
+      backdrop-filter: blur(4px);
+      gap: 12px; padding: 20px; text-align: center;
+      transition: opacity .3s;
+    }
+    .overlay.hidden { display: none; }
+
+    .overlay h2 {
+      font-family: 'Black Ops One', sans-serif;
+      font-size: clamp(1.4rem, 4vw, 2.6rem);
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 8px var(--accent));
+      letter-spacing: 3px;
+    }
+    .overlay p { color: var(--muted); font-size: .85rem; line-height: 1.6; max-width: 320px; }
+    .overlay .score-display {
+      font-family: 'Black Ops One', sans-serif;
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      color: var(--accent3);
+      filter: drop-shadow(0 0 10px var(--accent3));
+    }
+    .overlay .hi-score { font-size: .85rem; color: var(--accent2); letter-spacing: 2px; }
+
+    .btn {
+      font-family: 'Black Ops One', sans-serif;
+      font-size: 1rem; letter-spacing: 3px;
+      padding: 12px 36px;
+      border: 2px solid var(--accent);
+      background: transparent; color: var(--accent);
+      border-radius: 4px; cursor: pointer;
+      transition: all .2s;
+      text-transform: uppercase;
+    }
+    .btn:hover {
+      background: var(--accent); color: var(--bg);
+      box-shadow: var(--glow);
+      transform: scale(1.04);
+    }
+    .btn.danger { border-color: var(--accent2); color: var(--accent2); }
+    .btn.danger:hover { background: var(--accent2); color: var(--bg); box-shadow: 0 0 20px var(--accent2); }
+
+    /* controls hint */
+    .controls-hint {
+      display: flex; gap: 20px; font-size: .72rem; color: var(--muted); flex-wrap: wrap; justify-content: center;
+    }
+    .key {
+      display: inline-block; border: 1px solid var(--muted);
+      border-radius: 3px; padding: 2px 8px; color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+    }
+
+    /* scanlines effect */
+    #canvas-wrap::after {
+      content: '';
+      position: absolute; inset: 0; pointer-events: none;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.08) 2px, rgba(0,0,0,.08) 4px);
+      z-index: 10;
+    }
+
+    /* ── SIDEBAR ── */
+    #sidebar {
+      width: 180px; flex-shrink: 0;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+
+    .stat-box {
+      background: var(--panel);
+      border: 1px solid #1a2040;
+      border-radius: 6px;
+      padding: 14px;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .stat-label { font-size: .6rem; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; }
+    .stat-value {
+      font-family: 'Black Ops One', sans-serif;
+      font-size: 1.6rem; color: var(--accent3);
+      filter: drop-shadow(0 0 6px var(--accent3));
+    }
+    .stat-value.live { color: var(--accent); filter: drop-shadow(0 0 6px var(--accent)); }
+
+    .sidebar-ad {
+      background: var(--panel);
+      border: 1px solid #1a2040;
+      border-radius: 6px;
+      min-height: 250px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: var(--muted); font-size: .7rem; letter-spacing: 1px;
+      gap: 6px; padding: 12px; text-align: center;
+    }
+
+    .leaderboard { background: var(--panel); border: 1px solid #1a2040; border-radius: 6px; padding: 14px; }
+    .leaderboard h3 { font-family: 'Black Ops One', sans-serif; font-size: .75rem; color: var(--accent2); letter-spacing: 2px; margin-bottom: 10px; }
+    .lb-row { display: flex; justify-content: space-between; font-size: .72rem; padding: 3px 0; border-bottom: 1px solid #0f1530; }
+    .lb-rank { color: var(--muted); min-width: 20px; }
+    .lb-name { color: var(--text); flex: 1; padding: 0 6px; }
+    .lb-pts { color: var(--accent3); }
+
+    .tip-box {
+      background: var(--panel); border: 1px solid #1a2040; border-radius: 6px; padding: 12px;
+      font-size: .68rem; color: var(--muted); line-height: 1.5;
+    }
+    .tip-box span { color: var(--accent); }
+
+    /* ── INFO SECTION ── */
+    #info {
+      width: 100%; max-width: 860px; margin-top: 24px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    }
+    .info-card {
+      background: var(--panel); border: 1px solid #1a2040; border-radius: 8px; padding: 20px;
+    }
+    .info-card h2 {
+      font-family: 'Black Ops One', sans-serif; font-size: 1rem;
+      color: var(--accent); letter-spacing: 2px; margin-bottom: 10px;
+    }
+    .info-card p, .info-card li {
+      font-size: .78rem; color: var(--muted); line-height: 1.7;
+    }
+    .info-card ul { padding-left: 16px; }
+    .info-card li { margin-bottom: 4px; }
+    .info-card li span { color: var(--accent3); }
+
+    /* ── BOTTOM AD ── */
+    #bottom-ad {
+      width: 100%; max-width: 860px; margin-top: 20px;
+      min-height: 90px;
+      background: var(--panel); border: 1px solid #1a2040; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted); font-size: .75rem; letter-spacing: 1px;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      width: 100%; max-width: 860px; margin-top: 20px;
+      border-top: 1px solid #1a2040; padding-top: 16px;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+      font-size: .68rem; color: var(--muted);
+    }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--accent); }
+
+    /* share buttons */
+    .share-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+    .share-btn {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .7rem; padding: 6px 14px;
+      border-radius: 4px; cursor: pointer; border: none;
+      transition: transform .15s, opacity .15s;
+    }
+    .share-btn:hover { transform: scale(1.06); opacity: .9; }
+    .tw { background: #1DA1F2; color: #fff; }
+    .fb { background: #1877F2; color: #fff; }
+    .wa { background: #25D366; color: #fff; }
+
+    /* mobile */
+    @media (max-width: 640px) {
+      #game-wrap { flex-direction: column; }
+      #sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; }
+      .stat-box { flex: 1; min-width: 100px; }
+      .sidebar-ad { display: none; }
+      #info { grid-template-columns: 1fr; }
+    }
+
+    /* particle flash */
+    @keyframes flash { 0%,100%{opacity:0} 50%{opacity:1} }
+  </style>
 </head>
 <body>
-  <div class="page">
-    <header class="page-header">
-      <div class="logo-title">
-        <div class="pixel-logo" aria-hidden="true"></div>
-        <div>
-          <h1>Old School RuneScape Experience Calculator</h1>
-          <p class="subtitle">
-            One-page <strong>OSRS skill calculator</strong> for every skill – XP to level, hours to 99,
-            monsters, training methods, and guide links.
-          </p>
-        </div>
-      </div>
-      <div class="tagline-badge">
-        <span>XP to 99 in seconds ⚔️</span>
-      </div>
-    </header>
 
-    <!-- Top ad slot (below fold, with real content around it) -->
-    <section class="ad-section" aria-label="Advertisement">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3503638702287231"
-     crossorigin="anonymous"></script>
-<!-- calc_ad -->
-<ins class="adsbygoogle"
-     style="display:block"
-     data-ad-client="ca-pub-3503638702287231"
-     data-ad-slot="1327797603"
-     data-ad-format="auto"
-     data-full-width-responsive="true"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-     
-      <p class="ad-note">
-      </p>
-    </section>
+<div id="stars"></div>
 
-    <main class="layout">
-      <section class="calculator-card" aria-labelledby="calc-heading">
-        <h2 id="calc-heading">OSRS XP Calculator</h2>
-        <p class="section-intro">
-          Select your skill, enter your current and target levels, and see how much experience you need,
-          how many <strong>kills/actions</strong> that might take, and a rough time estimate based on
-          popular training methods.
-        </p>
+<div id="app">
+  <header>
+    <div>
+      <div class="logo">GRAVSHIFT</div>
+      <div class="tagline">Flip Gravity. Defy Physics. Survive.</div>
+    </div>
+    <div class="share-row">
+      <button class="share-btn tw" onclick="shareTwitter()">𝕏 Share</button>
+      <button class="share-btn wa" onclick="shareWhatsApp()">Share</button>
+    </div>
+  </header>
 
-        <form id="xpForm" class="xp-form" onsubmit="event.preventDefault(); calculateXp();">
-          <div class="form-row">
-            <label for="skillSelect">Skill</label>
-            <select id="skillSelect" name="skill">
-              <!-- Populated by script.js -->
-            </select>
-          </div>
-
-          <div class="form-row">
-            <label for="currentLevel">Current level</label>
-            <input id="currentLevel" name="currentLevel" type="number" min="1" max="98" value="1" required />
-          </div>
-
-          <div class="form-row">
-            <label for="targetLevel">Target level</label>
-            <input id="targetLevel" name="targetLevel" type="number" min="2" max="99" value="99" required />
-          </div>
-
-          <button type="submit" class="primary-btn">Calculate XP &amp; Hours</button>
-        </form>
-
-        <div id="results" class="results" aria-live="polite">
-          <h3>Results</h3>
-          <p>Select a skill and run the calculator to see your XP plan.</p>
-        </div>
-      </section>
-
-      <aside class="skills-card" aria-labelledby="skills-heading">
-        <h2 id="skills-heading">Skill Training Ideas &amp; Guides</h2>
-        <p class="section-intro">
-          Each skill below includes a quick description, a couple of go-to training methods or monsters,
-          and a direct link to a community guide for deeper min-maxing.
-        </p>
-        <div id="skillDetails" class="skill-details">
-          <!-- Populated by script.js -->
-        </div>
-      </aside>
-    </main>
-
-    <section class="content-section">
-      <h2>How this Old School RuneScape experience calculator works</h2>
-      <p>
-        Old School RuneScape uses a fixed XP curve from level 1 to level 99. This calculator reproduces
-        that curve and instantly computes the <strong>total XP</strong> required for any level range.
-        For each skill, the page stores a rough <strong>XP per hour</strong> and an average
-        <strong>XP per action/kill</strong> based on popular mid-game training methods (things like
-        <em>Sand Crabs</em>, <em>Ammonite Crabs</em>, rooftop Agility courses, high-level Fletching,
-        and so on).
-      </p>
-      <p>
-        When you hit “Calculate”, the tool:
-      </p>
-      <ul>
-        <li>Computes XP needed from your current level to your target level.</li>
-        <li>Divides that by a typical XP/hr rate for your chosen skill to estimate hours.</li>
-        <li>Uses an average XP per action to estimate how many kills, laps, logs, or items you'll do.</li>
-      </ul>
-      <p>
-        These are <strong>rough estimates</strong> meant to help you plan your grind, not exact
-        values. Efficient setups, tick manipulation, alt accounts, or slower AFK methods will all change
-        your real numbers in game.
-      </p>
-    </section>
-
-    <section class="content-section">
-      <h2>Maximizing XP / hour in Old School RuneScape</h2>
-      <p>
-        If you're trying to squeeze the most experience per hour out of your account, focus on three
-        things:
-      </p>
-      <ol>
-        <li>
-          <strong>Gear &amp; unlocks</strong> – Better weapons, prayers, and quest unlocks (like
-          <em>Neitiznot</em>, <em>Fighter torso</em>, <em>Barrows gloves</em>) dramatically speed up
-          combat XP.
-        </li>
-        <li>
-          <strong>Location</strong> – Places like <em>Sand Crabs</em>, <em>Ammonite Crabs</em>,
-          <em>Nightmare Zone</em>, rooftop Agility courses, or high-tier skilling spots give much more
-          XP/hr than low level training areas.
-        </li>
-        <li>
-          <strong>AFK vs. sweaty</strong> – Semi-AFK methods are chill but slower. High-intensity
-          click-heavy methods can double or triple XP/hr in some skills, especially <em>Agility</em>,
-          <em>Thieving</em>, <em>Construction</em>, and <em>Herblore</em>.
-        </li>
-      </ol>
-      <p>
-        Use the numbers on this calculator to get a baseline, then dive into the linked guides for
-        skill-specific meta strategies.
-      </p>
-    </section>
-
-    <section class="content-section faq-section">
-      <h2>OSRS XP Calculator FAQ</h2>
-
-      <h3>Is this better than the in-game XP tracker?</h3>
-      <p>
-        The in-game XP tracker shows what you already did; this calculator shows what it will <em>take</em>
-        to reach your goal. Plug in your target level and you'll see a realistic estimate of the grind
-        in hours and actions.
-      </p>
-
-      <h3>Does this work for free-to-play players?</h3>
-      <p>
-        Yes, but the XP/hr assumptions are usually based on popular members methods. If you're F2P,
-        expect fewer XP/hr; you can mentally adjust the result or use slower XP rates from F2P training
-        guides.
-      </p>
-
-      <h3>What if my XP / hour is much higher or lower?</h3>
-      <p>
-        That's totally normal. XP rates in Old School RuneScape vary a lot based on level, gear,
-        quests, and how sweaty you play. Treat these numbers as a conservative estimate, then track your
-        real XP/hr in game and compare.
-      </p>
-
-      <h3>Can I use this as a general RuneScape skill calculator?</h3>
-      <p>
-        This tool is designed around the Old School RuneScape XP curve and skill list. The XP curve in
-        RS3 is different, but for classic OSRS this page is a simple all-in-one skill calculator and
-        experience planner.
-      </p>
-    </section>
-
-    <footer class="page-footer">
-      <p>
-        Made for fellow XP grinders. Not affiliated with Jagex or Old School RuneScape. All RuneScape
-        content and trademarks are the property of Jagex Ltd.
-      </p>
-    </footer>
+  <!-- TOP AD BANNER -->
+  <div class="ad-banner" id="top-ad">
+    <div style="text-align:center">
+      <div class="ad-label">Advertisement</div>
+      <!-- Google AdSense leaderboard ad (728×90) -->
+      <!-- <ins class="adsbygoogle" style="display:inline-block;width:728px;height:90px" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX"></ins> -->
+      <!-- <script>(adsbygoogle = window.adsbygoogle || []).push({});</script> -->
+      <span style="font-size:.7rem">[ AdSense 728×90 — Replace with your AdSense code ]</span>
+    </div>
   </div>
 
-  <script src="script.js"></script>
+  <div id="game-wrap">
+    <div id="canvas-wrap">
+      <canvas id="gc" width="800" height="450"></canvas>
+
+      <!-- START SCREEN -->
+      <div class="overlay" id="screen-start">
+        <h2>GRAVSHIFT</h2>
+        <p>Flip gravity to dodge the obstacles.<br/>How long can you survive?</p>
+        <div class="controls-hint">
+          <span><span class="key">SPACE</span> / <span class="key">↑</span> / <span class="key">TAP</span> — Flip gravity</span>
+        </div>
+        <button class="btn" onclick="startGame()">START GAME</button>
+      </div>
+
+      <!-- GAME OVER SCREEN -->
+      <div class="overlay hidden" id="screen-over">
+        <h2>GAME OVER</h2>
+        <div class="score-display" id="final-score">0</div>
+        <div class="hi-score" id="hi-score-display">BEST: 0</div>
+        <div class="share-row">
+          <button class="share-btn tw" onclick="shareScore()">Share Score</button>
+        </div>
+        <!-- Interstitial ad placeholder -->
+        <div style="width:300px;min-height:60px;background:#0b1020;border:1px solid #1a2040;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:.65rem;color:#4a5580;letter-spacing:1px;">
+          [ AdSense 300×60 — Game Over Ad ]
+          <!-- <ins class="adsbygoogle" style="display:inline-block;width:300px;height:60px" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX"></ins> -->
+        </div>
+        <button class="btn danger" onclick="startGame()">PLAY AGAIN</button>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div id="sidebar">
+      <div class="stat-box">
+        <div class="stat-label">Score</div>
+        <div class="stat-value live" id="score-disp">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Best</div>
+        <div class="stat-value" id="best-disp">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Level</div>
+        <div class="stat-value live" id="level-disp">1</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Flips</div>
+        <div class="stat-value" id="flip-disp">0</div>
+      </div>
+
+      <!-- SIDEBAR AD (300×250) -->
+      <div class="sidebar-ad">
+        <div class="ad-label">Advertisement</div>
+        <!-- <ins class="adsbygoogle" style="display:inline-block;width:160px;height:240px" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX"></ins> -->
+        [ AdSense 160×240 sidebar ]
+      </div>
+
+      <div class="leaderboard">
+        <h3>🏆 Today's Best</h3>
+        <div id="lb-rows"></div>
+      </div>
+
+      <div class="tip-box">
+        <span>💡 TIP:</span> Watch for <span>GOLD</span> blocks — they give score bonuses!
+      </div>
+    </div>
+  </div>
+
+  <!-- INFO / SEO CONTENT -->
+  <div id="info">
+    <div class="info-card">
+      <h2>HOW TO PLAY</h2>
+      <ul>
+        <li><span>SPACE / UP / TAP</span> — Flip gravity</li>
+        <li>Dodge red spike obstacles</li>
+        <li>Collect <span>gold</span> score multiplier blocks</li>
+        <li>Speed increases every 500 points</li>
+        <li>Survive as long as possible!</li>
+        <li>No downloads, plays in any browser</li>
+      </ul>
+    </div>
+    <div class="info-card">
+      <h2>ABOUT GRAVSHIFT</h2>
+      <p>GRAVSHIFT is a free, browser-based gravity-flip arcade game. Control a neon ship navigating an endless corridor — flip between the top and bottom walls to avoid a relentless stream of obstacles. Each level increases speed and obstacle density, making every run a unique challenge. Perfect for short sessions or obsessive score-chasing.</p>
+    </div>
+    <div class="info-card">
+      <h2>TIPS & STRATEGY</h2>
+      <ul>
+        <li>Don't panic-flip — plan 2 moves ahead</li>
+        <li>Narrow gaps appear after level 3</li>
+        <li>Gold blocks reset your combo timer</li>
+        <li><span>Rhythm</span> beats reflexes — find your flow</li>
+        <li>The center is safest early on</li>
+      </ul>
+    </div>
+    <div class="info-card">
+      <h2>UPDATES & FEATURES</h2>
+      <ul>
+        <li>🆕 Obstacle variety with 5 patterns</li>
+        <li>🎮 Works on mobile (tap to flip)</li>
+        <li>💾 High score saved in browser</li>
+        <li>⚡ Procedurally generated levels</li>
+        <li>More coming — bookmark &amp; return!</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- BOTTOM AD -->
+  <div id="bottom-ad">
+    <div style="text-align:center">
+      <div class="ad-label">Advertisement</div>
+      <!-- <ins class="adsbygoogle" style="display:inline-block;width:728px;height:90px" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX"></ins> -->
+      [ AdSense 728×90 bottom banner ]
+    </div>
+  </div>
+
+  <footer>
+    <span>© 2025 GRAVSHIFT — Free Browser Games</span>
+    <span>
+      <a href="#how-to-play">How to Play</a> ·
+      <a href="mailto:you@email.com">Contact</a> ·
+      <a href="#privacy">Privacy</a>
+    </span>
+  </footer>
+</div>
+
+<script>
+/* ═══════════════════════════════════════
+   STARFIELD
+═══════════════════════════════════════ */
+const starsEl = document.getElementById('stars');
+for (let i = 0; i < 120; i++) {
+  const s = document.createElement('div');
+  s.className = 'star';
+  const sz = Math.random() * 2.5;
+  s.style.cssText = `width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${(2+Math.random()*4).toFixed(1)}s;opacity:${Math.random()*.6+.1}`;
+  starsEl.appendChild(s);
+}
+
+/* ═══════════════════════════════════════
+   GAME ENGINE
+═══════════════════════════════════════ */
+const canvas = document.getElementById('gc');
+const ctx = canvas.getContext('2d');
+const W = 800, H = 450;
+
+// --- State ---
+let state = 'start'; // start | play | dead
+let score, hiScore, flips, level, gameSpeed, frame;
+let gravDir; // 1 = down, -1 = up
+let shipY, shipVY;
+let particles;
+let obstacles;
+let bonuses;
+let bgOffset;
+let comboTimer, combo;
+let flipCooldown;
+let animId;
+
+const SHIP_X = 140;
+const SHIP_H = 22, SHIP_W = 34;
+const CEILING_H = 36, FLOOR_H = 36;
+const PLAY_TOP = CEILING_H, PLAY_BOTTOM = H - FLOOR_H;
+const PLAY_H = PLAY_BOTTOM - PLAY_TOP;
+
+const GRAV = 0.42;
+const FLIP_VEL = 6.2;
+const BASE_SPEED = 3.2;
+
+try { hiScore = parseInt(localStorage.getItem('gravshift_hi') || '0'); } catch(e) { hiScore = 0; }
+
+function resetGame() {
+  score = 0; flips = 0; level = 1; frame = 0;
+  gameSpeed = BASE_SPEED;
+  gravDir = 1;
+  shipY = H / 2 - SHIP_H / 2;
+  shipVY = 0;
+  particles = [];
+  obstacles = [];
+  bonuses = [];
+  bgOffset = 0;
+  comboTimer = 0; combo = 1;
+  flipCooldown = 0;
+}
+
+/* ─── Obstacle Templates ─── */
+function spawnObstacle() {
+  const x = W + 40;
+  const minGap = Math.max(90, 150 - level * 8);
+  const gapH = minGap + Math.random() * 40;
+  const gapY = PLAY_TOP + Math.random() * (PLAY_H - gapH);
+
+  const type = Math.floor(Math.random() * 5);
+  const w = 22 + Math.random() * 18;
+
+  if (type === 0) {
+    // Full wall with gap
+    obstacles.push({x, y: PLAY_TOP, w, h: gapY - PLAY_TOP, type: 'wall'});
+    obstacles.push({x, y: gapY + gapH, w, h: PLAY_BOTTOM - (gapY + gapH), type: 'wall'});
+  } else if (type === 1) {
+    // Spike from ceiling
+    const sh = 40 + Math.random() * 60;
+    obstacles.push({x: x - 10, y: PLAY_TOP, w: 30, h: sh, type: 'spike', from: 'top'});
+  } else if (type === 2) {
+    // Spike from floor
+    const sh = 40 + Math.random() * 60;
+    obstacles.push({x: x - 10, y: PLAY_BOTTOM - sh, w: 30, h: sh, type: 'spike', from: 'bot'});
+  } else if (type === 3) {
+    // Double spikes
+    const sh1 = 35 + Math.random() * 40, sh2 = 35 + Math.random() * 40;
+    obstacles.push({x: x - 10, y: PLAY_TOP, w: 28, h: sh1, type: 'spike', from: 'top'});
+    obstacles.push({x: x - 10, y: PLAY_BOTTOM - sh2, w: 28, h: sh2, type: 'spike', from: 'bot'});
+  } else {
+    // Moving block
+    const bh = 50 + Math.random() * 40;
+    const by = gapY;
+    obstacles.push({x, y: by, w: 24, h: bh, type: 'moving', vy: (Math.random()>.5?1:-1)*1.2, minY: PLAY_TOP, maxY: PLAY_BOTTOM});
+  }
+
+  // Bonus block chance
+  if (Math.random() < 0.28) {
+    bonuses.push({x: x + Math.random() * 80, y: PLAY_TOP + Math.random() * PLAY_H, w: 18, h: 18, pulse: 0});
+  }
+}
+
+/* ─── Particles ─── */
+function burst(x, y, color, n = 12) {
+  for (let i = 0; i < n; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const spd = 1.5 + Math.random() * 4;
+    particles.push({
+      x, y,
+      vx: Math.cos(angle) * spd,
+      vy: Math.sin(angle) * spd,
+      life: 1, decay: .03 + Math.random() * .04,
+      r: 2 + Math.random() * 3,
+      color
+    });
+  }
+}
+
+/* ─── Draw Functions ─── */
+function drawBG() {
+  // Grid lines
+  ctx.save();
+  ctx.strokeStyle = 'rgba(0,245,212,0.05)';
+  ctx.lineWidth = 1;
+  const gridSz = 50;
+  const off = bgOffset % gridSz;
+  for (let x = -off; x < W + gridSz; x += gridSz) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+  }
+  for (let y = 0; y < H; y += gridSz) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawBorders() {
+  // Ceiling
+  const cg = ctx.createLinearGradient(0, 0, 0, CEILING_H);
+  cg.addColorStop(0, gravDir === -1 ? 'rgba(247,37,133,0.9)' : 'rgba(0,245,212,0.9)');
+  cg.addColorStop(1, 'rgba(5,8,16,0)');
+  ctx.fillStyle = cg;
+  ctx.fillRect(0, 0, W, CEILING_H);
+  // edge line
+  ctx.strokeStyle = gravDir === -1 ? '#f72585' : '#00f5d4';
+  ctx.lineWidth = 2;
+  ctx.shadowColor = gravDir === -1 ? '#f72585' : '#00f5d4';
+  ctx.shadowBlur = 8;
+  ctx.beginPath(); ctx.moveTo(0, CEILING_H); ctx.lineTo(W, CEILING_H); ctx.stroke();
+
+  // Floor
+  const fg = ctx.createLinearGradient(0, PLAY_BOTTOM, 0, H);
+  fg.addColorStop(0, 'rgba(5,8,16,0)');
+  fg.addColorStop(1, gravDir === 1 ? 'rgba(247,37,133,0.9)' : 'rgba(0,245,212,0.9)');
+  ctx.fillStyle = fg;
+  ctx.fillRect(0, PLAY_BOTTOM, W, FLOOR_H);
+  ctx.strokeStyle = gravDir === 1 ? '#f72585' : '#00f5d4';
+  ctx.shadowColor = gravDir === 1 ? '#f72585' : '#00f5d4';
+  ctx.beginPath(); ctx.moveTo(0, PLAY_BOTTOM); ctx.lineTo(W, PLAY_BOTTOM); ctx.stroke();
+
+  ctx.shadowBlur = 0;
+}
+
+function drawShip() {
+  const sx = SHIP_X - SHIP_W / 2;
+  const sy = shipY;
+  const flip = gravDir === -1;
+
+  ctx.save();
+  ctx.translate(SHIP_X, sy + SHIP_H / 2);
+  if (flip) ctx.scale(1, -1);
+
+  // Glow
+  ctx.shadowColor = '#00f5d4';
+  ctx.shadowBlur = 18;
+
+  // Body
+  ctx.fillStyle = '#00f5d4';
+  ctx.beginPath();
+  ctx.moveTo(-SHIP_W/2 + 4, -SHIP_H/2);
+  ctx.lineTo(SHIP_W/2 - 2, 0);
+  ctx.lineTo(-SHIP_W/2 + 4, SHIP_H/2);
+  ctx.lineTo(-SHIP_W/2 - 4, 0);
+  ctx.closePath();
+  ctx.fill();
+
+  // Wing accents
+  ctx.fillStyle = '#f72585';
+  ctx.beginPath();
+  ctx.moveTo(-SHIP_W/2 + 4, -SHIP_H/2);
+  ctx.lineTo(-4, -4);
+  ctx.lineTo(-SHIP_W/2 - 4, 0);
+  ctx.closePath();
+  ctx.fill();
+
+  // Engine trail
+  ctx.shadowBlur = 0;
+  for (let i = 0; i < 3; i++) {
+    const alpha = (.4 - i * .1) * (0.6 + Math.sin(frame * .2 + i) * .4);
+    ctx.fillStyle = `rgba(247,37,133,${alpha})`;
+    ctx.beginPath();
+    ctx.ellipse(-SHIP_W/2 - 4 - i * 8, 0, 4 - i, 3 - i * .5, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+function drawObstacles() {
+  obstacles.forEach(o => {
+    ctx.save();
+    if (o.type === 'moving') {
+      ctx.shadowColor = '#f72585';
+      ctx.shadowBlur = 12;
+      ctx.fillStyle = '#f72585';
+      const grad = ctx.createLinearGradient(o.x, o.y, o.x + o.w, o.y + o.h);
+      grad.addColorStop(0, '#f72585');
+      grad.addColorStop(1, '#7b0d3e');
+      ctx.fillStyle = grad;
+      ctx.fillRect(o.x, o.y, o.w, o.h);
+      // animated stripe
+      ctx.fillStyle = 'rgba(255,255,255,0.1)';
+      ctx.fillRect(o.x + 4, o.y + 4, 4, o.h - 8);
+    } else {
+      ctx.shadowColor = '#f72585';
+      ctx.shadowBlur = 10;
+      if (o.type === 'spike') {
+        // Draw triangle spike
+        const fromTop = o.from === 'top';
+        ctx.fillStyle = '#f72585';
+        const cols = Math.max(1, Math.floor(o.w / 12));
+        for (let c = 0; c < cols; c++) {
+          const sx = o.x + c * (o.w / cols);
+          const sw = o.w / cols - 2;
+          ctx.beginPath();
+          if (fromTop) {
+            ctx.moveTo(sx, o.y);
+            ctx.lineTo(sx + sw, o.y);
+            ctx.lineTo(sx + sw / 2, o.y + o.h);
+          } else {
+            ctx.moveTo(sx, o.y + o.h);
+            ctx.lineTo(sx + sw, o.y + o.h);
+            ctx.lineTo(sx + sw / 2, o.y);
+          }
+          ctx.closePath();
+          ctx.fill();
+        }
+      } else {
+        const grad = ctx.createLinearGradient(o.x, o.y, o.x + o.w, o.y + o.h);
+        grad.addColorStop(0, '#b5179e');
+        grad.addColorStop(1, '#480058');
+        ctx.fillStyle = grad;
+        ctx.fillRect(o.x, o.y, o.w, o.h);
+        // Edge highlight
+        ctx.strokeStyle = 'rgba(247,37,133,0.5)';
+        ctx.lineWidth = 1; ctx.shadowBlur = 0;
+        ctx.strokeRect(o.x, o.y, o.w, o.h);
+      }
+    }
+    ctx.restore();
+  });
+}
+
+function drawBonuses() {
+  bonuses.forEach(b => {
+    b.pulse += 0.08;
+    const glow = 8 + Math.sin(b.pulse) * 4;
+    ctx.save();
+    ctx.shadowColor = '#ffd60a';
+    ctx.shadowBlur = glow;
+    ctx.fillStyle = `rgba(255,214,10,${0.7 + Math.sin(b.pulse) * .3})`;
+    ctx.fillRect(b.x - b.w/2, b.y - b.h/2, b.w, b.h);
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(b.x - b.w/2, b.y - b.h/2, b.w, b.h);
+    // star symbol
+    ctx.fillStyle = '#fff';
+    ctx.font = `bold ${b.h * .7}px monospace`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('★', b.x, b.y);
+    ctx.restore();
+  });
+}
+
+function drawParticles() {
+  particles.forEach(p => {
+    ctx.save();
+    ctx.globalAlpha = p.life;
+    ctx.fillStyle = p.color;
+    ctx.shadowColor = p.color; ctx.shadowBlur = 6;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r * p.life, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  });
+}
+
+function drawHUD() {
+  ctx.fillStyle = 'rgba(0,245,212,0.9)';
+  ctx.font = 'bold 15px "Share Tech Mono"';
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.shadowColor = '#00f5d4'; ctx.shadowBlur = 8;
+  ctx.fillText(`SCORE: ${score}`, 14, 8);
+  ctx.shadowBlur = 0;
+
+  if (combo > 1) {
+    ctx.fillStyle = '#ffd60a';
+    ctx.font = 'bold 12px "Share Tech Mono"';
+    ctx.fillText(`x${combo} COMBO`, 14, 26);
+  }
+
+  ctx.textAlign = 'right';
+  ctx.fillStyle = 'rgba(100,120,180,0.7)';
+  ctx.font = '12px "Share Tech Mono"';
+  ctx.fillText(`LVL ${level}`, W - 14, 8);
+}
+
+/* ─── Collision ─── */
+function hitTest(ax, ay, aw, ah, bx, by, bw, bh) {
+  return ax < bx + bw && ax + aw > bx && ay < by + bh && ay + ah > by;
+}
+
+/* ─── Main Loop ─── */
+function gameLoop() {
+  if (state !== 'play') return;
+  frame++;
+
+  // Clear
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#050810';
+  ctx.fillRect(0, 0, W, H);
+
+  drawBG();
+  bgOffset += gameSpeed;
+
+  // Physics
+  flipCooldown = Math.max(0, flipCooldown - 1);
+  shipVY += GRAV * gravDir;
+  shipVY *= 0.98; // slight damping
+  shipY += shipVY;
+
+  // Wall collision
+  if (shipY < PLAY_TOP) { shipY = PLAY_TOP; shipVY = 0; burst(SHIP_X, PLAY_TOP, '#f72585', 6); die(); return; }
+  if (shipY + SHIP_H > PLAY_BOTTOM) { shipY = PLAY_BOTTOM - SHIP_H; shipVY = 0; burst(SHIP_X, PLAY_BOTTOM, '#f72585', 6); die(); return; }
+
+  // Spawn obstacles
+  const spawnInterval = Math.max(55, 110 - level * 5);
+  if (frame % spawnInterval === 0) spawnObstacle();
+
+  // Update obstacles
+  for (let i = obstacles.length - 1; i >= 0; i--) {
+    const o = obstacles[i];
+    o.x -= gameSpeed;
+    if (o.type === 'moving') {
+      o.y += o.vy;
+      if (o.y <= o.minY || o.y + o.h >= o.maxY) o.vy *= -1;
+    }
+    if (o.x + (o.w || 30) < -10) { obstacles.splice(i, 1); continue; }
+
+    // Collision with ship
+    if (hitTest(SHIP_X - SHIP_W/2 + 5, shipY + 4, SHIP_W - 10, SHIP_H - 8,
+                o.x, o.y, o.w, o.h)) {
+      burst(SHIP_X, shipY + SHIP_H/2, '#f72585', 20);
+      burst(SHIP_X, shipY + SHIP_H/2, '#00f5d4', 10);
+      die(); return;
+    }
+  }
+
+  // Bonuses
+  for (let i = bonuses.length - 1; i >= 0; i--) {
+    const b = bonuses[i];
+    b.x -= gameSpeed;
+    if (b.x < -20) { bonuses.splice(i, 1); continue; }
+    if (hitTest(SHIP_X - SHIP_W/2 + 4, shipY + 4, SHIP_W - 8, SHIP_H - 8,
+                b.x - b.w/2, b.y - b.h/2, b.w, b.h)) {
+      combo = Math.min(combo + 1, 8);
+      comboTimer = 180;
+      score += 50 * combo;
+      burst(b.x, b.y, '#ffd60a', 16);
+      bonuses.splice(i, 1);
+    }
+  }
+
+  // Combo decay
+  if (comboTimer > 0) { comboTimer--; } else { combo = 1; }
+
+  // Score
+  score += Math.floor(gameSpeed * 0.15);
+  level = Math.floor(score / 500) + 1;
+  gameSpeed = BASE_SPEED + (level - 1) * 0.35;
+
+  // Update particles
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.x += p.vx; p.y += p.vy; p.life -= p.decay;
+    if (p.life <= 0) particles.splice(i, 1);
+  }
+
+  // Draw everything
+  drawObstacles();
+  drawBonuses();
+  drawParticles();
+  drawShip();
+  drawBorders();
+  drawHUD();
+
+  // Update UI
+  document.getElementById('score-disp').textContent = score;
+  document.getElementById('level-disp').textContent = level;
+  document.getElementById('flip-disp').textContent = flips;
+
+  animId = requestAnimationFrame(gameLoop);
+}
+
+function die() {
+  state = 'dead';
+  cancelAnimationFrame(animId);
+  if (score > hiScore) {
+    hiScore = score;
+    try { localStorage.setItem('gravshift_hi', hiScore); } catch(e){}
+  }
+  document.getElementById('final-score').textContent = score;
+  document.getElementById('hi-score-display').textContent = 'BEST: ' + hiScore;
+  document.getElementById('best-disp').textContent = hiScore;
+  document.getElementById('screen-over').classList.remove('hidden');
+  updateLeaderboard(score);
+}
+
+/* ─── Start/Restart ─── */
+function startGame() {
+  document.getElementById('screen-start').classList.add('hidden');
+  document.getElementById('screen-over').classList.add('hidden');
+  resetGame();
+  state = 'play';
+  document.getElementById('best-disp').textContent = hiScore;
+  animId = requestAnimationFrame(gameLoop);
+}
+
+/* ─── Input ─── */
+function flipGravity() {
+  if (state !== 'play') return;
+  if (flipCooldown > 0) return;
+  flipCooldown = 12;
+  gravDir *= -1;
+  flips++;
+  shipVY = -FLIP_VEL * gravDir;
+  burst(SHIP_X, shipY + SHIP_H/2, '#00f5d4', 8);
+}
+
+document.addEventListener('keydown', e => {
+  if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); flipGravity(); }
+});
+canvas.parentElement.addEventListener('pointerdown', e => {
+  if (state !== 'play') return;
+  flipGravity();
+});
+
+/* ─── Leaderboard (local session) ─── */
+let lb = [];
+function updateLeaderboard(s) {
+  const names = ['ACE', 'ZAX', 'ORB', 'NEX', 'SYN', 'VYX', 'KAI', 'RIX', 'LUX', 'ION'];
+  // seed some fake local scores first time
+  if (lb.length === 0) {
+    lb = names.slice(0,7).map((n,i) => ({name: n, pts: Math.floor(2000 - i*180 + Math.random()*80)}));
+  }
+  lb.push({name: 'YOU', pts: s});
+  lb.sort((a,b)=>b.pts-a.pts);
+  lb = lb.slice(0,7);
+  const container = document.getElementById('lb-rows');
+  container.innerHTML = lb.map((r,i)=>`
+    <div class="lb-row">
+      <span class="lb-rank">${i+1}</span>
+      <span class="lb-name" style="${r.name==='YOU'?'color:var(--accent3)':''}">${r.name}</span>
+      <span class="lb-pts">${r.pts}</span>
+    </div>
+  `).join('');
+}
+updateLeaderboard(0);
+
+/* ─── Share ─── */
+function shareTwitter() {
+  window.open(`https://twitter.com/intent/tweet?text=I%20just%20scored%20${score||0}%20points%20on%20GRAVSHIFT!%20Can%20you%20beat%20me?%20%F0%9F%9A%80&url=https://yourusername.github.io/gravshift/`, '_blank');
+}
+function shareWhatsApp() {
+  window.open(`https://wa.me/?text=Play%20GRAVSHIFT%20free%20online%3A%20https://yourusername.github.io/gravshift/%20—%20I%20scored%20${score||0}%20points!`, '_blank');
+}
+function shareScore() {
+  window.open(`https://twitter.com/intent/tweet?text=I%20scored%20${score}%20in%20GRAVSHIFT!%20%F0%9F%8E%AE%20Can%20you%20beat%20it%3F&url=https://yourusername.github.io/gravshift/`, '_blank');
+}
+
+// Initial draw
+ctx.fillStyle = '#050810';
+ctx.fillRect(0, 0, W, H);
+</script>
 </body>
 </html>
